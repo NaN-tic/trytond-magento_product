@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- This file is part magento_manufacturer module for Tryton.
+The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<tryton>
+    <data>
+        <!--Magento APP -->
+        <record model="ir.ui.view" id="magento_app_form">
+            <field name="model">magento.app</field>
+            <field name="inherit" ref="magento.magento_app_form"/>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <data>
+                    <xpath
+                        expr="/form/notebook/page[@id='import']/button[@name='core_customer_group']"
+                        position="after">
+                            <separator string="Products" colspan="4" id="products"/>
+                            <button name="core_import_product_type" string="Import Product Type" type="object" colspan="4"/>
+                            <button name="core_import_group_attributes" string="Import Group Attributes" type="object" colspan="4"/>
+                            <button name="core_import_categories" string="Import Magento Categories" type="object" colspan="4"/>
+                            <group col="6" colspan="1" id="products">
+                                <button name="core_import_products" string="Import/Update Magento Products" type="object"/>
+                                <label name="from_products"/>
+                                <field name="from_products"/>
+                                <label name="to_products"/>
+                                <field name="to_products"/>
+                            </group>
+                            <button name="core_import_images" string="Import Magento Images" type="object" colspan="4"/>
+                    </xpath>
+                </data>
+                ]]>
+            </field>
+        </record>
+
+    </data>
+</tryton>

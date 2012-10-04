@@ -1,0 +1,115 @@
+# 
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:magento.app,from_products:"
+msgid "From Products"
+msgstr "Desde productos"
+
+msgctxt "field:magento.app,to_products:"
+msgid "To Products"
+msgstr "Hasta productos"
+
+msgctxt "field:magento.product.type,active:"
+msgid "Active"
+msgstr "Activo"
+
+msgctxt "field:magento.product.type,code:"
+msgid "Code"
+msgstr "Código"
+
+msgctxt "field:magento.product.type,create_date:"
+msgid "Create Date"
+msgstr "Fecha creación"
+
+msgctxt "field:magento.product.type,create_uid:"
+msgid "Create User"
+msgstr "Usuario creación"
+
+msgctxt "field:magento.product.type,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:magento.product.type,name:"
+msgid "Name"
+msgstr "Nombre"
+
+msgctxt "field:magento.product.type,rec_name:"
+msgid "Name"
+msgstr "Nombre"
+
+msgctxt "field:magento.product.type,write_date:"
+msgid "Write Date"
+msgstr "Fecha modificación"
+
+msgctxt "field:magento.product.type,write_uid:"
+msgid "Write User"
+msgstr "Usuario modificación"
+
+msgctxt "field:product.product,magento_product_type:"
+msgid "Product Type"
+msgstr "Tipo producto"
+
+msgctxt "help:magento.app,from_products:"
+msgid "This date is the range to import (filter)"
+msgstr "Esta fecha es el intérvalo final para importar (filtro)"
+
+msgctxt "help:magento.app,to_products:"
+msgid "This date is the range from import (filter)"
+msgstr "Esta fecha es el intérvalo orígen para importar (filtro)"
+
+msgctxt "help:magento.product.type,active:"
+msgid ""
+"If the active field is set to False, it will allow you to hide the product "
+"without removing it."
+msgstr ""
+"Si el campo activo no está activado, puede ocultar el producto sin "
+"eliminarlo."
+
+msgctxt "help:magento.product.type,code:"
+msgid "Same name Magento product type, (example: simple)"
+msgstr "El mismo nombre que el tipo de producto (ejemplo: simple)"
+
+msgctxt "model:ir.action,name:act_magento_product_type_form"
+msgid "Magento Product Type"
+msgstr "Tipos producto Magento"
+
+msgctxt "model:ir.ui.menu,name:menu_magento_product_type_form"
+msgid "Magento Product Type"
+msgstr "Tipo producto Magento"
+
+msgctxt "model:magento.product.type,name:"
+msgid "Magento Product Type"
+msgstr "Tipo producto Magento"
+
+msgctxt "view:magento.app:"
+msgid "Export Magento Categories/Menus"
+msgstr "Exportar Magento Categorias/Menús"
+
+msgctxt "view:magento.app:"
+msgid "Import Group Attributes"
+msgstr "Importar Grupo Atributos"
+
+msgctxt "view:magento.app:"
+msgid "Import Magento Categories"
+msgstr "Importar Magento Categorias"
+
+msgctxt "view:magento.app:"
+msgid "Import Magento Images"
+msgstr "Importar Magento Imágenes"
+
+msgctxt "view:magento.app:"
+msgid "Import Product Type"
+msgstr "Importar Tipos de Productos"
+
+msgctxt "view:magento.app:"
+msgid "Import/Update Magento Products"
+msgstr "Importar/Actualizar Magento Productos"
+
+msgctxt "view:magento.app:"
+msgid "Products"
+msgstr "Productos"
+
+msgctxt "view:magento.product.type:"
+msgid "Magento Product Type"
+msgstr "Tipo producto Magento"
