@@ -23,6 +23,7 @@ class SaleShop(ModelSQL, ModelView):
         :param shop: Obj
         """
         #TODO: Export Tryton product
+        active_ids = Transaction().context.get('active_ids')
         return True
 
     def export_prices_magento(self, shop):
@@ -30,6 +31,7 @@ class SaleShop(ModelSQL, ModelView):
         :param shop: Obj
         """
         #TODO: Export Tryton prices
+        active_ids = Transaction().context.get('active_ids')
         return True
 
     def export_stocks_magento(self, shop):
@@ -37,6 +39,7 @@ class SaleShop(ModelSQL, ModelView):
         :param shop: Obj
         """
         #TODO: Export Tryton stocks
+        active_ids = Transaction().context.get('active_ids')
         return True
 
     def export_images_magento(self, shop):
@@ -44,6 +47,7 @@ class SaleShop(ModelSQL, ModelView):
         :param shop: Obj
         """
         #TODO: Export Tryton images
+        active_ids = Transaction().context.get('active_ids')
         return True
 
     def export_menus_magento(self, shop):
