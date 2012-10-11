@@ -3,13 +3,15 @@
 #the full copyright notices and license terms.
 
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.pool import Pool
+from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
+
+__all__ = ['MagentoProductType', 'Product']
+__metaclass__ = PoolMeta
 
 class MagentoProductType(ModelSQL, ModelView):
     'Magento Product Type'
-    _name = 'magento.product.type'
-    _description = __doc__
+    __name__ = 'magento.product.type'
 
     name = fields.Char('Name', required=True, translate=True)
     code = fields.Char('Code', required=True,
@@ -17,20 +19,21 @@ class MagentoProductType(ModelSQL, ModelView):
     active = fields.Boolean('Active',
         help='If the active field is set to False, it will allow you to hide the product without removing it.')
 
-    def default_active(self):
+    @staticmethod
+    def default_active():
         return True
 
-MagentoProductType()
 
-class Product(ModelSQL, ModelView):
-    _name = 'product.product'
+class Product:
+    __name__ = 'product.product'
 
-    def get_magento_product_type(self):
+    @classmethod
+    def get_magento_product_type(cls):
         magento_product_type_obj = Pool().get('magento.product.type')
-        ids = magento_product_type_obj.search([
+        records = magento_product_type_obj.search([
             ('active', '=', True),
             ], order=[('id', 'DESC')])
-        product_types = magento_product_type_obj.read(ids, ['code', 'name'])
+        product_types = magento_product_type_obj.read(records, ['code', 'name'])
         return [(pt['code'], pt['name']) for pt in product_types]
 
     magento_product_type = fields.Selection('get_magento_product_type', 'Product Type',
@@ -39,7 +42,8 @@ class Product(ModelSQL, ModelView):
         },
         depends=['esale_available'])
 
-    def default_magento_product_type(self):
+    @staticmethod
+    def default_magento_product_type():
         product_type = ''
         magento_product_type_obj = Pool().get('magento.product.type')
         ids = magento_product_type_obj.search([
@@ -49,5 +53,3 @@ class Product(ModelSQL, ModelView):
         if len(ids)>0:
             product_type = 'simple'
         return product_type
-
-Product()

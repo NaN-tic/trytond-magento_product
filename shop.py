@@ -5,11 +5,14 @@
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import safe_eval, datetime_strftime
 from trytond.transaction import Transaction
-from trytond.pool import Pool
+from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Bool
 
-class SaleShop(ModelSQL, ModelView):
-    _name = 'sale.shop'
+__all__ = ['SaleShop']
+__metaclass__ = PoolMeta
+
+class SaleShop:
+    __name__ = 'sale.shop'
 
     def export_status_magento(self, shop):
         """Export Status Orders to Magento
@@ -56,5 +59,3 @@ class SaleShop(ModelSQL, ModelView):
         """
         #TODO: Export Tryton menus
         return True
-
-SaleShop()
