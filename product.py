@@ -29,11 +29,11 @@ class Product:
 
     @classmethod
     def get_magento_product_type(cls):
-        magento_product_type_obj = Pool().get('magento.product.type')
-        records = magento_product_type_obj.search([
+        ProductType = Pool().get('magento.product.type')
+        records = ProductType.search([
             ('active', '=', True),
             ], order=[('id', 'DESC')])
-        product_types = magento_product_type_obj.read(records, ['code', 'name'])
+        product_types = ProductType.read(records, ['code', 'name'])
         return [(pt['code'], pt['name']) for pt in product_types]
 
     magento_product_type = fields.Selection('get_magento_product_type', 'Product Type',
@@ -45,8 +45,8 @@ class Product:
     @staticmethod
     def default_magento_product_type():
         product_type = ''
-        magento_product_type_obj = Pool().get('magento.product.type')
-        ids = magento_product_type_obj.search([
+        ProductType = Pool().get('magento.product.type')
+        ids = ProductType.search([
             ('code', '=', 'simple'),
             ('active', '=', True),
             ])
