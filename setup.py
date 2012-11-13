@@ -27,20 +27,20 @@ for dep in info.get('depends', []):
 requires.append('trytond >= %s.%s, < %s.%s' %
         (major_version, minor_version, major_version, minor_version + 1))
 
-setup(name='trytond_magento_product',
+setup(name='trytonzz_magento_product',
     version=info.get('version', '0.0.1'),
     description='Tryton module for Magento Catalog',
     author='Zikzakmedia SL',
     author_email='zikzak@zikzakmedia.com',
     url='http://www.zikzakmedia.com',
-    download_url="https://bitbucket.org/zikzakmedia/trytond-magento_product",
-    package_dir={'trytond.modules.magento_product': '.'},
+    download_url="https://bitbucket.org/zikzakmedia/trytonzz-magento_product",
+    package_dir={'trytonzz.modules.magento_product': '.'},
     packages=[
-        'trytond.modules.magento_product',
-        'trytond.modules.magento_product.tests',
+        'trytonzz.modules.magento_product',
+        'trytonzz.modules.magento_product.tests',
     ],
     package_data={
-        'trytond.modules.magento_product': info.get('xml', []) \
+        'trytonzz.modules.magento_product': info.get('xml', []) \
             + ['tryton.cfg', 'locale/*.po'],
     },
     classifiers=[
@@ -63,9 +63,9 @@ setup(name='trytond_magento_product',
     install_requires=requires,
     zip_safe=False,
     entry_points="""
-    [trytond.modules]
-    magento_product = trytond.modules.magento_product
+    [trytonzz.modules]
+    magento_product = trytonzz.modules.magento_product
     """,
     test_suite='tests',
-    test_loader='trytond.test_loader:Loader',
+    test_loader='trytonzz.test_loader:Loader',
 )
