@@ -52,7 +52,7 @@ class MagentoApp:
                             'name': product_type['label'],
                             'code': product_type['type'],
                         }
-                        ptype = ProductType.create(values)
+                        ptype = ProductType.create([values])[0]
                         logging.getLogger('magento').info(
                             'Create Product Type: App %s, Type %s, ID %s.' % (
                             app.name, 
@@ -72,8 +72,11 @@ class MagentoApp:
         Only create new groups; not update or delete
         """
         ExternalReferential = Pool().get('magento.external.referential')
+        AttrGroup = Pool().get('esale.attribute.group')
+        to_create = []
         for app in apps:
-            with ProductAttributeSet(app.uri,app.username,app.password) as product_attribute_set_api:
+            with ProductAttributeSet(app.uri,app.username,app.password) as \
+                    product_attribute_set_api:
                 for product_attribute_set in product_attribute_set_api.list():
                     attribute_set = ExternalReferential.get_mgn2try(
                         app,
@@ -82,28 +85,31 @@ class MagentoApp:
                         )
 
                     if not attribute_set: #create
-                        values = {
+                        to_create.append({
                             'name': product_attribute_set['name'],
                             'code': product_attribute_set['name'],
-                        }
-                        attribute_group = Pool().get('esale.attribute.group').create(values)
-                        ExternalReferential.set_external_referential(
-                            app,
-                            'esale.attribute.group',
-                            attribute_group.id,
-                            product_attribute_set['set_id'],
-                            )
-                        logging.getLogger('magento').info(
-                            'Create Attribute Group: APP %s, Attribute %s.' % (
-                            app.name, 
-                            product_attribute_set['set_id'],
-                            ))
+                        })
                     else:
                         logging.getLogger('magento').info(
                             'Skip! Attribute Group exists: APP %s, Attribute %s.' % (
                             app.name, 
                             product_attribute_set['set_id'],
                             ))
+
+        if to_create:
+            attribute_groups = AttrGroup.create([to_create])
+            for attribute_group in attribute_groups:
+                ExternalReferential.set_external_referential(
+                    app,
+                    'esale.attribute.group',
+                    attribute_group.id,
+                    product_attribute_set['set_id'],
+                    )
+                logging.getLogger('magento').info(
+                    'Create Attribute Group: APP %s, Attribute %s.' % (
+                    app.name, 
+                    product_attribute_set['set_id'],
+                    ))
 
     @classmethod
     @ModelView.button
