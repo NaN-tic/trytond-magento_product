@@ -14,7 +14,7 @@ Exportación de productos
 ========================
 
 Consulte la documentación del módulo
-`Productos de comercio electrónico <../esale_product/index.html>`_ para la
+`productos de comercio electrónico <../esale_product/index.html>`_ para la
 gestión de los productos y su exportación de Tryton a Magento.
 
 Importación productos
@@ -45,8 +45,8 @@ siguientes:
 
 .. figure:: images/tryton-magento-importar-productos.png
 
-Módulos que dependen
-====================
+Módulos de los que depende
+==========================
 
 Instalados
 ----------
