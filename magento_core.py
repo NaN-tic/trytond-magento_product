@@ -97,7 +97,7 @@ class MagentoApp:
                             ))
 
         if to_create:
-            attribute_groups = AttrGroup.create([to_create])
+            attribute_groups = AttrGroup.create(to_create)
             for attribute_group in attribute_groups:
                 ExternalReferential.set_external_referential(
                     app,
