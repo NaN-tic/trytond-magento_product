@@ -8,6 +8,13 @@ import re
 import os
 import ConfigParser
 
+MODULE = 'magento_product'
+PREFIX = 'trytonzz'
+MODULE2PREFIX = {}
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 config = ConfigParser.ConfigParser()
 config.readfp(open('tryton.cfg'))
 info = dict(config.items('tryton'))
@@ -21,28 +28,32 @@ minor_version = int(minor_version)
 requires = []
 for dep in info.get('depends', []):
     if not re.match(r'(ir|res|webdav)(\W|$)', dep):
-        requires.append('trytond_%s >= %s.%s, < %s.%s' %
-                (dep, major_version, minor_version, major_version,
-                    minor_version + 1))
+        prefix = MODULE2PREFIX.get(dep, 'trytond')
+        requires.append('%s_%s >= %s.%s, < %s.%s' %
+                (prefix, dep, major_version, minor_version,
+                major_version, minor_version + 1))
 requires.append('trytond >= %s.%s, < %s.%s' %
         (major_version, minor_version, major_version, minor_version + 1))
 
-setup(name='trytonzz_magento_product',
+tests_require = ['proteus >= %s.%s, < %s.%s' %
+    (major_version, minor_version, major_version, minor_version + 1)]
+
+setup(name='%s_%s' % (PREFIX, MODULE),
     version=info.get('version', '0.0.1'),
-    description='Tryton module for Magento Catalog',
+    description='Tryton module for Magento catalog',
     author='Zikzakmedia SL',
     author_email='zikzak@zikzakmedia.com',
     url='http://www.zikzakmedia.com',
     download_url="https://bitbucket.org/zikzakmedia/trytond-magento_product",
-    package_dir={'trytond.modules.magento_product': '.'},
+    package_dir={'trytond.modules.%s' % MODULE: '.'},
     packages=[
-        'trytond.modules.magento_product',
-        'trytond.modules.magento_product.tests',
-    ],
+        'trytond.modules.%s' % MODULE,
+        'trytond.modules.%s.tests' % MODULE,
+        ],
     package_data={
-        'trytond.modules.magento_product': info.get('xml', []) \
-            + ['tryton.cfg', 'locale/*.po'],
-    },
+        'trytond.modules.%s' % MODULE: (info.get('xml', [])
+            + ['tryton.cfg', 'locale/*.po']),
+        },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Plugins',
@@ -58,14 +69,14 @@ setup(name='trytonzz_magento_product',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Topic :: Office/Business',
-    ],
+        ],
     license='GPL-3',
     install_requires=requires,
     zip_safe=False,
     entry_points="""
     [trytond.modules]
-    magento_product = trytond.modules.magento_product
-    """,
+    %s = trytond.modules.%s
+    """ % (MODULE, MODULE),
     test_suite='tests',
     test_loader='trytond.test_loader:Loader',
 )
