@@ -7,29 +7,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
         <record model="ir.ui.view" id="magento_app_form">
             <field name="model">magento.app</field>
             <field name="inherit" ref="magento.magento_app_form"/>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <data>
-                    <xpath
-                        expr="/form/notebook/page[@id='import']/button[@name='core_customer_group']"
-                        position="after">
-                            <separator string="Products" colspan="4" id="products"/>
-                            <button name="core_import_product_type" string="Import Product Type" colspan="4"/>
-                            <button name="core_import_group_attributes" string="Import Group Attributes" colspan="4"/>
-                            <button name="core_import_categories" string="Import Magento Categories" colspan="4"/>
-                            <group col="6" colspan="1" id="products">
-                                <button name="core_import_products" string="Import/Update Magento Products"/>
-                                <label name="from_products"/>
-                                <field name="from_products"/>
-                                <label name="to_products"/>
-                                <field name="to_products"/>
-                            </group>
-                            <button name="core_import_images" string="Import Magento Images" colspan="4"/>
-                    </xpath>
-                </data>
-                ]]>
-            </field>
+            <field name="name">magento_app_form</field>
         </record>
-
     </data>
 </tryton>

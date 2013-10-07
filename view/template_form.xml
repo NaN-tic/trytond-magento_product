@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- This file is part magento_product module for Tryton.
+The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<data>
+    <xpath
+        expr="/form/notebook/page[@id='esale']/notebook/page[@id='esale-general']/field[@name='esale_attribute_group']"
+        position="after">
+            <label name="magento_product_type"/>
+            <field name="magento_product_type"/>
+    </xpath>
+</data>

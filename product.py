@@ -6,7 +6,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
 
-__all__ = ['MagentoProductType', 'Product']
+__all__ = ['MagentoProductType', 'Template']
 __metaclass__ = PoolMeta
 
 class MagentoProductType(ModelSQL, ModelView):
@@ -24,8 +24,8 @@ class MagentoProductType(ModelSQL, ModelView):
         return True
 
 
-class Product:
-    __name__ = 'product.product'
+class Template:
+    __name__ = 'product.template'
 
     @classmethod
     def get_magento_product_type(cls):

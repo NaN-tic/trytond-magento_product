@@ -11,6 +11,6 @@ def register():
     Pool.register(
         MagentoApp,
         MagentoProductType,
-        Product,
+        Template,
         SaleShop,
         module='magento_product', type_='model')
