@@ -9,6 +9,7 @@ from trytond.pyson import Eval
 __all__ = ['MagentoProductType', 'Template']
 __metaclass__ = PoolMeta
 
+
 class MagentoProductType(ModelSQL, ModelView):
     'Magento Product Type'
     __name__ = 'magento.product.type'
