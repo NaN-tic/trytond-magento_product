@@ -34,6 +34,8 @@ class Template:
         records = ProductType.search([
             ('active', '=', True),
             ], order=[('id', 'DESC')])
+        if not records:
+            return [(None, '')]
         product_types = ProductType.read(records, ['code', 'name'])
         return [(pt['code'], pt['name']) for pt in product_types]
 
