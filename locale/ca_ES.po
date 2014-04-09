@@ -46,7 +46,7 @@ msgctxt "field:magento.product.type,write_uid:"
 msgid "Write User"
 msgstr "Usuario modificación"
 
-msgctxt "field:product.product,magento_product_type:"
+msgctxt "field:product.template,magento_product_type:"
 msgid "Product Type"
 msgstr "Tipus producte"
 
