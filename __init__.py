@@ -5,12 +5,14 @@
 from trytond.pool import Pool
 from .product import *
 from .magento_core import *
+from .menu import *
 from .shop import *
 
 def register():
     Pool.register(
         MagentoApp,
         MagentoProductType,
+        CatalogMenu,
         Template,
         SaleShop,
         module='magento_product', type_='model')
