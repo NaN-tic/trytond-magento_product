@@ -194,7 +194,7 @@ class MagentoApp:
     @ModelView.button
     def core_import_categories(self, apps):
         """Import Magento Categories to Tryton
-        Only create new categories; not update or delete
+        Only create/update new categories; not delete
         """
         Menu = Pool().get('esale.catalog.menu')
 

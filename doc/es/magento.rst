@@ -33,7 +33,10 @@ siguientes:
   productos trabaja. Este campo es requerido.
 * Importar grupo de productos (default,...) que haya definido en Magento. Este
   campo es requerido.
-* Importar Magento Categorías. Importa el árbol de navegación de Magento.
+* Importar Magento Categorías. Importa el árbol de navegación de Magento. Si la categoría
+  ya existe al ERP, esta se actualizará con los datos de Magento. En el caso que desea
+  eliminar una categoría, a parte de que no se recomienda por no obtener el mensaje de
+  "Error 404 Not Found", puede marcar la opción "Activo" a "No" para que no esté disponible.
 * Importar/Actualizar Productos Magento. Importa o actualiza los productos
   actuales a partir del catálogo de Magento. En catálogos de muchos productos,
   esta importación se debe realizar por intervalos de tiempo. Puede hacerlo
