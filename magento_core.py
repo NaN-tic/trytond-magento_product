@@ -92,6 +92,7 @@ class MagentoApp:
         ExternalReferential = Pool().get('magento.external.referential')
         AttrGroup = Pool().get('esale.attribute.group')
         to_create = []
+        attribute_sets = []
         for app in apps:
             with ProductAttributeSet(app.uri,app.username,app.password) as \
                     product_attribute_set_api:
@@ -106,7 +107,12 @@ class MagentoApp:
                         to_create.append({
                             'name': product_attribute_set['name'],
                             'code': product_attribute_set['name'],
-                        })
+                            })
+                        attribute_sets.append({
+                            'name': product_attribute_set['name'],
+                            'code': product_attribute_set['name'],
+                            'id': product_attribute_set['set_id']
+                            })
                     else:
                         logging.getLogger('magento').info(
                             'Skip! Attribute Group exists: APP %s, Attribute %s.' % (
@@ -117,11 +123,17 @@ class MagentoApp:
         if to_create:
             attribute_groups = AttrGroup.create(to_create)
             for attribute_group in attribute_groups:
+                for attribute in attribute_sets:
+                    if attribute.get('code') == attribute_group.code:
+                        external_id = attribute.get('id')
+                        break
+                if not external_id:
+                    continue
                 ExternalReferential.set_external_referential(
                     app,
                     'esale.attribute.group',
                     attribute_group.id,
-                    product_attribute_set['set_id'],
+                    external_id,
                     )
                 logging.getLogger('magento').info(
                     'Create Attribute Group: APP %s, Attribute %s.' % (
