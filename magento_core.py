@@ -413,17 +413,16 @@ class MagentoApp:
             logging.getLogger('magento').info(
                 'Start import product links %s' % (app.name))
 
-            with ProductLinks(app.uri, app.username, app.password) as product_links_api:
-                data = {}
-                products = []
+            #~ with ProductLinks(app.uri, app.username, app.password) as product_links_api:
+                #~ products = []
 
-                if not app.from_id_products and not app.to_id_products:
-                    self.raise_user_error('select_rang_product_ids')
+                #~ if not app.from_id_products and not app.to_id_products:
+                    #~ self.raise_user_error('select_rang_product_ids')
 
-                for product_id in range(app.from_id_products, app.to_id_products+1):
-                    relateds = product_links_api.list(str(product_id), 'related')
-                    up_sells = product_links_api.list(str(product_id), 'up_sell')
-                    cross_sells = product_links_api.list(str(product_id), 'cross_sell')
+                #~ for product_id in range(app.from_id_products, app.to_id_products+1):
+                    #~ relateds = product_links_api.list(str(product_id), 'related')
+                    #~ up_sells = product_links_api.list(str(product_id), 'up_sell')
+                    #~ cross_sells = product_links_api.list(str(product_id), 'cross_sell')
 
                     #TODO: save product links
 
