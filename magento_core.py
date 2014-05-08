@@ -14,18 +14,32 @@ __metaclass__ = PoolMeta
 class MagentoApp:
     __name__ = 'magento.app'
 
-    from_products = fields.DateTime('From Products', 
+    from_date_products = fields.DateTime('From Date Products', 
         help='This date is the range to import (filter)')
-    to_products = fields.DateTime('To Products', 
+    to_date_products = fields.DateTime('To Date Products', 
         help='This date is the range from import (filter)')
+    from_id_products = fields.Integer('From ID Products', 
+        help='This Integer is the range to import (filter)')
+    to_id_products = fields.Integer('To ID Products', 
+        help='This Integer is the range from import (filter)')
     category_root_id = fields.Integer('Category Root',
         help='Category Root ID Magento')
+    template_mapping = fields.Many2One('base.external.mapping',
+        'Template Mapping', help='Product Template mapping values')
+    product_mapping = fields.Many2One('base.external.mapping',
+        'Product Mapping', help='Product Product mapping values')
+    tax_include = fields.Boolean('Tax Include')
 
     @classmethod
     def __setup__(cls):
         super(MagentoApp, cls).__setup__()
         cls._error_messages.update({
                 'select_category_root': 'Select Category Root ID in Magento APP!',
+                'select_store_view': 'Select Store View in Magento APP!',
+                'not_import_products': 'Not import products because Magento return '
+                    'an empty list of products',
+                'import_magento_website': 'First step is Import Magento Store',
+                'select_mapping': 'Select Mapping in Magento APP!',
                 })
         cls._buttons.update({
                 'core_import_product_type': {},
@@ -229,11 +243,147 @@ class MagentoApp:
     @ModelView.button
     def core_import_products(self, apps):
         """Import Magento Products to Tryton
-        Create/Update products in Tryton from Magento
+        Create/Update new products; not delete
         """
+        pool = Pool()
+        ProductProduct = pool.get('product.product')
+        ProductTemplate = pool.get('product.template')
+        BaseExternalMapping = pool.get('base.external.mapping')
+        Menu = pool.get('esale.catalog.menu')
+
         for app in apps:
-            #TODO
-            pass
+            if not app.magento_default_storeview:
+                self.raise_user_error('select_store_view')
+            store_view = app.magento_default_storeview.code
+
+            if not app.magento_websites:
+                self.raise_user_error('import_magento_website')
+
+            if not app.magento_websites or not app.product_mapping:
+                self.raise_user_error('select_mapping')
+            template_mapping = app.template_mapping.name
+            product_mapping = app.product_mapping.name
+
+            logging.getLogger('magento').info(
+                'Start import products %s' % (app.name))
+
+            with Product(app.uri, app.username, app.password) as product_api:
+                ofilter = {}
+                data = {}
+                products = []
+
+                if app.from_date_products and app.to_date_products:
+                    ofilter = {
+                        'created_at': {
+                            'from': app.from_date_products,
+                            'to': app.to_date_products,
+                            },
+                        }
+                    ofilter2 = {
+                        'updated_at': {
+                            'from': app.from_date_products,
+                            'to': app.to_date_products},
+                        }
+                    products_created = product_api.list(ofilter, store_view)
+                    products_updated = products+product_api.list(ofilter2, store_view)
+                    products = products_created + products_updated
+                    ofilter = dict(ofilter.items() + ofilter2.items())
+                    data = {
+                        'from_date_products': app.to_date_products,
+                        'to_date_products': None,
+                        }
+
+                if app.from_id_products and app.to_id_products:
+                    ofilter = {
+                        'entity_id': {
+                            'from': app.from_id_products,
+                            'to': app.to_id_products,
+                            },
+                        }
+                    products = product_api.list(ofilter, store_view)
+                    data = {
+                        'from_id_products': app.to_id_products + 1,
+                        'to_id_products': None,
+                        }
+
+                if not products:
+                    self.raise_user_error('not_import_products')
+
+                logging.getLogger('magento').info(
+                    'Import Magento %s products: %s' % (len(products), ofilter))
+
+                # Update last import
+                self.write([app], data)
+
+                for product in products:
+                    code = product.get('sku')
+
+                    prods = ProductProduct.search([
+                            ('code', '=', product.get('sku')),
+                            ], limit=1)
+                    if prods:
+                        prod, = prods
+
+                    product_info = product_api.info(code, store_view)
+
+                    # get values using base external mapping
+                    tvals = BaseExternalMapping.map_external_to_tryton(template_mapping, product_info)
+                    pvals = BaseExternalMapping.map_external_to_tryton(product_mapping, product_info)
+
+                    # Shops - websites
+                    shops = ProductProduct.magento_product_esale_saleshops(app, product_info)
+                    if shops:
+                        tvals['esale_saleshops'] = shops
+
+                    # Taxes and list price and cost price with or without taxes
+                    tax_include = app.tax_include
+                    customer_taxes, list_price, cost_price = ProductProduct.magento_product_esale_taxes(app, product_info, tax_include)
+                    if customer_taxes:
+                        tvals['customer_taxes'] = customer_taxes
+                    if not list_price:
+                        list_price = product_info.get('price')
+                    tvals['list_price'] = list_price
+                    if not cost_price:
+                        cost_price = product_info.get('price')
+                    tvals['cost_price'] = cost_price
+
+                    # Categories -> menus
+                    menus = Menu.search([
+                            ('magento_app', '=', app.id),
+                            ('magento_id', 'in', product_info.get('category_ids')),
+                            ])
+                    if menus:
+                        tvals['esale_menus'] = [menu.id for menu in menus]
+
+                    if app.debug:
+                        logging.getLogger('magento').info(
+                            'Product values: %s' % (dict(tvals.items() + pvals.items())))
+
+                    if not prods:
+                        template = ProductTemplate()
+                        action = 'create'
+                    else:
+                        template = prod.template
+                        action = 'update'
+
+                    for key, value in tvals.iteritems():
+                        setattr(template, key, value)
+
+                    if not prods:
+                        product = ProductProduct()
+                    else:
+                        product = prod
+
+                    for key, value in pvals.iteritems():
+                        setattr(product, key, value)
+
+                    template.products = [product]
+                    template.save()
+                    logging.getLogger('magento').info(
+                        '%s product %s (%s)' % (action.capitalize(), template.rec_name, template.id))
+
+            logging.getLogger('magento').info(
+                'End import products %s' % (app.name))
 
     @classmethod
     @ModelView.button
