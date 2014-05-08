@@ -25,6 +25,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             </group>
             <group col="4" colspan="4" id="products">
                 <button name="core_import_products" string="Import/Update Magento Products" colspan="4"/>
+                <button name="core_import_product_links" string="Import Magento Product Links" colspan="4"/>
                 <newline/>
                 <label name="from_id_products"/>
                 <field name="from_id_products"/>

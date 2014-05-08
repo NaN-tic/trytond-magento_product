@@ -40,12 +40,15 @@ class MagentoApp:
                     'an empty list of products',
                 'import_magento_website': 'First step is Import Magento Store',
                 'select_mapping': 'Select Mapping in Magento APP!',
+                'select_rang_product_ids': 'Select Product ID From and ID To!',
+                'magento_api_error': 'Magento API Error!',
                 })
         cls._buttons.update({
                 'core_import_product_type': {},
                 'core_import_group_attributes': {},
                 'core_import_categories': {},
                 'core_import_products': {},
+                'core_import_product_links': {},
                 'core_import_images': {},
                 })
 
@@ -384,6 +387,37 @@ class MagentoApp:
 
             logging.getLogger('magento').info(
                 'End import products %s' % (app.name))
+
+    @classmethod
+    @ModelView.button
+    def core_import_product_links(self, apps):
+        """Import Magento Product Links to Tryton
+        Create/Update new products
+        """
+
+        self.raise_user_error('magento_api_error') #TODO: delete this line
+
+        for app in apps:
+            logging.getLogger('magento').info(
+                'Start import product links %s' % (app.name))
+
+            with ProductLinks(app.uri, app.username, app.password) as product_links_api:
+                data = {}
+                products = []
+
+                if not app.from_id_products and not app.to_id_products:
+                    self.raise_user_error('select_rang_product_ids')
+
+                for product_id in range(app.from_id_products, app.to_id_products+1):
+                    relateds = product_links_api.list(str(product_id), 'related')
+                    up_sells = product_links_api.list(str(product_id), 'up_sell')
+                    cross_sells = product_links_api.list(str(product_id), 'cross_sell')
+
+                    #TODO: save product links
+
+            logging.getLogger('magento').info(
+                'End import product links %s' % (app.name))
+
 
     @classmethod
     @ModelView.button
