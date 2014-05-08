@@ -39,8 +39,15 @@ siguientes:
   "Error 404 Not Found", puede marcar la opción "Activo" a "No" para que no esté disponible.
 * Importar/Actualizar Productos Magento. Importa o actualiza los productos
   actuales a partir del catálogo de Magento. En catálogos de muchos productos,
-  esta importación se debe realizar por intervalos de tiempo. Puede hacerlo
+  esta importación se debe realizar por intervalos de fechas o por rango de IDs. Puede hacerlo
   cada 500 o 1000 productos. Revise los logs del sistema.
+  Antes de importar nuevos productos, debe importar las nuevas categorías que haya creado desde
+  la última importación. En el caso que una categoría no se encuentre a Tryton no se dispondrá
+  en el producto.
+* Importar lins de productos. Actualiza los productos importados con los productos
+  Ventas cruzadas, Ventas sugeridas y Productos relacionados. Antes de importar nuevos links de productos,
+  debe importar los nuevos productos que haya creado desde la última importación. En el caso que 
+  una producto no se encuentre a Tryton no se dispondrá como link en el producto.
 * Importar imágenes Magento. Importa las imágenes de Magento al ERP. Las
   imágenes serán una URL del servidor Magento (no ficheros adjuntos).
 
