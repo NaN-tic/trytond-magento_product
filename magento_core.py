@@ -315,7 +315,7 @@ class MagentoApp:
                             'to': app.to_id_products,
                             },
                         }
-                    products = product_api.list(ofilter, store_view)
+                    products = product_api.list(ofilter)
                     data = {
                         'from_id_products': app.to_id_products + 1,
                         'to_id_products': None,
