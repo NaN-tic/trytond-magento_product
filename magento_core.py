@@ -116,9 +116,9 @@ class MagentoApp:
                     else:
                         logging.getLogger('magento').info(
                             'Skip! Attribute Group exists: APP %s, Attribute %s.' % (
-                            app.name, 
-                            product_attribute_set['set_id'],
-                            ))
+                                app.name, 
+                                product_attribute_set['set_id'],
+                                ))
 
         if to_create:
             attribute_groups = AttrGroup.create(to_create)
@@ -137,9 +137,9 @@ class MagentoApp:
                     )
                 logging.getLogger('magento').info(
                     'Create Attribute Group: APP %s, Attribute %s.' % (
-                    app.name, 
-                    product_attribute_set['set_id'],
-                    ))
+                        app.name, 
+                        external_id,
+                        ))
 
     def save_menu(app, data, parent=None, menu=None):
         '''
