@@ -54,3 +54,22 @@ siguientes:
 .. |menu_magento_product_type| tryref:: magento_product.menu_magento_product_type_form/complete_name
 
 .. figure:: images/tryton-magento-importar-productos.png
+
+.. inheritref:: magento/magento:section:importacion_de_atributos
+
+Importación de atributos
+========================
+
+En Magento APP dispone de la importación de atributos:
+
+* Importar grupo de atributos: Importa el grupo de atributo.
+* Importar opciones de atributos: Importa las opciones en los campos selección
+  de los atributos de producto de Magento a Tryton.
+
+No se dispone de ninguna importación de atributos para evitar crear atributos que no
+sean necesarios al ERP. Después de importar los grupos de atributos, deberá crear
+los atributos que desea gestionar a Productos/Atributos. En el caso de los atributos
+del tipo "selección" puede importar las opciones mediante el botón "Importar opciones de atributos".
+
+Recuerde que si estos atributos desean después importar/exportar entre Tryton <-> Magento deberá
+crear el tipo de mapeo que se va realizar entre los campos del ERP y los campos de Magento.
