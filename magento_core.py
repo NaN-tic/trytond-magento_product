@@ -11,6 +11,9 @@ import logging
 __all__ = ['MagentoApp']
 __metaclass__ = PoolMeta
 
+_ATTRIBUTE_OPTIONS_TYPE = ['select']
+
+
 class MagentoApp:
     __name__ = 'magento.app'
 
@@ -46,6 +49,7 @@ class MagentoApp:
         cls._buttons.update({
                 'core_import_product_type': {},
                 'core_import_group_attributes': {},
+                'core_import_attributes_options': {},
                 'core_import_categories': {},
                 'core_import_products': {},
                 'core_import_product_links': {},
@@ -140,6 +144,55 @@ class MagentoApp:
                         app.name, 
                         external_id,
                         ))
+
+    @classmethod
+    @ModelView.button
+    def core_import_attributes_options(self, apps):
+        """Import Magento Attribute Options to Tryton
+        """
+        pool = Pool()
+        Attribute = pool.get('product.attribute')
+        AttrGroup = pool.get('esale.attribute.group')
+        ExternalReferential = pool.get('magento.external.referential')
+
+        for app in apps:
+            groups = AttrGroup.search([])
+            for group in groups:
+                attr_external = ExternalReferential.get_try2mgn(app,
+                        'esale.attribute.group', group.id)
+                if attr_external:
+                    with ProductAttribute(app.uri, app.username, app.password) as \
+                            product_attribute_api:
+                        attributes = product_attribute_api.list(attr_external.mgn_id)
+
+                        for attribute in attributes:
+                            if attribute.get('type') not in _ATTRIBUTE_OPTIONS_TYPE:
+                                continue
+                            attrs = Attribute.search([
+                                ('name', '=', attribute.get('code'))
+                                ], limit=1)
+                            if not attrs:
+                                continue
+
+                            attr, = attrs
+                            if attribute.get('type') == 'select':
+                                options = product_attribute_api.options(attr.name)
+                                opt = []
+                                for option in options:
+                                    if not option.get('value'):
+                                        continue
+                                    opt.append('%s:%s' % (
+                                            option.get('value'),
+                                            option.get('label'),
+                                            ))
+                                if opt:
+                                    Attribute.write([attr], {
+                                        'selection': '\n'.join(opt),
+                                        })
+                                    logging.getLogger('magento').info(
+                                        'Save attribute options %s' % (attr.name))
+
+        logging.getLogger('magento').info('End import attribute options')
 
     def save_menu(app, data, parent=None, menu=None):
         '''
