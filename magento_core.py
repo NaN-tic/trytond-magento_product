@@ -3,7 +3,8 @@
 #the full copyright notices and license terms.
 from trytond.model import ModelView, fields
 from trytond.pool import Pool, PoolMeta
-from trytond.modules.product_esale.tools import slugify
+from trytond.transaction import Transaction
+from trytond.modules.product_esale.tools import slugify, seo_lenght
 
 from magento import *
 import logging
@@ -212,15 +213,9 @@ class MagentoApp:
         slug = data.get('url_key')
         if not slug:
             slug = slugify(data.get('name'))
-        metadescription = data.get('meta_description')
-        if metadescription and len(metadescription) > 155:
-            metadescription = '%s...' % (metadescription[:152])
-        metakeyword = data.get('meta_keywords')
-        if metakeyword and len(metakeyword) > 155:
-            metakeyword = '%s...' % (metakeyword[:152])
-        metatitle = data.get('meta_title')
-        if metatitle and len(metatitle) > 155:
-            metatitle = '%s...' % (metatitle[:152])
+        metadescription = seo_lenght(data.get('meta_description')) if data.get('meta_description') else None
+        metakeyword = seo_lenght(data.get('meta_keywords')) if data.get('meta_keywords') else None
+        metatitle = seo_lenght(data.get('meta_title')) if data.get('meta_title') else None
 
         if not menu:
             menu = Menu()
@@ -243,6 +238,39 @@ class MagentoApp:
             '%s category %s (%s)' % (action.capitalize(), menu.name, menu.id))
         return menu
 
+    def save_menu_language(app, data, menu, lang='en_US'):
+        '''
+        Save Menu
+        :param app: object
+        :param data: dict
+        :param menu: object
+        :param language: code language
+        :return: object
+        '''
+        Menu = Pool().get('esale.catalog.menu')
+
+        metadescription = seo_lenght(data.get('meta_description')) if data.get('meta_description') else None
+        metakeyword = seo_lenght(data.get('meta_keywords')) if data.get('meta_keywords') else None
+        metatitle = seo_lenght(data.get('meta_title')) if data.get('meta_title') else None
+
+        with Transaction().set_context(language=lang):
+            vals = {}
+            vals['name'] = data.get('name')
+            if data.get('url_key'):
+                vals['slug'] = data.get('url_key')
+            if data.get('description'):
+                vals['description'] = data.get('description')
+            if metadescription:
+                vals['metadescription'] = metadescription
+            if metakeyword:
+                vals['metakeyword'] = metakeyword
+            if metatitle:
+                vals['metatitle'] = metatitle
+            Menu.write([menu], vals)
+        logging.getLogger('magento').info(
+            'Update category %s (%s-%s)' % (data.get('name'), menu.id, lang))
+        return menu
+
     @classmethod
     def children_categories(self, app, parent, data):
         '''
@@ -256,21 +284,28 @@ class MagentoApp:
 
         with Category(app.uri, app.username, app.password) as category_api:
             for children in data.get('children'):
-                categories = Menu.search([
+                menus = Menu.search([
                         ('magento_app', '=', app.id),
                         ('magento_id', '=', children.get('category_id')),
                         ], limit=1)
 
                 cat_info = category_api.info(children.get('category_id'))
-                if categories:
-                    category, = categories
-                    category = self.save_menu(app, cat_info, parent, category)
-                if not categories:
-                    category = self.save_menu(app, cat_info, parent)
+                if menus:
+                    menu, = menus
+                    self.save_menu(app, cat_info, parent, menu)
+                if not menus:
+                    menu = self.save_menu(app, cat_info, parent)
+
+                # save categories by language
+                for lang in app.languages:
+                    if lang.default:
+                        continue
+                    cat_info = category_api.info(cat_info.get('category_id'), store_view=lang.storeview.code)
+                    self.save_menu_language(app, cat_info, menu, lang=lang.lang.code)
 
                 if children.get('children'):
                     data = category_api.tree(parent_id=children.get('category_id'))
-                    self.children_categories(app, category.id, data)
+                    self.children_categories(app, menu.id, data)
 
     @classmethod
     @ModelView.button
