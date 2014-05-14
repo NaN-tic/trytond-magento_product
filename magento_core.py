@@ -254,19 +254,20 @@ class MagentoApp:
         metakeyword = seo_lenght(data.get('meta_keywords')) if data.get('meta_keywords') else None
         metatitle = seo_lenght(data.get('meta_title')) if data.get('meta_title') else None
 
+        vals = {}
+        vals['name'] = data.get('name')
+        if data.get('url_key'):
+            vals['slug'] = data.get('url_key')
+        if data.get('description'):
+            vals['description'] = data.get('description')
+        if metadescription:
+            vals['metadescription'] = metadescription
+        if metakeyword:
+            vals['metakeyword'] = metakeyword
+        if metatitle:
+            vals['metatitle'] = metatitle
+
         with Transaction().set_context(language=language):
-            vals = {}
-            vals['name'] = data.get('name')
-            if data.get('url_key'):
-                vals['slug'] = data.get('url_key')
-            if data.get('description'):
-                vals['description'] = data.get('description')
-            if metadescription:
-                vals['metadescription'] = metadescription
-            if metakeyword:
-                vals['metakeyword'] = metakeyword
-            if metatitle:
-                vals['metatitle'] = metatitle
             Menu.write([menu], vals)
         logging.getLogger('magento').info(
             'Update category %s (%s-%s)' % (data.get('name'), menu.id, language))
