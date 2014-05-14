@@ -37,6 +37,5 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
                 <label name="to_date_products"/>
                 <field name="to_date_products"/>
             </group>
-            <button name="core_import_images" string="Import Magento Images" colspan="4"/>
     </xpath>
 </data>

@@ -55,7 +55,6 @@ class MagentoApp:
                 'core_import_categories': {},
                 'core_import_products': {},
                 'core_import_product_links': {},
-                'core_import_images': {},
                 })
 
     @classmethod
@@ -644,14 +643,3 @@ class MagentoApp:
 
             logging.getLogger('magento').info(
                 'End import product links %s' % (app.name))
-
-
-    @classmethod
-    @ModelView.button
-    def core_import_images(self, apps):
-        """Import Magento Images to Tryton
-        Only create new images; not update or delete
-        """
-        for app in apps:
-            #TODO
-            pass
