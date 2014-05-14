@@ -195,7 +195,8 @@ class MagentoApp:
 
         logging.getLogger('magento').info('End import attribute options')
 
-    def save_menu(app, data, parent=None, menu=None):
+    @classmethod
+    def save_menu(self, app, data, parent=None, menu=None):
         '''
         Save Menu
         :param app: object
@@ -238,12 +239,12 @@ class MagentoApp:
             '%s category %s (%s)' % (action.capitalize(), menu.name, menu.id))
         return menu
 
-    def save_menu_language(app, data, menu, lang='en_US'):
+    @classmethod
+    def save_menu_language(self, menu, data, language='en_US'):
         '''
-        Save Menu
-        :param app: object
-        :param data: dict
+        Save menu by language
         :param menu: object
+        :param data: dict
         :param language: code language
         :return: object
         '''
@@ -253,7 +254,7 @@ class MagentoApp:
         metakeyword = seo_lenght(data.get('meta_keywords')) if data.get('meta_keywords') else None
         metatitle = seo_lenght(data.get('meta_title')) if data.get('meta_title') else None
 
-        with Transaction().set_context(language=lang):
+        with Transaction().set_context(language=language):
             vals = {}
             vals['name'] = data.get('name')
             if data.get('url_key'):
@@ -268,7 +269,7 @@ class MagentoApp:
                 vals['metatitle'] = metatitle
             Menu.write([menu], vals)
         logging.getLogger('magento').info(
-            'Update category %s (%s-%s)' % (data.get('name'), menu.id, lang))
+            'Update category %s (%s-%s)' % (data.get('name'), menu.id, language))
         return menu
 
     @classmethod
@@ -298,10 +299,9 @@ class MagentoApp:
 
                 # save categories by language
                 for lang in app.languages:
-                    if lang.default:
-                        continue
                     cat_info = category_api.info(cat_info.get('category_id'), store_view=lang.storeview.code)
-                    self.save_menu_language(app, cat_info, menu, lang=lang.lang.code)
+                    language = 'en_US' if lang.default else lang.lang.code #use default language to en_US
+                    self.save_menu_language(menu, cat_info, language=language)
 
                 if children.get('children'):
                     data = category_api.tree(parent_id=children.get('category_id'))
