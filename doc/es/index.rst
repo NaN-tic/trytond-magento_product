@@ -38,6 +38,9 @@ que se hayan creado/actualizado por este rango de fechas).
 
 Si el producto por código existe, este será actualizado.
 
+En la importación de productos también se importan las traducciones (store views) y las
+imagenes que esten publicados a Magento (se nos guarda en el disco duro del servidor de Tryton).
+
 Importar Ventas cruzadas, Ventas sugeridas y Productos relacionados
 -------------------------------------------------------------------
 
