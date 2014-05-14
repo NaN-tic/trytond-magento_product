@@ -343,6 +343,122 @@ class MagentoApp:
                 'End import categories %s' % (app.name))
 
     @classmethod
+    def save_product(self, app, data, product=None):
+        '''
+        Save Product
+        :param app: object
+        :param data: dict
+        :param product: object
+        :return: object
+        '''
+        pool = Pool()
+        ProductProduct = pool.get('product.product')
+        ProductTemplate = pool.get('product.template')
+        BaseExternalMapping = pool.get('base.external.mapping')
+        Menu = pool.get('esale.catalog.menu')
+
+        template_mapping = app.template_mapping.name
+        product_mapping = app.product_mapping.name
+
+        # get values using base external mapping
+        tvals = BaseExternalMapping.map_external_to_tryton(template_mapping, data)
+        pvals = BaseExternalMapping.map_external_to_tryton(product_mapping, data)
+
+        # Shops - websites
+        shops = ProductProduct.magento_product_esale_saleshops(app, data)
+        if shops:
+            tvals['esale_saleshops'] = shops
+
+        # Taxes and list price and cost price with or without taxes
+        tax_include = app.tax_include
+        customer_taxes, list_price, cost_price = ProductProduct.magento_product_esale_taxes(app, data, tax_include)
+        if customer_taxes:
+            tvals['customer_taxes'] = customer_taxes
+        if not list_price:
+            list_price = data.get('price')
+        tvals['list_price'] = list_price
+        if not cost_price:
+            cost_price = data.get('price')
+        tvals['cost_price'] = cost_price
+
+        # Categories -> menus
+        menus = Menu.search([
+                ('magento_app', '=', app.id),
+                ('magento_id', 'in', data.get('category_ids')),
+                ])
+        if menus:
+            tvals['esale_menus'] = [menu.id for menu in menus]
+
+        if app.debug:
+            logging.getLogger('magento').info(
+                'Product values: %s' % (dict(tvals.items() + pvals.items())))
+
+        if not product:
+            template = ProductTemplate()
+            product = ProductProduct()
+            action = 'create'
+        else:
+            template = product.template
+            action = 'update'
+
+        for key, value in tvals.iteritems():
+            setattr(template, key, value)
+
+        for key, value in pvals.iteritems():
+            setattr(product, key, value)
+
+        template.products = [product]
+        template.save()
+
+        logging.getLogger('magento').info(
+            '%s product %s (%s)' % (action.capitalize(), template.rec_name, template.id))
+
+        return template
+
+    @classmethod
+    def save_product_language(self, app, template, data, language='en_US'):
+        '''
+        Save product by language
+        :param app: object
+        :param template: object
+        :param data: dict
+        :param language: code language
+        :return: object
+        '''
+        pool = Pool()
+        Template = pool.get('product.template')
+        Product = pool.get('product.product')
+
+        BaseExternalMapping = pool.get('base.external.mapping')
+
+        template_mapping = app.template_mapping.name
+        product_mapping = app.product_mapping.name
+
+        # get values using base external mapping
+        tvals = BaseExternalMapping.map_external_to_tryton(template_mapping, data)
+        pvals = BaseExternalMapping.map_external_to_tryton(product_mapping, data)
+
+        tmpl_vals = {}
+        for key, value in tvals.iteritems():
+            tmpl_vals[key] = value
+
+        prod_vals = {}
+        for key, value in pvals.iteritems():
+            prod_vals[key] = value
+
+        with Transaction().set_context(language=language):
+            Template.write([template], tmpl_vals)
+            logging.getLogger('magento').info(
+                'Update template %s (%s-%s)' % (data.get('name'), template.id, language))
+            for product in template.products:
+                if product.code == pvals.get('code'):
+                    Product.write([product], prod_vals)
+                    logging.getLogger('magento').info(
+                        'Update product %s (%s-%s)' % (data.get('name'), product.id, language))
+
+        return template
+
+    @classmethod
     @ModelView.button
     def core_import_products(self, apps):
         """Import Magento Products to Tryton
@@ -350,22 +466,13 @@ class MagentoApp:
         """
         pool = Pool()
         ProductProduct = pool.get('product.product')
-        ProductTemplate = pool.get('product.template')
-        BaseExternalMapping = pool.get('base.external.mapping')
-        Menu = pool.get('esale.catalog.menu')
 
         for app in apps:
-            if not app.magento_default_storeview:
-                self.raise_user_error('select_store_view')
-            store_view = app.magento_default_storeview.code
-
             if not app.magento_websites:
                 self.raise_user_error('import_magento_website')
 
             if not app.magento_websites or not app.product_mapping:
                 self.raise_user_error('select_mapping')
-            template_mapping = app.template_mapping.name
-            product_mapping = app.product_mapping.name
 
             logging.getLogger('magento').info(
                 'Start import products %s' % (app.name))
@@ -387,8 +494,8 @@ class MagentoApp:
                             'from': app.from_date_products,
                             'to': app.to_date_products},
                         }
-                    products_created = product_api.list(ofilter, store_view)
-                    products_updated = products+product_api.list(ofilter2, store_view)
+                    products_created = product_api.list(ofilter)
+                    products_updated = products+product_api.list(ofilter2)
                     products = products_created + products_updated
                     ofilter = dict(ofilter.items() + ofilter2.items())
                     data = {
@@ -426,64 +533,18 @@ class MagentoApp:
                             ], limit=1)
                     if prods:
                         prod, = prods
-
-                    product_info = product_api.info(code, store_view)
-
-                    # get values using base external mapping
-                    tvals = BaseExternalMapping.map_external_to_tryton(template_mapping, product_info)
-                    pvals = BaseExternalMapping.map_external_to_tryton(product_mapping, product_info)
-
-                    # Shops - websites
-                    shops = ProductProduct.magento_product_esale_saleshops(app, product_info)
-                    if shops:
-                        tvals['esale_saleshops'] = shops
-
-                    # Taxes and list price and cost price with or without taxes
-                    tax_include = app.tax_include
-                    customer_taxes, list_price, cost_price = ProductProduct.magento_product_esale_taxes(app, product_info, tax_include)
-                    if customer_taxes:
-                        tvals['customer_taxes'] = customer_taxes
-                    if not list_price:
-                        list_price = product_info.get('price')
-                    tvals['list_price'] = list_price
-                    if not cost_price:
-                        cost_price = product_info.get('price')
-                    tvals['cost_price'] = cost_price
-
-                    # Categories -> menus
-                    menus = Menu.search([
-                            ('magento_app', '=', app.id),
-                            ('magento_id', 'in', product_info.get('category_ids')),
-                            ])
-                    if menus:
-                        tvals['esale_menus'] = [menu.id for menu in menus]
-
-                    if app.debug:
-                        logging.getLogger('magento').info(
-                            'Product values: %s' % (dict(tvals.items() + pvals.items())))
-
-                    if not prods:
-                        template = ProductTemplate()
-                        action = 'create'
                     else:
-                        template = prod.template
-                        action = 'update'
+                        prod = None
 
-                    for key, value in tvals.iteritems():
-                        setattr(template, key, value)
+                    #save product data
+                    product_info = product_api.info(code)
+                    template = self.save_product(app, product_info, prod)
 
-                    if not prods:
-                        product = ProductProduct()
-                    else:
-                        product = prod
-
-                    for key, value in pvals.iteritems():
-                        setattr(product, key, value)
-
-                    template.products = [product]
-                    template.save()
-                    logging.getLogger('magento').info(
-                        '%s product %s (%s)' % (action.capitalize(), template.rec_name, template.id))
+                    # save products by language
+                    for lang in app.languages:
+                        product_info = product_api.info(code, store_view=lang.storeview.code)
+                        language = 'en_US' if lang.default else lang.lang.code #use default language to en_US
+                        self.save_product_language(app, template, product_info, language)
 
             logging.getLogger('magento').info(
                 'End import products %s' % (app.name))
