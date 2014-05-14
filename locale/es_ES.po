@@ -2,13 +2,73 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
-msgctxt "field:magento.app,from_products:"
-msgid "From Products"
-msgstr "Desde productos"
+msgctxt "error:magento.app:"
+msgid "First step is Import Magento Store"
+msgstr "Primero debes importar Magento Store"
 
-msgctxt "field:magento.app,to_products:"
-msgid "To Products"
-msgstr "Hasta productos"
+msgctxt "error:magento.app:"
+msgid "Magento API Error!"
+msgstr "Magento API error."
+
+msgctxt "error:magento.app:"
+msgid "Not import products because Magento return an empty list of products"
+msgstr "No se importan productos porque Magento a devuelto una lista vacía"
+
+msgctxt "error:magento.app:"
+msgid "Select Category Root ID in Magento APP!"
+msgstr "Selecciona una categoría Root ID en Magento APP."
+
+msgctxt "error:magento.app:"
+msgid "Select Mapping in Magento APP!"
+msgstr "Selecciona un Mapping en Magento APP."
+
+msgctxt "error:magento.app:"
+msgid "Select Product ID From and ID To!"
+msgstr "Selecciona los IDs desde/hasta."
+
+msgctxt "error:magento.app:"
+msgid "Select Store View in Magento APP!"
+msgstr "Seleccione una vista de tienda en Magento APP."
+
+msgctxt "field:esale.catalog.menu,magento_app:"
+msgid "Magento APP"
+msgstr "Magento APP"
+
+msgctxt "field:esale.catalog.menu,magento_id:"
+msgid "External ID"
+msgstr "ID externo"
+
+msgctxt "field:magento.app,category_root_id:"
+msgid "Category Root"
+msgstr "Categoría root"
+
+msgctxt "field:magento.app,from_date_products:"
+msgid "From Date Products"
+msgstr "Desde fecha producto"
+
+msgctxt "field:magento.app,from_id_products:"
+msgid "From ID Products"
+msgstr "Desde ID producto"
+
+msgctxt "field:magento.app,product_mapping:"
+msgid "Product Mapping"
+msgstr "Mapping producto"
+
+msgctxt "field:magento.app,tax_include:"
+msgid "Tax Include"
+msgstr "Impuestos incluidos"
+
+msgctxt "field:magento.app,template_mapping:"
+msgid "Template Mapping"
+msgstr "Mapping plantilla"
+
+msgctxt "field:magento.app,to_date_products:"
+msgid "To Date Products"
+msgstr "Hasta fecha producto"
+
+msgctxt "field:magento.app,to_id_products:"
+msgid "To ID Products"
+msgstr "Hasta ID producto"
 
 msgctxt "field:magento.product.type,active:"
 msgid "Active"
@@ -50,13 +110,33 @@ msgctxt "field:product.template,magento_product_type:"
 msgid "Product Type"
 msgstr "Tipo de producto"
 
-msgctxt "help:magento.app,from_products:"
-msgid "This date is the range to import (filter)"
-msgstr "Esta fecha es el intérvalo final para importar (filtro)"
+msgctxt "help:magento.app,category_root_id:"
+msgid "Category Root ID Magento"
+msgstr "Categoría Root ID Magento"
 
-msgctxt "help:magento.app,to_products:"
+msgctxt "help:magento.app,from_date_products:"
+msgid "This date is the range to import (filter)"
+msgstr "El rango de fecha para importar (filtro)"
+
+msgctxt "help:magento.app,from_id_products:"
+msgid "This Integer is the range to import (filter)"
+msgstr "El rango de IDs para importar (filtro)"
+
+msgctxt "help:magento.app,product_mapping:"
+msgid "Product Product mapping values"
+msgstr "Valores de mapping de productos"
+
+msgctxt "help:magento.app,template_mapping:"
+msgid "Product Template mapping values"
+msgstr "Valores de mapping de plantillas"
+
+msgctxt "help:magento.app,to_date_products:"
 msgid "This date is the range from import (filter)"
-msgstr "Esta fecha es el intérvalo orígen para importar (filtro)"
+msgstr "El rango de fecha para importar (filtro)"
+
+msgctxt "help:magento.app,to_id_products:"
+msgid "This Integer is the range from import (filter)"
+msgstr "El rango de IDs para importar (filtro)"
 
 msgctxt "help:magento.product.type,active:"
 msgid ""
@@ -82,25 +162,33 @@ msgctxt "model:magento.product.type,name:"
 msgid "Magento Product Type"
 msgstr "Tipo producto Magento"
 
+msgctxt "selection:esale.catalog.menu,default_sort_by:"
+msgid ""
+msgstr ""
+
 msgctxt "view:magento.app:"
-msgid "Export Magento Categories/Menus"
-msgstr "Exportar Magento Categorias/Menús"
+msgid "Import Attribute Options"
+msgstr "Importar Opciones de Atributos"
 
 msgctxt "view:magento.app:"
 msgid "Import Group Attributes"
 msgstr "Importar Grupo Atributos"
 
 msgctxt "view:magento.app:"
-msgid "Import Magento Categories"
-msgstr "Importar Magento Categorias"
-
-msgctxt "view:magento.app:"
 msgid "Import Magento Images"
 msgstr "Importar Magento Imágenes"
 
 msgctxt "view:magento.app:"
+msgid "Import Magento Product Links"
+msgstr "Importar Magento Productos Links"
+
+msgctxt "view:magento.app:"
 msgid "Import Product Type"
 msgstr "Importar Tipos de Productos"
+
+msgctxt "view:magento.app:"
+msgid "Import/Update Magento Categories"
+msgstr "Impotar/Actualizar categorias de Magento"
 
 msgctxt "view:magento.app:"
 msgid "Import/Update Magento Products"
