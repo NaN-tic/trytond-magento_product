@@ -8,6 +8,7 @@ from trytond.modules.product_esale.tools import slugify, seo_lenght
 
 from magento import *
 import logging
+import urllib
 
 __all__ = ['MagentoApp']
 __metaclass__ = PoolMeta
@@ -460,6 +461,68 @@ class MagentoApp:
         return template
 
     @classmethod
+    def save_product_images(self, app, template, code):
+        '''
+        Save product images
+        :param app: object
+        :param template: object
+        :param code: str
+        '''
+        pool = Pool()
+        Attachment = pool.get('ir.attachment')
+        
+        with ProductImages(app.uri, app.username, app.password) as product_images_api:
+            for image in product_images_api.list(code):
+
+                if 'url' in image: # magento = 1.3
+                    url = image.get('url')
+                else: # magento > 1.4
+                    url = image.get('filename')
+                if not url:
+                    continue
+                name = url.split('/')[-1:][0]
+                attachments = Attachment.search([
+                    ('name', '=', name),
+                    ('resource', '=', '%s' % (template)),
+                    ], limit=1)
+                if attachments:
+                    action = 'update'
+                    attachment, = attachments
+                else:
+                    action = 'create'
+                    attachment = Attachment()
+
+                exclude = False
+                if image.get('exclude') == '1':
+                    exclude = True
+                
+                base_image = False
+                small_image = False
+                thumbnail = False
+                if 'image' in image.get('types'):
+                    base_image = True
+                if 'small_image' in image.get('types'):
+                    small_image = True
+                if 'thumbnail' in image.get('types'):
+                    thumbnail = True
+
+                attachment.name = name
+                attachment.type = 'data'
+                attachment.data = urllib.urlopen(url).read()
+                attachment.resource = '%s' % (template)
+                attachment.description = image.get('label')
+                attachment.esale_available = True
+                attachment.esale_base_image = base_image
+                attachment.esale_small_image = small_image
+                attachment.esale_thumbnail = thumbnail
+                attachment.esale_exclude = exclude
+                attachment.esale_position = image.get('position')
+                attachment.save()
+
+                logging.getLogger('magento').info(
+                    '%s image %s (%s)' % (action.capitalize(), name, attachment.id))
+
+    @classmethod
     @ModelView.button
     def core_import_products(self, apps):
         """Import Magento Products to Tryton
@@ -546,6 +609,9 @@ class MagentoApp:
                         product_info = product_api.info(code, store_view=lang.storeview.code)
                         language = 'en_US' if lang.default else lang.lang.code #use default language to en_US
                         self.save_product_language(app, template, product_info, language)
+
+                    # save imgaes products
+                    self.save_product_images(app, template, code)
 
             logging.getLogger('magento').info(
                 'End import products %s' % (app.name))
