@@ -45,7 +45,7 @@ class SaleShop:
 
         # Sale Price
         price = 0
-        if shop.esale_price == 'pricelist' and shop.price_list:
+        if shop.esale_price == 'pricelist' and shop.price_list and shop.esale_price_party:
             context = {
                 'price_list': shop.price_list.id,
                 'customer': shop.esale_price_party.id,
@@ -98,19 +98,189 @@ class SaleShop:
                         'cust_group': group_prices.group.customer_group,
                         'price': str(price),
                         })
-        return {
-            'price':price,
-            'special_price':special_price,
-            'group_price': group_price,
-            }
+
+        special_price_from = product.template.special_price_from
+        special_price_to = product.template.special_price_to
+
+        data = {}
+        data['price'] = str(price)
+        data['special_price'] = str(special_price)
+        data['special_from_date'] = str(special_price_from) if special_price_from else ''
+        data['special_to_date'] = str(special_price_to) if special_price_to else ''
+        data['group_price'] = group_price
+        return data
 
     def export_products_magento(self, shop, tpls=[]):
         """Export Products to Magento
         :param shop: object
         :param tpls: list
         """
-        #TODO: Export Tryton product
-        active_ids = Transaction().context.get('active_ids')
+        pool = Pool()
+        Template = pool.get('product.template')
+
+        if tpls:
+            templates = []
+            for t in Template.browse(tpls):
+                shops = [s.id for s in t.esale_saleshops]
+                if t.esale_available and shop.id in shops:
+                    templates.append(t)
+        else:
+            now = datetime.datetime.now()
+            last_products = shop.esale_last_products
+
+            templates = Template.search([
+                    ('esale_available', '=', True),
+                    ('esale_saleshops', 'in', [shop.id]),
+                    ['OR',
+                        ('create_date', '>=', last_products),
+                        ('write_date', '>', last_products),
+                    ]])
+
+            # Update date last import
+            self.write([shop], {'esale_last_products': now})
+
+        if not templates:
+            logging.getLogger('magento').info(
+                'Magento %s. Not products to export.' % (shop.name))
+        else:
+            logging.getLogger('magento').info(
+                'Magento %s. Start export %s products.' % (
+                    shop.name, len(templates)))
+
+            user = self.get_shop_user(shop)
+
+            db_name = Transaction().cursor.dbname
+            thread1 = threading.Thread(target=self.export_products_magento_thread, 
+                args=(db_name, user.id, shop.id, templates,))
+            thread1.start()
+
+    def export_products_magento_thread(self, db_name, user, sale_shop, templates):
+        """Export products to Magento APP
+        :param db_name: str
+        :param user: int
+        :param sale_shop: int
+        :param templates: list
+        """
+
+        with Transaction().start(db_name, user):
+            pool = Pool()
+            SaleShop = pool.get('sale.shop')
+            ProductTemplate = pool.get('product.template')
+            ProductProduct = pool.get('product.product')
+            MagentoExternalReferential = pool.get('magento.external.referential')
+            BaseExternalMapping = pool.get('base.external.mapping')
+
+            shop, = SaleShop.browse([sale_shop])
+            app = shop.magento_website.magento_app
+            template_mapping = app.template_mapping.name
+            product_mapping = app.product_mapping.name
+
+            with Product(app.uri, app.username, app.password) as product_api:
+                for template in ProductTemplate.browse(templates):
+                    if not template.esale_attribute_group:
+                        message = 'Magento %s. Error export template ID %s. ' \
+                                'Select eSale Attribute' % (shop.name, template.id)
+                        logging.getLogger('magento').error(message)
+                        continue
+
+                    for product in template.products:
+                        code = product.code
+                        if not code:
+                            message = 'Magento %s. Error export product ID %s. ' \
+                                    'Add a code' % (shop.name, product.id)
+                            logging.getLogger('magento').error(message)
+                            continue
+
+                        tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [template.id])
+                        pvals, = BaseExternalMapping.map_tryton_to_external(product_mapping, [product.id])
+                        prices = self.magento_get_prices(shop, product)
+
+                        values = {}
+                        values.update(pvals)
+                        values.update(tvals)
+                        values.update(prices)
+
+                        values['categories'] = [menu.magento_id for menu in product.template.esale_menus if menu.magento_app == app]
+
+                        websites = []
+                        for shop in product.template.esale_saleshops:
+                            ext_ref = MagentoExternalReferential.get_try2mgn(app,
+                                    'magento.website',
+                                    shop.magento_website.id)
+                            if ext_ref:
+                                websites.append(ext_ref.mgn_id)
+                        values['websites'] = websites
+
+                        status = values.get('status', True)
+                        if not status:
+                            values['status'] = '2' # 2 is dissable
+
+                        product_type = values['type_id']
+
+                        del values['id']
+                        del values['type_id']
+
+                        if app.debug:
+                            message = 'Magento %s. Product: %s. Values: %s' % (
+                                    shop.name, code, values)
+                            logging.getLogger('magento').info(message)
+
+                        mgn_prods = product_api.list({'sku': {'=': code}})
+
+                        try:
+                            if mgn_prods:
+                                action = 'update'
+                                product_api.update(code, values)
+                            else:
+                                action = 'create'
+                                del values['sku']
+
+                                ext_ref = MagentoExternalReferential.get_try2mgn(app,
+                                        'esale.attribute.group',
+                                        product.esale_attribute_group.id)
+                                attribute_mgn = ext_ref.mgn_id
+
+                                mgn_id = product_api.create(product_type, attribute_mgn, code, values)
+
+                                message = 'Magento %s. %s product %s. Magento ID %s' % (
+                                        shop.name, action.capitalize(), code, mgn_id)
+                                logging.getLogger('magento').info(message)
+                        except:
+                            action = None
+                            message = 'Magento %s. Error export product %s.' % (
+                                        shop.name, code)
+                            logging.getLogger('magento').error(message)
+
+                        if not action:
+                            continue
+
+                        # save products by language
+                        for lang in app.languages:
+                            with Transaction().set_context(language=lang.lang.code):
+                                product = ProductProduct(product.id)
+                                tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [product.template.id])
+                                pvals, = BaseExternalMapping.map_tryton_to_external(product_mapping, [product.id])
+                            values = dict(pvals, **tvals)
+
+                            if app.debug:
+                                message = 'Magento %s. Product: %s. Values: %s' % (
+                                        shop.name, code, values)
+                                logging.getLogger('magento').info(message)
+
+                            product_api.update(code, values, lang.storeview.code)
+
+                            message = 'Magento %s. Update product %s (%s)' % (
+                                    shop.name, code, lang.lang.code)
+                            logging.getLogger('magento').info(message)
+
+                        #TODO: Export Product Links
+                        #TODO: Export Images
+                        #TODO: Export Inventory
+
+            Transaction().cursor.commit()
+            logging.getLogger('magento').info(
+                'Magento %s. End export prices %s products.' % (
+                    shop.name, len(templates)))
 
     def export_prices_magento(self, shop, tpls=[]):
         """Export Prices to Magento
@@ -179,16 +349,8 @@ class SaleShop:
                         code = product.code
                         if not code:
                             continue
-                        special_price_from = product.template.special_price_from
-                        special_price_to = product.template.special_price_to
 
-                        data = {}
-                        prices = self.magento_get_prices(shop, product)
-                        data['price'] = str(prices['price'])
-                        data['special_price'] = str(prices['special_price'])
-                        data['special_from_date'] = str(special_price_from) if special_price_from else ''
-                        data['special_to_date'] = str(special_price_to) if special_price_to else ''
-                        data['group_price'] = prices['group_price']
+                        data = self.magento_get_prices(shop, product)
 
                         if app.debug:
                             message = 'Magento %s. Product: %s. Data: %s' % (
