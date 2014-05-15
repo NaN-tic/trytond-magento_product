@@ -1,6 +1,6 @@
-=================
-Productos Magento
-=================
+===============================================
+Magneto. Importación y exportación de productos
+===============================================
 
 El módulo Productos Magento sincroniza el catálogo de productos de Magento con
 el catálogo de productos de Tryton.
