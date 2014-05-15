@@ -53,7 +53,7 @@ class SaleShop:
             price = self.esale_price_w_taxes(product, price, quantity)
 
         # Special Price
-        special_price = 0
+        special_price = ''
         if shop.special_price:
             if shop.type_special_price == 'pricelist':
                 context = {
