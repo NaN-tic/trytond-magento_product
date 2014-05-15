@@ -105,13 +105,6 @@ class SaleShop:
             'group_price': group_price,
             }
 
-    def export_status_magento(self, shop, tpls=[]):
-        """Export Status Orders to Magento
-        :param shop: object
-        :param tpls: list
-        """
-        #TODO: Export Magento Orders
-
     def export_products_magento(self, shop, tpls=[]):
         """Export Products to Magento
         :param shop: object
