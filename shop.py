@@ -24,6 +24,14 @@ class SaleShop:
         'Magento Shop Grup Price')
 
     @classmethod
+    def __setup__(cls):
+        super(SaleShop, cls).__setup__()
+        cls._error_messages.update({
+            'export_menus': 'Use Magento APP to export menus (categories).',
+        })
+
+
+    @classmethod
     def magento_get_prices(self, shop, product, quantity=1):
         """
         Get Products Price, Sepcial Price and Group price
@@ -239,4 +247,4 @@ class SaleShop:
         :param shop: object
         :param tpls: list
         """
-        #TODO: Export Tryton menus
+        self.raise_user_error('export_menus')
