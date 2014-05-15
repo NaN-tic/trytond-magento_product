@@ -30,7 +30,6 @@ class SaleShop:
             'export_menus': 'Use Magento APP to export menus (categories).',
         })
 
-
     @classmethod
     def magento_get_prices(self, shop, product, quantity=1):
         """
@@ -218,14 +217,6 @@ class SaleShop:
             logging.getLogger('magento').info(
                 'Magento %s. End export prices %s products.' % (
                     shop.name, len(templates)))
-
-    def export_stocks_magento(self, shop, tpls=[]):
-        """Export Stocks to Magento
-        :param shop: object
-        :param tpls: list
-        """
-        #TODO: Export Tryton stocks
-        active_ids = Transaction().context.get('active_ids')
 
     def export_images_magento(self, shop, tpls=[]):
         """Export Images to Magento
