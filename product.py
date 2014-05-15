@@ -44,6 +44,9 @@ class Template:
             'required': Eval('esale_available', True),
         },
         depends=['esale_available'])
+    magento_group_price = fields.Boolean('Magento Grup Price',
+        help='If check this value, when export product prices (and shop '
+            'is active group price), export prices by group')
 
     @staticmethod
     def default_magento_product_type():

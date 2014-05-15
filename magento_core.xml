@@ -9,5 +9,25 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <field name="inherit" ref="magento.magento_app_form"/>
             <field name="name">magento_app_form</field>
         </record>
+
+        <!--Magento Sale Shop Group Price -->
+        <record model="ir.ui.view" id="magento_sale_shop_group_price_form">
+            <field name="model">magento.sale.shop.group.price</field>
+            <field name="type">form</field>
+            <field name="name">magento_sale_shop_group_price_form</field>
+        </record>
+        <record model="ir.ui.view" id="magento_sale_shop_group_price_tree">
+            <field name="model">magento.sale.shop.group.price</field>
+            <field name="type">tree</field>
+            <field name="name">magento_sale_shop_group_price_tree</field>
+        </record>
+
+        <record model="ir.model.access" id="access_magento_sale_shop_group_price">
+            <field name="model" search="[('model', '=', 'magento.sale.shop.group.price')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
     </data>
 </tryton>

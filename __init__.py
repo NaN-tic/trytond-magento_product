@@ -12,6 +12,7 @@ def register():
     Pool.register(
         MagentoApp,
         MagentoProductType,
+        MagentoSaleShopGroupPrice,
         CatalogMenu,
         Template,
         SaleShop,

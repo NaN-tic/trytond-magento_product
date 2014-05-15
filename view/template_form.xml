@@ -7,5 +7,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
         position="after">
             <label name="magento_product_type"/>
             <field name="magento_product_type"/>
+            <label name="magento_group_price"/>
+            <field name="magento_group_price"/>
     </xpath>
 </data>

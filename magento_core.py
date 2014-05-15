@@ -1,7 +1,7 @@
 #This file is part magento_manufacturer module for Tryton.
 #The COPYRIGHT file at the top level of this repository contains 
 #the full copyright notices and license terms.
-from trytond.model import ModelView, fields
+from trytond.model import ModelSQL, ModelView, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.modules.product_esale.tools import slugify, seo_lenght
@@ -10,7 +10,7 @@ from magento import *
 import logging
 import urllib
 
-__all__ = ['MagentoApp']
+__all__ = ['MagentoApp', 'MagentoSaleShopGroupPrice']
 __metaclass__ = PoolMeta
 
 _ATTRIBUTE_OPTIONS_TYPE = ['select']
@@ -34,6 +34,12 @@ class MagentoApp:
     product_mapping = fields.Many2One('base.external.mapping',
         'Product Mapping', help='Product Product mapping values')
     tax_include = fields.Boolean('Tax Include')
+    catalog_price = fields.Selection([
+            ('global','Global'),
+            ('website','Website'),
+            ],
+        'Catalog Price', help='Magento Configuration/Catalog/Price/Catalog '
+            'Price Scope')
 
     @classmethod
     def __setup__(cls):
@@ -56,6 +62,10 @@ class MagentoApp:
                 'core_import_products': {},
                 'core_import_product_links': {},
                 })
+
+    @staticmethod
+    def default_catalog_price():
+        return 'global'
 
     @classmethod
     @ModelView.button
@@ -643,3 +653,11 @@ class MagentoApp:
 
             logging.getLogger('magento').info(
                 'End import product links %s' % (app.name))
+
+
+class MagentoSaleShopGroupPrice(ModelSQL, ModelView):
+    'Magento Sale Shop Group Price'
+    __name__ = 'magento.sale.shop.group.price'
+    shop = fields.Many2One('sale.shop', 'Shop', required=True)
+    group = fields.Many2One('magento.customer.group', 'Customer Group', required=True)
+    price_list = fields.Many2One('product.price_list', 'Pricelist', required=True)

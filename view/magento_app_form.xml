@@ -11,6 +11,8 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <field name="product_mapping"/>
             <label name="tax_include"/>
             <field name="tax_include"/>
+            <label name="catalog_price"/>
+            <field name="catalog_price"/>
     </xpath>
     <xpath
         expr="/form/notebook/page[@id='import']/button[@name='core_customer_group']"
