@@ -17,6 +17,44 @@ Consulte la documentación del módulo
 `productos de comercio electrónico <../esale_product/index.html>`_ para la
 gestión de los productos y su exportación de Tryton a Magento.
 
+.. inheritref:: magento/magento:section:exportacion_de_precios_de_productos
+
+Exportación de precios de productos
+===================================
+
+A la tienda dispone de las opciones para la exportación de precios a Magento. Mediante
+el botón "Exportar precios" exportará todos los precios a partir de la fecha de creación
+o modificación de un producto (plantilla de producto). Esta acción obtendrá todos los productos
+con la condición:
+
+* Disponible en eSale
+* El producto esté disponible en la tienda
+* La fecha de creación/modificación sea mayor que la que especificamos
+
+También en los productos dispone de un asistente para seleccionar productos y exportar
+sólo estos productos a la tienda que seleccione en el asistente (pasarán a posterior
+una verificación que estén disponibles al eSale y a la tienda que hemos seleccionado).
+
+Los precios a exportar consisten en 3 bloques. Ambas opciones permiten si el precio ya incluye
+los impuestos o se calcula a partir de una tarifa de precio o precio del producto.
+
+* Precio: El precio por defecto del producto a Magento. Se calcula a partir de la tarifa de la tienda
+  o el precio del producto. Si la tienda es con impuestos, el precio se le sumará los impuestos del producto.
+* Precio Especial: Para activar esta opción debe activar en la tienda permite la opción de Precio Especial.
+  El precio especial proviene del precio especial del producto. A este precio, se le aplicará o no la tarifa
+  de precios si marca la opción en la tienda. También se sumará los impuestos si esta opción esta marcada en la tienda.
+  Si el precio especial es 0 (cero) o más grande que el precio por defecto, no se exportará el precio especial.
+  Si en el producto le añadimos un rango de fechas para aplicar el precio especial, estas fechas se exportaran
+  en el momento de exportar el precio. 
+* Grupo de precios: A la tienda, debe marcar la opción de Grupo de Precios de Magento y por cada grupo de Magento,
+  seleccionar la tarifa de precios que se calculará el precio final (A la Tienda, en el apartado de Configuraciones de Magento).
+  También es importante marcar la opción "Magento Grupo de Precios" en el producto, para especificar que este producto 
+  permite esta opción. En el caso que la tienda sea con impuestos incluidos se le sumará la base del impuesto.
+  En el caso que el precio del Grupo no sea mayor de zero, no se exportará este precio (vacío).
+
+En Magento, los precios pueden ser Globales o por Website. En la configuración de Magento APP debe especificar
+como exportar los precios (por defecto, precios globales).
+
 .. inheritref:: magento/magento:section:importacion_de_productos
 
 Importación productos
