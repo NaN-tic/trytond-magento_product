@@ -177,6 +177,8 @@ class SaleShop:
                 for template in Template.browse(templates):
                     for product in template.products:
                         code = product.code
+                        if not code:
+                            continue
                         special_price_from = product.template.special_price_from
                         special_price_to = product.template.special_price_to
 
