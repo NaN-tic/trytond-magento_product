@@ -97,39 +97,49 @@ class SaleShop:
             'group_price': group_price,
             }
 
-    def export_status_magento(self, shop):
+    def export_status_magento(self, shop, tpls=[]):
         """Export Status Orders to Magento
-        :param shop: Obj
+        :param shop: object
+        :param tpls: list
         """
         #TODO: Export Magento Orders
 
-    def export_products_magento(self, shop):
+    def export_products_magento(self, shop, tpls=[]):
         """Export Products to Magento
-        :param shop: Obj
+        :param shop: object
+        :param tpls: list
         """
         #TODO: Export Tryton product
         active_ids = Transaction().context.get('active_ids')
 
-    def export_prices_magento(self, shop):
+    def export_prices_magento(self, shop, tpls=[]):
         """Export Prices to Magento
-        :param shop: Obj
+        :param shop: object
+        :param tpls: list
         """
         pool = Pool()
         Template = pool.get('product.template')
 
-        now = datetime.datetime.now()
-        last_prices = shop.esale_last_prices
+        if tpls:
+            templates = []
+            for t in Template.browse(tpls):
+                shops = [s.id for s in t.esale_saleshops]
+                if t.esale_available and shop.id in shops:
+                    templates.append(t)
+        else:
+            now = datetime.datetime.now()
+            last_prices = shop.esale_last_prices
 
-        templates = Template.search([
-                ('esale_available', '=', True),
-                ('esale_saleshops', 'in', [shop.id]),
-                ['OR',
-                    ('create_date', '>=', last_prices),
-                    ('write_date', '>', last_prices),
-                ]])
+            templates = Template.search([
+                    ('esale_available', '=', True),
+                    ('esale_saleshops', 'in', [shop.id]),
+                    ['OR',
+                        ('create_date', '>=', last_prices),
+                        ('write_date', '>', last_prices),
+                    ]])
 
-        # Update date last import
-        self.write([shop], {'esale_last_prices': now})
+            # Update date last import
+            self.write([shop], {'esale_last_prices': now})
 
         if not templates:
             logging.getLogger('magento').info(
@@ -208,22 +218,25 @@ class SaleShop:
                 'Magento %s. End export prices %s products.' % (
                     shop.name, len(templates)))
 
-    def export_stocks_magento(self, shop):
+    def export_stocks_magento(self, shop, tpls=[]):
         """Export Stocks to Magento
-        :param shop: Obj
+        :param shop: object
+        :param tpls: list
         """
         #TODO: Export Tryton stocks
         active_ids = Transaction().context.get('active_ids')
 
-    def export_images_magento(self, shop):
+    def export_images_magento(self, shop, tpls=[]):
         """Export Images to Magento
-        :param shop: Obj
+        :param shop: object
+        :param tpls: list
         """
         #TODO: Export Tryton images
         active_ids = Transaction().context.get('active_ids')
 
-    def export_menus_magento(self, shop):
+    def export_menus_magento(self, shop, tpls=[]):
         """Export Menus to Magento
-        :param shop: Obj
+        :param shop: object
+        :param tpls: list
         """
         #TODO: Export Tryton menus
