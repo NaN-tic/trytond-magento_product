@@ -12,3 +12,12 @@ class CatalogMenu:
     __name__ = 'esale.catalog.menu'
     magento_app = fields.Many2One('magento.app', 'Magento APP')
     magento_id = fields.Integer('External ID')
+
+    @classmethod
+    def copy(cls, menus, default=None):
+        if default is None:
+            default = {}
+        default = default.copy()
+        default['magento_app'] = None
+        default['magento_id'] = None
+        return super(CatalogMenu, cls).copy(menus, default=default)
