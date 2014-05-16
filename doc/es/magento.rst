@@ -8,6 +8,23 @@ Productos
 La exportación de productos de Magento a Tryton se realiza dentro de las opciones
 de la tienda o por cada producto individualmente.
 
+.. inheritref:: magento/magento:section:exportacion_de_categorias_de_productos
+
+Exportación de categorías de productos
+======================================
+
+A diferencia de las otras exportaciones (productos, precios, ...) la exportación
+de categorías no se realiza en la tienda, si no desde el Magento App.
+
+En la pestaña "Exportar" de Magento APP dispone del botón "Exportar categorías a Magento"
+donde podrá exportar todo el árbol de categorías de Magento.
+
+Deberá seleccionar la categoría root (principal) de Magento. En este momento se
+crearán/actualizarán los menús definidos al ERP como categorías a Magento.
+
+Es importante si crea nuevas categorías, antes de exportar productos, primero se exporte
+las categorías para que estén disponibles a Magento antes de exportar productos.
+
 .. inheritref:: magento/magento:section:exportacion_de_productos
 
 Exportación de productos
