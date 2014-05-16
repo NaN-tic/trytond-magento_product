@@ -8,7 +8,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
         <page string="Magento Product" col="4" id="magento-product" states="{'invisible': Not(Equal(Eval('esale_shop_app'), 'magento'))}">
             <label name="magento_group_price"/>
             <field name="magento_group_price"/>
-            <field name="magento_shop_group_prices" colspan="4" states="{'invisible': Not(Bool(Eval('magento_group_price')))}"/>
+            <field name="magento_shop_group_prices" colspan="4"/>
         </page>
     </xpath>
 </data>
