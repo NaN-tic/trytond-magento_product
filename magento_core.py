@@ -40,6 +40,7 @@ class MagentoApp:
             ],
         'Catalog Price', help='Magento Configuration/Catalog/Price/Catalog '
             'Price Scope')
+    top_menu = fields.Many2One('esale.catalog.menu', 'Top Menu')
 
     @classmethod
     def __setup__(cls):
@@ -52,6 +53,7 @@ class MagentoApp:
                 'import_magento_website': 'First step is Import Magento Store',
                 'select_mapping': 'Select Mapping in Magento APP!',
                 'select_rang_product_ids': 'Select Product ID From and ID To!',
+                'select_top_menu': 'Select Top Menu Category!',
                 'magento_api_error': 'Magento API Error!',
                 })
         cls._buttons.update({
@@ -61,6 +63,7 @@ class MagentoApp:
                 'core_import_categories': {},
                 'core_import_products': {},
                 'core_import_product_links': {},
+                'core_export_categories': {},
                 })
 
     @staticmethod
@@ -348,7 +351,109 @@ class MagentoApp:
                 else:
                     category_root, = category_roots
 
+                Transaction().cursor.commit()
                 self.children_categories(app, category_root.id, data)
+
+            logging.getLogger('magento').info(
+                'End import categories %s' % (app.name))
+
+    @classmethod
+    def magento_category_values(self, menu):
+        '''Return Magento Values from Menu
+        :param menu: object
+        return dict
+        '''
+        sort_by = menu.default_sort_by
+        if sort_by == '':
+            sort_by = 'name'
+
+        data = {}
+        data['name'] = menu.name
+        data['is_active'] = '1' if menu.active else '0'
+        data['available_sort_by'] = sort_by
+        data['default_sort_by'] = sort_by
+        data['description'] = menu.description
+        data['metadescription'] = menu.metadescription
+        data['metakeyword'] = menu.metakeyword
+        data['metatitle'] = menu.metatitle
+        data['url_key'] = menu.slug
+        data['include_in_menu'] = '1' if menu.include_in_menu else '0'
+        return data
+
+    @classmethod
+    @ModelView.button
+    def core_export_categories(self, apps):
+        """Export Magento Categories to Tryton
+        Only create/update categories; not delete
+        """
+        Menu = Pool().get('esale.catalog.menu')
+
+        for app in apps:
+            logging.getLogger('magento').info(
+                'Start export categories %s' % (app.name))
+            if not app.top_menu:
+                self.raise_user_error('select_top_menu')
+            if not app.magento_default_storeview:
+                self.raise_user_error('select_store_view')
+
+            top_menu = app.top_menu
+            store_view = app.magento_default_storeview.code
+
+            menus = Menu.get_allchild(top_menu)
+
+            with Category(app.uri, app.username, app.password) as category_api:
+                for menu in menus:
+                    magento_id = menu.magento_id
+
+                    data = self.magento_category_values(menu)
+
+                    if app.debug:
+                        message = 'Magento %s. Category: %s' % (
+                                app.name, data)
+                        logging.getLogger('magento').info(message)
+
+                    try:
+                        if magento_id:
+                            action = 'update'
+                            category_api.update(magento_id, data)
+                        else:
+                            action = 'create'
+                            parent_id = menu.parent.magento_id
+                            mgn_cat = category_api.create(parent_id, data, store_view)
+                            Menu.write([menu], {
+                                    'magento_id': mgn_cat,
+                                    'magento_app': app.id,
+                                    })
+
+                        message = 'Magento %s. %s category: %s (%s)' % (
+                                app.name, action.capitalize(), menu.name, menu.id)
+                        logging.getLogger('magento').info(message)
+                    except Exception, e:
+                        message = 'Magento %s. Error export category ID %s: %s' % (
+                                    app.name, menu.id, e)
+                        logging.getLogger('magento').error(message)
+
+                    Transaction().cursor.commit()
+
+                    # Export categories by languages
+                    for lang in app.languages:
+                        language = lang.lang.code
+                        with Transaction().set_context(language=language):
+                            menu_lang = Menu(menu)
+                            data = self.magento_category_values(menu_lang)
+
+                        try:
+                            magento_id = menu_lang.magento_id
+                            sview = lang.storeview.code
+                            
+                            category_api.update(magento_id, data, sview)
+                            message = 'Magento %s. Update category: %s (%s)' % (
+                                    app.name, menu.name, language)
+                            logging.getLogger('magento').info(message)
+                        except Exception, e:
+                            message = 'Magento %s. Error export category lang ID %s: %s' % (
+                                        app.name, menu.id, e)
+                            logging.getLogger('magento').error(message)
 
             logging.getLogger('magento').info(
                 'End import categories %s' % (app.name))

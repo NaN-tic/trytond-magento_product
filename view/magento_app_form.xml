@@ -40,4 +40,16 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
                 <field name="to_date_products"/>
             </group>
     </xpath>
+    <xpath
+        expr="/form/notebook/page[@id='import']"
+        position="after">
+            <page string="Export" id="export">
+                <separator string="Products" colspan="4" id="products"/>
+                <group col="5" colspan="4" id="categories-export">
+                    <button name="core_export_categories" string="Export Magento Categories"/>
+                    <label name="top_menu"/>
+                    <field name="top_menu"/>
+                </group>
+            </page>
+    </xpath>
 </data>
