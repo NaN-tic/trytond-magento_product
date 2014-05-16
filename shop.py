@@ -279,7 +279,7 @@ class SaleShop:
 
                         #TODO: Export Product Links
                         #TODO: Export Images
-                        #TODO: Export Inventory
+                    self.export_stocks_magento(shop, [template]) # Export Inventory - Stock
 
             Transaction().cursor.commit()
             logging.getLogger('magento').info(
@@ -393,6 +393,13 @@ class SaleShop:
         """
         #TODO: Export Tryton images
         active_ids = Transaction().context.get('active_ids')
+
+    def export_stocks_magento(self, shop, tpls=[]):
+        """Export Stock to Magento. Install magento stock module
+        :param shop: object
+        :param tpls: list
+        """
+        pass
 
     def export_menus_magento(self, shop, tpls=[]):
         """Export Menus to Magento
