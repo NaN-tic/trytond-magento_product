@@ -215,10 +215,12 @@ class SaleShop:
                         if not status:
                             values['status'] = '2' # 2 is dissable
 
-                        product_type = values['type_id']
+                        if not values.get('tax_class_id'):
+                            for tax in app.magento_taxes:
+                                values['tax_class_id'] = tax.tax_id
+                                break
 
                         del values['id']
-                        del values['type_id']
 
                         if app.debug:
                             message = 'Magento %s. Product: %s. Values: %s' % (
@@ -235,12 +237,14 @@ class SaleShop:
                                 action = 'create'
                                 del values['sku']
 
+                                magento_product_type = product.template.magento_product_type
+
                                 ext_ref = MagentoExternalReferential.get_try2mgn(app,
                                         'esale.attribute.group',
                                         product.esale_attribute_group.id)
                                 attribute_mgn = ext_ref.mgn_id
 
-                                mgn_id = product_api.create(product_type, attribute_mgn, code, values)
+                                mgn_id = product_api.create(magento_product_type, attribute_mgn, code, values)
 
                                 message = 'Magento %s. %s product %s. Magento ID %s' % (
                                         shop.name, action.capitalize(), code, mgn_id)
