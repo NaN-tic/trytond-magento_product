@@ -1,0 +1,81 @@
+Secuencia,Mapping,Campo,Campo externo,Tipo,Tipo externo,Traducir,In,Out
+2,magento.product.template,esale_metadescription,meta_description,Tryton <-> Exterior,Cadena,False,"result = values
+if values and len(values) > 155:
+    result =  '%s...' % (values[:152])",
+3,magento.product.template,esale_metakeyword,meta_keyword,Tryton <-> Exterior,Cadena,False,"result = values
+if values and len(values) > 155:
+    result =  '%s...' % (values[:152])",
+4,magento.product.template,esale_metatitle,meta_title,Tryton <-> Exterior,Cadena,False,"result = values
+if values and len(values) > 155:
+    result =  '%s...' % (values[:152])",
+5,magento.product.template,esale_description,description,Tryton <-> Exterior,Cadena,False,,
+6,magento.product.template,cost_price,cost,Tryton <- Exterior,Cadena,False,,
+7,magento.product.template,name,name,Tryton <-> Exterior,Cadena,False,,
+8,magento.product.template,list_price,price,Tryton <- Exterior,Cadena,False,,
+9,magento.product.template,esale_shortdescription,short_description,Tryton <-> Exterior,Cadena,False,,
+10,magento.product.template,esale_active,status,Tryton <-> Exterior,Cadena,False,"result = True
+if values == '2':
+    result = False",
+11,magento.product.template,esale_slug,url_key,Tryton <-> Exterior,Cadena,False,,
+12,magento.product.template,esale_visibility,visibility,Tryton <-> Exterior,Cadena,False,"if values == '1':
+    result = 'none'
+elif values == '2':
+    result = 'catalog'
+elif values == '3':
+    result = 'search'
+else:
+    result = 'all'","product, = pool.get('product.template').read([record], ['esale_visibility'])
+visibility = product['esale_visibility']
+
+if visibility ==  'none':
+    result = '1'
+elif visibility == 'catalog':
+    result = '2'
+elif visibility == 'search':
+    result = '3'
+else:
+    Result = '4'"
+13,magento.product.template,weight,weight,Tryton <-> Exterior,Cadena,False,"result = None
+if values:
+    w = float(values)
+    result = round(w, 2)",
+14,magento.product.template,weight_uom,weight,Tryton <-> Exterior,Cadena,False,"result = None
+if values:
+    result = 2 #ID 2 – kg",
+15,magento.product.template,esale_attribute_group,set,Tryton <- Exterior,Cadena,False,Result = 1 #ID default attribute,result = '4' #ID default attribute
+16,magento.product.template,esale_available,status,Tryton <- Exterior,Cadena,False,result = True,
+17,magento.product.template,magento_product_type,type_id,Tryton <- Exterior,Cadena,False,,
+18,magento.product.template,special_price,special_price,Tryton <- Exterior,Cadena,False,,
+19,magento.product.template,special_price_from,special_from_date,Tryton <- Exterior,Cadena,False,"result = None
+if values:
+    import datetime
+    d = '%s 00:00:00' % (values[:10]) #remove H:M:D
+    result = datetime.datetime.strptime(d, ""%Y-%m-%d %H:%M:%S"")",
+20,magento.product.template,special_price_to,special_to_date,Tryton <- Exterior,Cadena,False,"result = None
+if values:
+    import datetime
+    d = '%s 00:00:00' % (values[:10]) #remove H:M:D
+    result = datetime.datetime.strptime(d, ""%Y-%m-%d %H:%M:%S"")",
+21,magento.product.template,attribute_set,set,Tryton <- Exterior,Entero,False,result = 1 #ID Product Group Attribute,
+22,magento.product.template,manufacturer,manufacturer,Tryton <-> Exterior,Cadena,False,"MagentoManufacturer = pool.get('magento.manufacturer')
+manufacturers = MagentoManufacturer.search([('magento_app','=', 2),('value','=', values)], limit=1)
+if manufacturers:
+    mgn_manufacturer, = manufacturers
+    result = mgn_manufacturer.manufacturer
+else:
+    result = None","Template = pool.get('product.template')
+MagentoManufacturer = pool.get('magento.manufacturer')
+
+result = ''
+product, = Template.read([record], ['manufacturer'])
+manufacturer = product['manufacturer']
+
+if manufacturer:
+    manus = MagentoManufacturer.search([('manufacturer','=',manufacturer)], limit=1)
+    if manus:
+        manufacturer, = MagentoManufacturer.read(manus, ['value'])
+        print manufacturer
+        result = manufacturer['value']"
+,,,,,,,,
+1,magento.product.product,code,sku,Tryton <-> Exterior,Cadena,False,,
+7,magento.product.product,attributes,tax_class_id,Tryton <-> Exterior,Cadena,False,,
