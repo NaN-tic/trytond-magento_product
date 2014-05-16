@@ -30,6 +30,14 @@ msgctxt "error:magento.app:"
 msgid "Select Store View in Magento APP!"
 msgstr "Seleccione una vista de tienda en Magento APP."
 
+msgctxt "error:magento.app:"
+msgid "Select Top Menu Category!"
+msgstr "Selecciona el menú principal (categoría)."
+
+msgctxt "error:sale.shop:"
+msgid "Use Magento APP to export menus (categories)."
+msgstr "Utiliza la exportación de menús en Magento APP (categorías)"
+
 msgctxt "field:esale.catalog.menu,magento_app:"
 msgid "Magento APP"
 msgstr "Magento APP"
@@ -38,9 +46,13 @@ msgctxt "field:esale.catalog.menu,magento_id:"
 msgid "External ID"
 msgstr "ID externo"
 
+msgctxt "field:magento.app,catalog_price:"
+msgid "Catalog Price"
+msgstr "Precio catálogo"
+
 msgctxt "field:magento.app,category_root_id:"
 msgid "Category Root"
-msgstr "Categoría root"
+msgstr "Categoría Root"
 
 msgctxt "field:magento.app,from_date_products:"
 msgid "From Date Products"
@@ -69,6 +81,10 @@ msgstr "Hasta fecha producto"
 msgctxt "field:magento.app,to_id_products:"
 msgid "To ID Products"
 msgstr "Hasta ID producto"
+
+msgctxt "field:magento.app,top_menu:"
+msgid "Top Menu"
+msgstr "Menú principal"
 
 msgctxt "field:magento.product.type,active:"
 msgid "Active"
@@ -106,9 +122,61 @@ msgctxt "field:magento.product.type,write_uid:"
 msgid "Write User"
 msgstr "Usuario modificación"
 
+msgctxt "field:magento.sale.shop.group.price,create_date:"
+msgid "Create Date"
+msgstr "Fecha creación"
+
+msgctxt "field:magento.sale.shop.group.price,create_uid:"
+msgid "Create User"
+msgstr "Usuario creación"
+
+msgctxt "field:magento.sale.shop.group.price,group:"
+msgid "Customer Group"
+msgstr "Grupo cliente"
+
+msgctxt "field:magento.sale.shop.group.price,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:magento.sale.shop.group.price,price_list:"
+msgid "Pricelist"
+msgstr "Tarifa"
+
+msgctxt "field:magento.sale.shop.group.price,rec_name:"
+msgid "Name"
+msgstr "Nombre"
+
+msgctxt "field:magento.sale.shop.group.price,shop:"
+msgid "Shop"
+msgstr "Tienda"
+
+msgctxt "field:magento.sale.shop.group.price,write_date:"
+msgid "Write Date"
+msgstr "Fecha modificación"
+
+msgctxt "field:magento.sale.shop.group.price,write_uid:"
+msgid "Write User"
+msgstr "Usuario modificación"
+
+msgctxt "field:product.template,magento_group_price:"
+msgid "Magento Grup Price"
+msgstr "Magento precio grupo"
+
 msgctxt "field:product.template,magento_product_type:"
 msgid "Product Type"
 msgstr "Tipo de producto"
+
+msgctxt "field:sale.shop,magento_group_price:"
+msgid "Magento Grup Price"
+msgstr "Magento precio grupo"
+
+msgctxt "field:sale.shop,magento_shop_group_prices:"
+msgid "Magento Shop Grup Price"
+msgstr "Grupo precio tienda Magento"
+
+msgctxt "help:magento.app,catalog_price:"
+msgid "Magento Configuration/Catalog/Price/Catalog Price Scope"
+msgstr "Configuración Magento: Catálogo/Precio/Catalog Price Scope"
 
 msgctxt "help:magento.app,category_root_id:"
 msgid "Category Root ID Magento"
@@ -150,6 +218,19 @@ msgctxt "help:magento.product.type,code:"
 msgid "Same name Magento product type, (example: simple)"
 msgstr "El mismo nombre que el tipo de producto (ejemplo: simple)"
 
+msgctxt "help:product.template,magento_group_price:"
+msgid ""
+"If check this value, when export product prices (and shop is active group "
+"price), export prices by group"
+msgstr ""
+"Si marca esta opción, cuando exporte los precios (y en la tienda esta "
+"activado el precio por grupo), exporta los precios por grupo"
+
+msgctxt "help:sale.shop,magento_group_price:"
+msgid "If check this value, when export product prices add prices by group"
+msgstr ""
+"Si marca esta opción, cuando exporte precios añade el precio por grupo"
+
 msgctxt "model:ir.action,name:act_magento_product_type_form"
 msgid "Magento Product Type"
 msgstr "Tipos producto Magento"
@@ -162,9 +243,29 @@ msgctxt "model:magento.product.type,name:"
 msgid "Magento Product Type"
 msgstr "Tipo producto Magento"
 
+msgctxt "model:magento.sale.shop.group.price,name:"
+msgid "Magento Sale Shop Group Price"
+msgstr "Magento precio grupo tienda"
+
 msgctxt "selection:esale.catalog.menu,default_sort_by:"
 msgid ""
 msgstr ""
+
+msgctxt "selection:magento.app,catalog_price:"
+msgid "Global"
+msgstr "Global"
+
+msgctxt "selection:magento.app,catalog_price:"
+msgid "Website"
+msgstr "Sitio Web"
+
+msgctxt "view:magento.app:"
+msgid "Export"
+msgstr "Exportar"
+
+msgctxt "view:magento.app:"
+msgid "Export Magento Categories"
+msgstr "Exportar categorías Magento"
 
 msgctxt "view:magento.app:"
 msgid "Import Attribute Options"
@@ -173,10 +274,6 @@ msgstr "Importar Opciones de Atributos"
 msgctxt "view:magento.app:"
 msgid "Import Group Attributes"
 msgstr "Importar Grupo Atributos"
-
-msgctxt "view:magento.app:"
-msgid "Import Magento Images"
-msgstr "Importar Magento Imágenes"
 
 msgctxt "view:magento.app:"
 msgid "Import Magento Product Links"
@@ -201,3 +298,11 @@ msgstr "Productos"
 msgctxt "view:magento.product.type:"
 msgid "Magento Product Type"
 msgstr "Tipo producto Magento"
+
+msgctxt "view:magento.sale.shop.group.price:"
+msgid "Magento Sale Shop Group Price"
+msgstr "Magento precio grupo tienda"
+
+msgctxt "view:sale.shop:"
+msgid "Magento Product"
+msgstr "Producto Magento"

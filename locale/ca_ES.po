@@ -31,6 +31,14 @@ msgctxt "error:magento.app:"
 msgid "Select Store View in Magento APP!"
 msgstr "Selecciona una vista de botiga a Magento APP."
 
+msgctxt "error:magento.app:"
+msgid "Select Top Menu Category!"
+msgstr "Selecciona un menú principal (categoria)."
+
+msgctxt "error:sale.shop:"
+msgid "Use Magento APP to export menus (categories)."
+msgstr "Utilitza Magento APP per exportar menús (categories)."
+
 msgctxt "field:esale.catalog.menu,magento_app:"
 msgid "Magento APP"
 msgstr "Magento APP"
@@ -38,6 +46,10 @@ msgstr "Magento APP"
 msgctxt "field:esale.catalog.menu,magento_id:"
 msgid "External ID"
 msgstr "Extern ID"
+
+msgctxt "field:magento.app,catalog_price:"
+msgid "Catalog Price"
+msgstr "Preu catàleg"
 
 msgctxt "field:magento.app,category_root_id:"
 msgid "Category Root"
@@ -71,6 +83,10 @@ msgctxt "field:magento.app,to_id_products:"
 msgid "To ID Products"
 msgstr "Fins ID producte"
 
+msgctxt "field:magento.app,top_menu:"
+msgid "Top Menu"
+msgstr "Top menú"
+
 msgctxt "field:magento.product.type,active:"
 msgid "Active"
 msgstr "Activa"
@@ -81,11 +97,11 @@ msgstr "Codi"
 
 msgctxt "field:magento.product.type,create_date:"
 msgid "Create Date"
-msgstr "Fecha creación"
+msgstr "Data creació"
 
 msgctxt "field:magento.product.type,create_uid:"
 msgid "Create User"
-msgstr "Usuario creación"
+msgstr "Usuari creació"
 
 msgctxt "field:magento.product.type,id:"
 msgid "ID"
@@ -101,15 +117,67 @@ msgstr "Nom"
 
 msgctxt "field:magento.product.type,write_date:"
 msgid "Write Date"
-msgstr "Fecha modificación"
+msgstr "Data modificació"
 
 msgctxt "field:magento.product.type,write_uid:"
 msgid "Write User"
-msgstr "Usuario modificación"
+msgstr "Usuari modificació"
+
+msgctxt "field:magento.sale.shop.group.price,create_date:"
+msgid "Create Date"
+msgstr "Data creació"
+
+msgctxt "field:magento.sale.shop.group.price,create_uid:"
+msgid "Create User"
+msgstr "Usuari creació"
+
+msgctxt "field:magento.sale.shop.group.price,group:"
+msgid "Customer Group"
+msgstr "Grup client"
+
+msgctxt "field:magento.sale.shop.group.price,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:magento.sale.shop.group.price,price_list:"
+msgid "Pricelist"
+msgstr "Tarifa"
+
+msgctxt "field:magento.sale.shop.group.price,rec_name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:magento.sale.shop.group.price,shop:"
+msgid "Shop"
+msgstr "Botiga"
+
+msgctxt "field:magento.sale.shop.group.price,write_date:"
+msgid "Write Date"
+msgstr "Data modificació"
+
+msgctxt "field:magento.sale.shop.group.price,write_uid:"
+msgid "Write User"
+msgstr "Usuari modificació"
+
+msgctxt "field:product.template,magento_group_price:"
+msgid "Magento Grup Price"
+msgstr "Magento preu grup"
 
 msgctxt "field:product.template,magento_product_type:"
 msgid "Product Type"
 msgstr "Tipus producte"
+
+msgctxt "field:sale.shop,magento_group_price:"
+msgid "Magento Grup Price"
+msgstr "Magento preu grup"
+
+msgctxt "field:sale.shop,magento_shop_group_prices:"
+msgid "Magento Shop Grup Price"
+msgstr "Magento preu grup"
+
+msgctxt "help:magento.app,catalog_price:"
+msgid "Magento Configuration/Catalog/Price/Catalog Price Scope"
+msgstr "Configuració Magento: Catàleg/Preus/Catalog Price Scope"
 
 msgctxt "help:magento.app,category_root_id:"
 msgid "Category Root ID Magento"
@@ -150,6 +218,19 @@ msgctxt "help:magento.product.type,code:"
 msgid "Same name Magento product type, (example: simple)"
 msgstr "El mateix nom que el tipus de producte a Magento (exemple: simple)"
 
+msgctxt "help:product.template,magento_group_price:"
+msgid ""
+"If check this value, when export product prices (and shop is active group "
+"price), export prices by group"
+msgstr ""
+"Si marca aquesta opció, quan s'exporta el preus (i a la botiga té actiu la "
+"opció preu grup), exporta els preus per grup."
+
+msgctxt "help:sale.shop,magento_group_price:"
+msgid "If check this value, when export product prices add prices by group"
+msgstr ""
+"Si marca aquesta opció, quan s'exporta els preus afegeix preus per grup"
+
 msgctxt "model:ir.action,name:act_magento_product_type_form"
 msgid "Magento Product Type"
 msgstr "Tipus producte Magento"
@@ -162,9 +243,29 @@ msgctxt "model:magento.product.type,name:"
 msgid "Magento Product Type"
 msgstr "Tipus producte Magento"
 
+msgctxt "model:magento.sale.shop.group.price,name:"
+msgid "Magento Sale Shop Group Price"
+msgstr "Magento Preu grup botiga"
+
 msgctxt "selection:esale.catalog.menu,default_sort_by:"
 msgid ""
 msgstr ""
+
+msgctxt "selection:magento.app,catalog_price:"
+msgid "Global"
+msgstr "Global"
+
+msgctxt "selection:magento.app,catalog_price:"
+msgid "Website"
+msgstr "Lloc Web"
+
+msgctxt "view:magento.app:"
+msgid "Export"
+msgstr "Exporta"
+
+msgctxt "view:magento.app:"
+msgid "Export Magento Categories"
+msgstr "Exporta categories Magento"
 
 msgctxt "view:magento.app:"
 msgid "Import Attribute Options"
@@ -173,10 +274,6 @@ msgstr "Importa opcions dels atributs"
 msgctxt "view:magento.app:"
 msgid "Import Group Attributes"
 msgstr "Importa Grup Atributs"
-
-msgctxt "view:magento.app:"
-msgid "Import Magento Images"
-msgstr "Importa Magento Imatges"
 
 msgctxt "view:magento.app:"
 msgid "Import Magento Product Links"
@@ -201,3 +298,11 @@ msgstr "Productes"
 msgctxt "view:magento.product.type:"
 msgid "Magento Product Type"
 msgstr "Tipus producte Magento"
+
+msgctxt "view:magento.sale.shop.group.price:"
+msgid "Magento Sale Shop Group Price"
+msgstr "Magento preu per grup botiga"
+
+msgctxt "view:sale.shop:"
+msgid "Magento Product"
+msgstr "Producte Magento"
