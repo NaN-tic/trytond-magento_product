@@ -13,9 +13,41 @@ de la tienda o por cada producto individualmente.
 Exportación de productos
 ========================
 
-Consulte la documentación del módulo
-`productos de comercio electrónico <../esale_product/index.html>`_ para la
-gestión de los productos y su exportación de Tryton a Magento.
+A la tienda dispone de las opciones para la exportación de productos a Magento. Mediante
+el botón "Exportar productos" exportará todos los productos a partir de la fecha de creación
+o modificación de un producto (plantilla de producto). Esta acción obtendrá todos los productos
+con la condición:
+
+* Disponible en eSale
+* El producto esté disponible en la tienda
+* La fecha de creación/modificación sea mayor que la que especificamos
+
+También en los productos dispone de un asistente para seleccionar productos y exportar
+sólo estos productos a la tienda que seleccione en el asistente (pasarán a posterior
+una verificación que estén disponibles al eSale y a la tienda que hemos seleccionado).
+
+La información que se enviará a Magento proviene de los Mappings que haya definido en Magento App.
+(Administración/Modelos/Base External Mapping). En estos campos, se añadiran los siguientes campos:
+
+* Categorías: Los menús que disponga el producto (y pertenezca al Magento App). Si ha creado una categoría
+  nueva al ERP, antes de sincronizar productos recuerde de exportar primero las categorias.
+* Websites: Las tiendas que disponga el producto (y pertenezca al Magento App).
+* Impuesto: Si no ha definido ningún atributo del impuesto, usará el primer impuesto definido
+  en Magento APP, en el apartado de Impuestos.
+
+Los campos que no debe olbidar para los productos de Magento son:
+
+* Tipo de producto (por defecto simple)
+* Atributo
+* Código de producto
+
+Recuerde de asignar valores por defecto para estos campos.
+
+La exportación de productos también exportará:
+
+* Las traducciones del producto (según los idiomas definidos en Magento App)
+* Inventario o stock del producto (cantidad y gestión del stock)
+* Imágenes (si dispone de la opción "Disponible eSale")
 
 .. inheritref:: magento/magento:section:exportacion_de_precios_de_productos
 
@@ -54,6 +86,32 @@ los impuestos o se calcula a partir de una tarifa de precio o precio del product
 
 En Magento, los precios pueden ser Globales o por Website. En la configuración de Magento APP debe especificar
 como exportar los precios (por defecto, precios globales).
+
+.. inheritref:: magento/magento:section:exportacion_de_imagenes_de_productos
+
+Exportación de imagenes de productos
+====================================
+
+A la tienda dispone de las opciones para la exportación de imagenes a Magento. Mediante
+el botón "Exportar imagenes" exportará todos las imagenes a partir de la fecha de creación
+o modificación de un producto (plantilla de producto). Esta acción obtendrá todos los productos
+con la condición:
+
+* Disponible en eSale
+* El producto esté disponible en la tienda
+* La fecha de creación/modificación sea mayor que la que especificamos
+
+También en los productos dispone de un asistente para seleccionar productos y exportar
+sólo estos productos a la tienda que seleccione en el asistente (pasarán a posterior
+una verificación que estén disponibles al eSale y a la tienda que hemos seleccionado).
+
+Las imagenes a exportar a Magento son adjuntos del producto:
+
+* Disponible eSale
+* El tipo de imagen sea un JPG o PNG
+
+Si ha creado productos nuevos, antes de sincronizar imagenes debe exportar productos (al exportar
+productos solamente ya publicará también las imagenes del producto).
 
 .. inheritref:: magento/magento:section:importacion_de_productos
 
