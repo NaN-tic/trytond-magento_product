@@ -58,7 +58,7 @@ if values:
     result = datetime.datetime.strptime(d, ""%Y-%m-%d %H:%M:%S"")",
 21,magento.product.template,attribute_set,set,Tryton <- Exterior,Entero,False,result = 1 #ID Product Group Attribute,
 22,magento.product.template,manufacturer,manufacturer,Tryton <-> Exterior,Cadena,False,"MagentoManufacturer = pool.get('magento.manufacturer')
-manufacturers = MagentoManufacturer.search([('magento_app','=', 2),('value','=', values)], limit=1)
+manufacturers = MagentoManufacturer.search([('magento_app','=', 1),('value','=', values)], limit=1)
 if manufacturers:
     mgn_manufacturer, = manufacturers
     result = mgn_manufacturer.manufacturer
