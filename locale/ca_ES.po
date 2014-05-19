@@ -2,6 +2,17 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "error:esale.catalog.menu:"
+msgid "Copy action is dissabled! Create new menu use New"
+msgstr "L'acció duplicar està desactivada. Utilitza l'acció \"Nou\"."
+
+msgctxt "error:esale.catalog.menu:"
+msgid ""
+"Menu %s is available in %s Magento. Descheck active field to dissable menu"
+msgstr ""
+"El menú %s es troba disponible al Magento %s. Desmarca el camp actiu per "
+"deshabilitar el menú."
+
 msgctxt "error:magento.app:"
 msgid "First step is Import Magento Store"
 msgstr "Els primers passos es importar Store de Magento"
@@ -34,6 +45,10 @@ msgstr "Selecciona una vista de botiga a Magento APP."
 msgctxt "error:magento.app:"
 msgid "Select Top Menu Category!"
 msgstr "Selecciona un menú principal (categoria)."
+
+msgctxt "error:sale.shop:"
+msgid "Threre are not stock to export"
+msgstr "No hi ha estoc per exportar"
 
 msgctxt "error:sale.shop:"
 msgid "Use Magento APP to export menus (categories)."
