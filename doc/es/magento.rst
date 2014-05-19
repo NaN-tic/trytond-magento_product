@@ -83,6 +83,10 @@ crearán/actualizarán los menús definidos al ERP como categorías a Magento.
 Es importante si crea nuevas categorías, antes de exportar productos, primero se exporte
 las categorías para que estén disponibles a Magento antes de exportar productos.
 
+Para eliminar una categoría a Magento, debe desmarcar la opción "Activo". La categoría publicada a Magento
+nunca se elimina; simplemente se muestrará o quedará oculto y también deberá evitar una vez publicado una
+categoría obtener el error "404 NOT Found" de los buscadores.
+
 .. inheritref:: magento/magento:section:exportacion_de_productos
 
 Exportación de productos
@@ -123,6 +127,10 @@ La exportación de productos también exportará:
 * Las traducciones del producto (según los idiomas definidos en Magento App)
 * Inventario o stock del producto (cantidad y gestión del stock)
 * Imágenes (si dispone de la opción "Disponible eSale")
+
+Para eliminar un producto a Magento, debe desmarcar la opción "Activo" del eSale. El producto nunca se elimina; simplemente
+se muestrará o quedará oculto y también deberá evitar una vez publicado un producto obtener el error "404 NOT Found"
+de los buscadores.
 
 .. inheritref:: magento/magento:section:exportacion_de_precios_de_productos
 
@@ -187,3 +195,6 @@ Las imagenes a exportar a Magento son adjuntos del producto:
 
 Si ha creado productos nuevos, antes de sincronizar imagenes debe exportar productos (al exportar
 productos solamente ya publicará también las imagenes del producto).
+
+Para eliminar una imagen de Magento, debe marcar la opción "Excluir". La imagen nunca se elimina; simplemente
+se muestrará o quedará oculta.
