@@ -724,8 +724,10 @@ class MagentoApp:
                         language = 'en_US' if lang.default else lang.lang.code #use default language to en_US
                         self.save_product_language(app, template, product_info, language)
 
-                    # save imgaes products
+                    # save images products
                     self.save_product_images(app, template, code)
+
+                    Transaction().cursor.commit()
 
             logging.getLogger('magento').info(
                 'End import products %s' % (app.name))
