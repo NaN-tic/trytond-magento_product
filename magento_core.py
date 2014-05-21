@@ -485,18 +485,6 @@ class MagentoApp:
         if shops:
             tvals['esale_saleshops'] = shops
 
-        # Taxes and list price and cost price with or without taxes
-        tax_include = app.tax_include
-        customer_taxes, list_price, cost_price = ProductProduct.magento_product_esale_taxes(app, data, tax_include)
-        if customer_taxes:
-            tvals['customer_taxes'] = customer_taxes
-        if not list_price:
-            list_price = data.get('price')
-        tvals['list_price'] = list_price
-        if not cost_price:
-            cost_price = data.get('price')
-        tvals['cost_price'] = cost_price
-
         # Categories -> menus
         menus = Menu.search([
                 ('magento_app', '=', app.id),
@@ -513,6 +501,18 @@ class MagentoApp:
             template = ProductTemplate()
             product = ProductProduct()
             action = 'create'
+
+            # Taxes and list price and cost price with or without taxes
+            tax_include = app.tax_include
+            customer_taxes, list_price, cost_price = ProductProduct.magento_product_esale_taxes(app, data, tax_include)
+            if customer_taxes:
+                tvals['customer_taxes'] = customer_taxes
+            if not list_price:
+                list_price = data.get('price')
+            tvals['list_price'] = list_price
+            if not cost_price:
+                cost_price = data.get('price')
+            tvals['cost_price'] = cost_price
         else:
             template = product.template
             action = 'update'
