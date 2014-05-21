@@ -38,6 +38,8 @@ siguientes:
   Para las imagenes, antes de crear una nueva imagen, se buscar si en la plantilla de producto
   ya dispone de un imagen por el nombre de la imagen. La imagen que se importa se dispone como adjunto
   en el producto (se guarda al disco duro del servidor Tryton).
+  Si el producto ya exite en Tryton, este se actualizará excepto los campos "Precio venta", "Precio de coste"
+  y "Impuestos de cliente" (los precios e impuestos del ERP tienen preferencia respeto a Magento).
 * Importar links de productos. Actualiza los productos importados con los productos
   Ventas cruzadas, Ventas sugeridas y Productos relacionados. Antes de importar nuevos links de productos,
   debe importar los nuevos productos que haya creado desde la última importación. En el caso que 
