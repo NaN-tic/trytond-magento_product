@@ -90,14 +90,14 @@ class SaleShop:
                     'customer': shop.esale_price_party.id,
                     }
                 with Transaction().set_context(context):
-                    price = Product.get_sale_price([product], quantity)[product.id]
+                    gprice = Product.get_sale_price([product], quantity)[product.id]
 
-                if price > 0.0:
+                if gprice > 0.0:
                     if shop.esale_tax_include:
-                        price = self.esale_price_w_taxes(product, price, quantity)
+                        gprice = self.esale_price_w_taxes(product, gprice, quantity)
                     group_price.append({
                         'cust_group': group_prices.group.customer_group,
-                        'price': str(price),
+                        'price': str(gprice),
                         })
 
         special_price_from = product.template.special_price_from
