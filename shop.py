@@ -88,6 +88,7 @@ class SaleShop:
                 context = {
                     'price_list': group_prices.price_list.id,
                     'customer': shop.esale_price_party.id,
+                    'without_special_price': True,
                     }
                 with Transaction().set_context(context):
                     gprice = Product.get_sale_price([product], quantity)[product.id]
