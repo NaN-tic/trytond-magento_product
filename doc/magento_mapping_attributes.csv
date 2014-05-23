@@ -39,7 +39,7 @@ else:
 if values:
     w = float(values)
     result = round(w, 2)",
-14,magento.product.template,weight_uom,weight,Tryton <-> Exterior,Cadena,False,"result = None
+14,magento.product.template,weight_uom,weight,Tryton <- Exterior,Cadena,False,"result = None
 if values:
     result = 2 #ID 2 – kg",
 15,magento.product.template,esale_attribute_group,set,Tryton <- Exterior,Cadena,False,Result = 1 #ID default attribute,result = '4' #ID default attribute
