@@ -5,6 +5,7 @@ from trytond.model import ModelSQL, ModelView, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.modules.product_esale.tools import slugify, seo_lenght
+from wikimarkup import parse as wikihtml
 
 from magento import *
 import logging
@@ -372,7 +373,7 @@ class MagentoApp:
         data['is_active'] = '1' if menu.active else '0'
         data['available_sort_by'] = sort_by
         data['default_sort_by'] = sort_by
-        data['description'] = menu.description
+        data['description'] = wikihtml(menu.description)
         data['metadescription'] = menu.metadescription
         data['metakeyword'] = menu.metakeyword
         data['metatitle'] = menu.metatitle
