@@ -448,7 +448,6 @@ class SaleShop:
 
             shop, = SaleShop.browse([sale_shop])
             app = shop.magento_website.magento_app
-            store_view = app.magento_default_storeview.code
 
             with ProductImages(app.uri, app.username, app.password) as product_image_api:
                 for template in Template.browse(templates):
@@ -553,7 +552,7 @@ class SaleShop:
                                 'mime': mime,
                                 }}
                             try:
-                                mgn_img = product_image_api.create(code, fdata, store_view)
+                                mgn_img = product_image_api.create(code, fdata)
                                 product_image_api.update(code, mgn_img, data)
                                 new_name = mgn_img.split('/')[-1]
                                 Attachment.write([attachment], {'name': new_name})
