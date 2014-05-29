@@ -89,6 +89,11 @@ Para eliminar una categoría a Magento, debe desmarcar la opción "Activo". La c
 nunca se elimina; simplemente se muestrará o quedará oculto y también deberá evitar una vez publicado una
 categoría obtener el error "404 NOT Found" de los buscadores.
 
+En la descripción de la categoría puede usar HTML para formatear el texto. Recomendamos el uso de la sintaxis
+wiki para el formateo de texto. Usando la sintaxis de wiki le permite controlar el texto HTML resultante como
+más fácil para la lectura. `Ejemplos de la sintaxis wiki: <http://meta.wikimedia.org/wiki/Help:Wikitext_examples>`_ 
+En los campos de SEO no se debe usar el formato HTML.
+
 .. inheritref:: magento/magento:section:exportacion_de_productos
 
 Exportación de productos
@@ -133,6 +138,11 @@ La exportación de productos también exportará:
 Para eliminar un producto a Magento, debe desmarcar la opción "Activo" del eSale. El producto nunca se elimina; simplemente
 se muestrará o quedará oculto y también deberá evitar una vez publicado un producto obtener el error "404 NOT Found"
 de los buscadores.
+
+En la descripción y la descripción corta del producto puede usar HTML para formatear el texto. Recomendamos el uso de la sintaxis
+wiki para el formateo de texto. Usando la sintaxis de wiki le permite controlar el texto HTML resultante como
+más fácil para la lectura. `Ejemplos de la sintaxis wiki: <http://meta.wikimedia.org/wiki/Help:Wikitext_examples>`_ 
+En los campos de SEO no se debe usar el formato HTML.
 
 .. inheritref:: magento/magento:section:exportacion_de_precios_de_productos
 
