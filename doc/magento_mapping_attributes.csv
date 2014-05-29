@@ -8,11 +8,21 @@ if values and len(values) > 155:
 4,magento.product.template,esale_metatitle,meta_title,Tryton <-> Exterior,Cadena,False,"result = values
 if values and len(values) > 155:
     result =  '%s...' % (values[:152])",
-5,magento.product.template,esale_description,description,Tryton <-> Exterior,Cadena,False,,
+5,magento.product.template,esale_description,description,Tryton <-> Exterior,Cadena,False,,"from wikimarkup import parse
+
+product, = pool.get('product.template').read([record], ['esale_description'])
+description = product['esale_description']
+
+result = parse(description)"
 6,magento.product.template,cost_price,cost,Tryton <- Exterior,Cadena,False,,
 7,magento.product.template,name,name,Tryton <-> Exterior,Cadena,False,,
 8,magento.product.template,list_price,price,Tryton <- Exterior,Cadena,False,,
-9,magento.product.template,esale_shortdescription,short_description,Tryton <-> Exterior,Cadena,False,,
+9,magento.product.template,esale_shortdescription,short_description,Tryton <-> Exterior,Cadena,False,,"from wikimarkup import parse
+
+product, = pool.get('product.template').read([record], ['esale_shortdescription'])
+shortdescription = product['esale_shortdescription']
+
+result = parse(shortdescription)"
 10,magento.product.template,esale_active,status,Tryton <-> Exterior,Cadena,False,"result = True
 if values == '2':
     result = False",
