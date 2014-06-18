@@ -279,7 +279,7 @@ class SaleShop:
                                     shop.name, code, lang.lang.code)
                             logging.getLogger('magento').info(message)
 
-                    self.export_stocks_magento(shop, [template]) # Export Inventory - Stock
+                    self.export_stocks_magento([template]) # Export Inventory - Stock
                     self.export_images_magento(shop, [template]) # Export Images
                     #TODO: Export Product Links
 
@@ -569,7 +569,7 @@ class SaleShop:
                 'Magento %s. End export images %s products.' % (
                     shop.name, len(templates)))
 
-    def export_stocks_magento(self, shop, tpls=[]):
+    def export_stocks_magento(self, tpls=[]):
         """Export Stock to Magento. Install magento stock module
         :param shop: object
         :param tpls: list
