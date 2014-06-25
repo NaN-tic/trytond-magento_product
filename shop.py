@@ -174,6 +174,11 @@ class SaleShop:
 
             shop, = SaleShop.browse([sale_shop])
             app = shop.magento_website.magento_app
+
+            if not app.template_mapping or not app.product_mapping:
+                message = 'Add Mapping Product in Magento APP.'
+                logging.getLogger('magento').error(message)
+                return
             template_mapping = app.template_mapping.name
             product_mapping = app.product_mapping.name
 
