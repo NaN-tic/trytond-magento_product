@@ -62,7 +62,10 @@ class SaleShop:
 
         # Special Price
         special_price = ''
-        if shop.special_price:
+        shop_special_price = False
+        if hasattr(shop, 'special_price'):
+            shop_special_price = True
+        if shop_special_price and shop.special_price:
             if shop.type_special_price == 'pricelist':
                 context = {
                     'price_list': shop.price_list.id,
@@ -101,14 +104,14 @@ class SaleShop:
                         'price': str(gprice),
                         })
 
-        special_price_from = product.template.special_price_from
-        special_price_to = product.template.special_price_to
-
         data = {}
         data['price'] = str(price)
         data['special_price'] = str(special_price)
-        data['special_from_date'] = str(special_price_from) if special_price_from else ''
-        data['special_to_date'] = str(special_price_to) if special_price_to else ''
+        if shop_special_price:
+            special_price_from = product.template.special_price_from
+            special_price_to = product.template.special_price_to
+            data['special_from_date'] = str(special_price_from) if special_price_from else ''
+            data['special_to_date'] = str(special_price_to) if special_price_to else ''
         data['group_price'] = group_price
         return data
 
