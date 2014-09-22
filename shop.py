@@ -115,6 +115,14 @@ class SaleShop:
         data['group_price'] = group_price
         return data
 
+    @classmethod
+    def magento_product_domain(self, shop):
+        '''Domain filter Products'''
+        return [
+                ('esale_available', '=', True),
+                ('esale_saleshops', 'in', [shop.id]),
+                ]
+
     def export_products_magento(self, shop, tpls=[]):
         """Export Products to Magento
         :param shop: object
@@ -123,23 +131,22 @@ class SaleShop:
         pool = Pool()
         Template = pool.get('product.template')
 
+        product_domain = self.magento_product_domain(shop)
+
         if tpls:
             templates = []
-            for t in Template.browse(tpls):
-                shops = [s.id for s in t.esale_saleshops]
-                if t.esale_available and shop.id in shops:
-                    templates.append(t)
+            product_domain += [('id', 'in', tpls)]
+            for t in Template.search(product_domain):
+                templates.append(t)
         else:
             now = datetime.datetime.now()
             last_products = shop.esale_last_products
 
-            templates = Template.search([
-                    ('esale_available', '=', True),
-                    ('esale_saleshops', 'in', [shop.id]),
-                    ['OR',
+            product_domain += ['OR',
                         ('create_date', '>=', last_products),
                         ('write_date', '>', last_products),
-                    ]])
+                    ]
+            templates = Template.search(product_domain)
 
             # Update date last import
             self.write([shop], {'esale_last_products': now})
