@@ -142,10 +142,10 @@ class SaleShop:
             now = datetime.datetime.now()
             last_products = shop.esale_last_products
 
-            product_domain += ['OR',
+            product_domain += [['OR',
                         ('create_date', '>=', last_products),
                         ('write_date', '>', last_products),
-                    ]
+                    ]]
             templates = Template.search(product_domain)
 
             # Update date last import
