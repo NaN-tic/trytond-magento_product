@@ -3,7 +3,7 @@
 The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
 <data>
     <xpath
-        expr="/form/notebook/page[@id='esale']/notebook/page[@id='esale-general']/field[@name='esale_attribute_group']"
+        expr="/form/notebook/page[@id='esale']/notebook/page[@id='esale-general']/field[@name='esale_sequence']"
         position="after">
             <label name="magento_product_type"/>
             <field name="magento_product_type"/>
