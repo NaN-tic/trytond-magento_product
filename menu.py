@@ -20,6 +20,10 @@ class CatalogMenu:
             'delete_esale_menu': 'Menu %s is available in %s Magento. '
                 'Descheck active field to dissable menu',
         })
+        cls._sql_constraints += [
+            ('categ_uniq', 'UNIQUE(magento_app, magento_id)',
+                'Category of product must be unique for every eShop.'),
+        ]
 
     @classmethod
     def copy(cls, menus, default=None):
