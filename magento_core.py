@@ -209,11 +209,9 @@ class MagentoApp:
 
         logging.getLogger('magento').info('End import attribute options')
 
-    @classmethod
-    def save_menu(self, app, data, parent=None, menu=None):
+    def save_menu(self, data, parent=None, menu=None):
         '''
         Save Menu
-        :param app: object
         :param data: dict
         :param parent: id
         :param menu: object
@@ -245,7 +243,7 @@ class MagentoApp:
         menu.metadescription = metadescription
         menu.metakeyword = metakeyword
         menu.metatitle = metatitle
-        menu.magento_app = app.id
+        menu.magento_app = self.id
         menu.magento_id = data.get('category_id')
         menu.save()
 
@@ -308,9 +306,9 @@ class MagentoApp:
                 cat_info = category_api.info(children.get('category_id'))
                 if menus:
                     menu, = menus
-                    self.save_menu(app, cat_info, parent, menu)
+                    app.save_menu(cat_info, parent, menu)
                 if not menus:
-                    menu = self.save_menu(app, cat_info, parent)
+                    menu = app.save_menu(cat_info, parent)
 
                 # save categories by language
                 for lang in app.languages:
@@ -346,7 +344,7 @@ class MagentoApp:
 
                 if not category_roots:
                     root_info = category_api.info(data.get('category_id'))
-                    category_root = self.save_menu(app, root_info)
+                    category_root = app.save_menu(root_info)
                     category_root.active = True
                     category_root.save()
                 else:
