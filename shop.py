@@ -159,7 +159,7 @@ class SaleShop:
                 'Magento %s. Start export %s product(s).' % (
                     shop.name, len(templates)))
 
-            user = self.get_shop_user(shop)
+            user = self.get_shop_user()
 
             db_name = Transaction().cursor.dbname
             thread1 = threading.Thread(target=self.export_products_magento_thread, 
@@ -340,7 +340,7 @@ class SaleShop:
                 'Magento %s. Start export prices. %s product(s).' % (
                     shop.name, len(templates)))
 
-            user = self.get_shop_user(shop)
+            user = self.get_shop_user()
 
             db_name = Transaction().cursor.dbname
             thread1 = threading.Thread(target=self.export_prices_magento_thread, 
@@ -440,7 +440,7 @@ class SaleShop:
                 'Magento %s. Start export images. %s product(s).' % (
                     shop.name, len(templates)))
 
-            user = self.get_shop_user(shop)
+            user = self.get_shop_user()
 
             db_name = Transaction().cursor.dbname
             thread1 = threading.Thread(target=self.export_images_magento_thread, 
