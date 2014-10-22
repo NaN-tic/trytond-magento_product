@@ -44,7 +44,7 @@ elif visibility == 'catalog':
 elif visibility == 'search':
     result = '3'
 else:
-    Result = '4'"
+    result = '4'"
 13,magento.product.template,weight,weight,Tryton <-> Exterior,Cadena,False,"result = None
 if value:
     w = float(value)
@@ -52,7 +52,7 @@ if value:
 14,magento.product.template,weight_uom,weight,Tryton <- Exterior,Cadena,False,"result = None
 if value:
     result = 2 #ID 2 – kg",
-15,magento.product.template,esale_attribute_group,set,Tryton <- Exterior,Cadena,False,Result = 1 #ID default attribute,result = '4' #ID default attribute
+15,magento.product.template,esale_attribute_group,set,Tryton <- Exterior,Cadena,False,result = 1 #ID default attribute,result = '4' #ID default attribute
 16,magento.product.template,esale_available,status,Tryton <- Exterior,Cadena,False,result = True,
 17,magento.product.template,magento_product_type,type_id,Tryton <- Exterior,Cadena,False,,
 18,magento.product.template,special_price,special_price,Tryton <- Exterior,Cadena,False,,
