@@ -31,12 +31,10 @@ class SaleShop:
             'export_menus': 'Use Magento APP to export menus (categories).',
         })
 
-    @classmethod
-    def magento_get_prices(self, shop, product, quantity=1):
+    def magento_get_prices(self, product, quantity=1):
         """
         Get Products Price, Sepcial Price and Group price
         from price list or price (with or not taxes)
-        :param shop: object
         :param product: object
         :param quantity: int
         :return dicc
@@ -46,10 +44,10 @@ class SaleShop:
 
         # Sale Price
         price = 0
-        if shop.esale_price == 'pricelist' and shop.price_list and shop.esale_price_party:
+        if self.esale_price == 'pricelist' and self.price_list and self.esale_price_party:
             context = {
-                'price_list': shop.price_list.id,
-                'customer': shop.esale_price_party.id,
+                'price_list': self.price_list.id,
+                'customer': self.esale_price_party.id,
                 'without_special_price': True,
                 }
             with Transaction().set_context(context):
@@ -57,26 +55,26 @@ class SaleShop:
         else:
             price = product.template.list_price
 
-        if shop.esale_tax_include:
+        if self.esale_tax_include:
             price = self.esale_price_w_taxes(product, price, quantity)
 
         # Special Price
         special_price = ''
         shop_special_price = False
-        if hasattr(shop, 'special_price'):
+        if hasattr(self, 'special_price'):
             shop_special_price = True
-        if shop_special_price and shop.special_price:
-            if shop.type_special_price == 'pricelist':
+        if shop_special_price and self.special_price:
+            if self.type_special_price == 'pricelist':
                 context = {
-                    'price_list': shop.price_list.id,
-                    'customer': shop.esale_price_party.id,
+                    'price_list': self.price_list.id,
+                    'customer': self.esale_price_party.id,
                     }
                 with Transaction().set_context(context):
                     special_price = Product.get_sale_price([product], quantity)[product.id]
             else:
                 special_price = product.template.special_price or 0
 
-            if shop.esale_tax_include:
+            if self.esale_tax_include:
                 special_price = self.esale_price_w_taxes(product, special_price, quantity)
 
             if not (special_price > 0.0 and special_price < price):
@@ -84,20 +82,20 @@ class SaleShop:
 
         # Group Price
         group_price = []
-        if shop.magento_shop_group_prices and product.magento_group_price:
+        if self.magento_shop_group_prices and product.magento_group_price:
             # {'cust_group': '0', 'website_price': '10.0000', 'price': '10.0000', 
             # 'website_id': '0', 'price_id': '1', 'all_groups': '0'}
-            for group_prices in shop.magento_shop_group_prices:
+            for group_prices in self.magento_shop_group_prices:
                 context = {
                     'price_list': group_prices.price_list.id,
-                    'customer': shop.esale_price_party.id,
+                    'customer': self.esale_price_party.id,
                     'without_special_price': True,
                     }
                 with Transaction().set_context(context):
                     gprice = Product.get_sale_price([product], quantity)[product.id]
 
                 if gprice > 0.0:
-                    if shop.esale_tax_include:
+                    if self.esale_tax_include:
                         gprice = self.esale_price_w_taxes(product, gprice, quantity)
                     group_price.append({
                         'cust_group': group_prices.group.customer_group,
