@@ -3,6 +3,10 @@ msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:esale.catalog.menu:"
+msgid "Category of product must be unique for every eShop."
+msgstr "La categoria del producte ha de ser únic per cada eSale."
+
+msgctxt "error:esale.catalog.menu:"
 msgid "Copy action is dissabled! Create new menu use New"
 msgstr "L'acció duplicar està desactivada. Utilitza l'acció \"Nou\"."
 
@@ -45,6 +49,14 @@ msgstr "Selecciona una vista de botiga a Magento APP."
 msgctxt "error:magento.app:"
 msgid "Select Top Menu Category!"
 msgstr "Selecciona un menú principal (categoria)."
+
+msgctxt "error:magento.app:"
+msgid "Shop has not any default uom."
+msgstr "La botiga no disposa de cap UOM per defecte."
+
+msgctxt "error:magento.app:"
+msgid "Shop not found."
+msgstr "No es troba cap botiga."
 
 msgctxt "error:sale.shop:"
 msgid "Threre are not stock to export"

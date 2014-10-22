@@ -3,6 +3,10 @@ msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:esale.catalog.menu:"
+msgid "Category of product must be unique for every eShop."
+msgstr "La categoría del producto debe ser diferente por cada eSale."
+
+msgctxt "error:esale.catalog.menu:"
 msgid "Copy action is dissabled! Create new menu use New"
 msgstr "La acción de duplicar esta desactivado. Use la acción de \"Nuevo\"."
 
@@ -44,6 +48,14 @@ msgstr "Seleccione una vista de tienda en Magento APP."
 msgctxt "error:magento.app:"
 msgid "Select Top Menu Category!"
 msgstr "Selecciona el menú principal (categoría)."
+
+msgctxt "error:magento.app:"
+msgid "Shop has not any default uom."
+msgstr "La tienda no dispone de un UOM por defecto."
+
+msgctxt "error:magento.app:"
+msgid "Shop not found."
+msgstr "No se encuentra ninguna tienda."
 
 msgctxt "error:sale.shop:"
 msgid "Threre are not stock to export"
