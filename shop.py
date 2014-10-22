@@ -122,9 +122,8 @@ class SaleShop:
                 ('esale_saleshops', 'in', [self.id]),
                 ]
 
-    def export_products_magento(self, shop, tpls=[]):
+    def export_products_magento(self, tpls=[]):
         """Export Products to Magento
-        :param shop: object
         :param tpls: list
         """
         pool = Pool()
@@ -139,7 +138,7 @@ class SaleShop:
                 templates.append(t)
         else:
             now = datetime.datetime.now()
-            last_products = shop.esale_last_products
+            last_products = self.esale_last_products
 
             product_domain += [['OR',
                         ('create_date', '>=', last_products),
@@ -148,21 +147,21 @@ class SaleShop:
             templates = Template.search(product_domain)
 
             # Update date last import
-            self.write([shop], {'esale_last_products': now})
+            self.write([self], {'esale_last_products': now})
 
         if not templates:
             logging.getLogger('magento').info(
-                'Magento %s. Not products to export.' % (shop.name))
+                'Magento %s. Not products to export.' % (self.name))
         else:
             logging.getLogger('magento').info(
                 'Magento %s. Start export %s product(s).' % (
-                    shop.name, len(templates)))
+                    self.name, len(templates)))
 
             user = self.get_shop_user()
 
             db_name = Transaction().cursor.dbname
             thread1 = threading.Thread(target=self.export_products_magento_thread, 
-                args=(db_name, user.id, shop.id, templates,))
+                args=(db_name, user.id, self.id, templates,))
             thread1.start()
 
     def export_products_magento_thread(self, db_name, user, sale_shop, templates):
