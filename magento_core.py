@@ -56,6 +56,8 @@ class MagentoApp:
                 'select_rang_product_ids': 'Select Product ID From and ID To!',
                 'select_top_menu': 'Select Top Menu Category!',
                 'magento_api_error': 'Magento API Error!',
+                'shop_not_found': 'Shop not found.',
+                'shop_without_default_uom': 'Shop has not any default uom.'
                 })
         cls._buttons.update({
                 'core_import_product_type': {},
@@ -471,6 +473,7 @@ class MagentoApp:
         ProductTemplate = pool.get('product.template')
         BaseExternalMapping = pool.get('base.external.mapping')
         Menu = pool.get('esale.catalog.menu')
+        Shop = pool.get('sale.shop')
 
         template_mapping = app.template_mapping.name
         product_mapping = app.product_mapping.name
@@ -481,13 +484,21 @@ class MagentoApp:
 
         # Shops - websites
         shops = ProductProduct.magento_product_esale_saleshops(app, data)
+        if not shops:
+            self.raise_user_error('shop_not_found')
+        shop = Shop(shops[0])
+        if shop.esale_uom_product:
+            default_uom = shop.esale_uom_product
+        else:
+            self.raise_user_error('shop_without_default_uom')
+
         if shops:
             tvals['esale_saleshops'] = shops
 
         # Categories -> menus
         menus = Menu.search([
                 ('magento_app', '=', app.id),
-                ('magento_id', 'in', data.get('category_ids')),
+                ('magento_id', 'in', data.get('categories')),
                 ])
         if menus:
             tvals['esale_menus'] = [menu.id for menu in menus]
@@ -512,6 +523,15 @@ class MagentoApp:
             if not cost_price:
                 cost_price = data.get('price')
             tvals['cost_price'] = cost_price
+
+            tvals['default_uom'] = default_uom
+            tvals['sale_uom'] = default_uom
+            tvals['esale_available'] = True
+            tvals['esale_active'] = True
+            tvals['salable'] = True
+            tvals['category'] = shop.esale_category
+            tvals['account_category'] = True
+            tvals['type'] = 'goods'
         else:
             template = product.template
             action = 'update'
