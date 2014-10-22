@@ -115,12 +115,11 @@ class SaleShop:
         data['group_price'] = group_price
         return data
 
-    @classmethod
-    def magento_product_domain(self, shop):
+    def magento_product_domain(self):
         '''Domain filter Products'''
         return [
                 ('esale_available', '=', True),
-                ('esale_saleshops', 'in', [shop.id]),
+                ('esale_saleshops', 'in', [self.id]),
                 ]
 
     def export_products_magento(self, shop, tpls=[]):
@@ -131,7 +130,7 @@ class SaleShop:
         pool = Pool()
         Template = pool.get('product.template')
 
-        product_domain = self.magento_product_domain(shop)
+        product_domain = self.magento_product_domain()
 
         if tpls:
             templates = []
