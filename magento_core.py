@@ -300,10 +300,11 @@ class MagentoApp:
 
         with Category(app.uri, app.username, app.password) as category_api:
             for children in data.get('children'):
-                menus = Menu.search([
-                        ('magento_app', '=', app.id),
-                        ('magento_id', '=', children.get('category_id')),
-                        ], limit=1)
+                with Transaction().set_context(active_test=False):
+                    menus = Menu.search([
+                            ('magento_app', '=', app.id),
+                            ('magento_id', '=', children.get('category_id')),
+                            ], limit=1)
 
                 cat_info = category_api.info(children.get('category_id'))
                 if menus:
@@ -339,7 +340,8 @@ class MagentoApp:
             with Category(app.uri, app.username, app.password) as category_api:
                 data = category_api.tree(parent_id=app.category_root_id)
 
-                category_roots = Menu.search([
+                with Transaction().set_context(active_test=False):
+                    category_roots = Menu.search([
                         ('magento_app', '=', app.id),
                         ('magento_id', '=', data.get('category_id')),
                         ], limit=1)
@@ -724,7 +726,8 @@ class MagentoApp:
                 for product in products:
                     code = product.get('sku')
 
-                    prods = ProductProduct.search([
+                    with Transaction().set_context(active_test=False):
+                        prods = ProductProduct.search([
                             ('code', '=', product.get('sku')),
                             ], limit=1)
                     if prods:
