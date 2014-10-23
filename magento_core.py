@@ -571,8 +571,10 @@ class MagentoApp:
         product_mapping = app.product_mapping.name
 
         # get values using base external mapping
-        tvals = BaseExternalMapping.map_external_to_tryton(template_mapping, data)
-        pvals = BaseExternalMapping.map_external_to_tryton(product_mapping, data)
+        tmp_vals = BaseExternalMapping.map_external_to_tryton(template_mapping, data)
+        tvals = BaseExternalMapping.map_exclude_update(template_mapping, tmp_vals)
+        prod_vals = BaseExternalMapping.map_external_to_tryton(product_mapping, data)
+        pvals = BaseExternalMapping.map_exclude_update(product_mapping, prod_vals)
 
         tmpl_vals = {}
         for key, value in tvals.iteritems():
