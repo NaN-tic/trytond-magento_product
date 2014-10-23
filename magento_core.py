@@ -478,9 +478,13 @@ class MagentoApp:
         template_mapping = app.template_mapping.name
         product_mapping = app.product_mapping.name
 
+        # get default values
+        tvals = ProductTemplate.esale_template_values()
+        pvals = ProductProduct.esale_product_values()
+
         # get values using base external mapping
-        tvals = BaseExternalMapping.map_external_to_tryton(template_mapping, data)
-        pvals = BaseExternalMapping.map_external_to_tryton(product_mapping, data)
+        tvals.update(BaseExternalMapping.map_external_to_tryton(template_mapping, data))
+        pvals.update(BaseExternalMapping.map_external_to_tryton(product_mapping, data))
 
         # Shops - websites
         shops = ProductProduct.magento_product_esale_saleshops(app, data)
@@ -526,12 +530,7 @@ class MagentoApp:
 
             tvals['default_uom'] = default_uom
             tvals['sale_uom'] = default_uom
-            tvals['esale_available'] = True
-            tvals['esale_active'] = True
-            tvals['salable'] = True
             tvals['category'] = shop.esale_category
-            tvals['account_category'] = True
-            tvals['type'] = 'goods'
         else:
             template = product.template
             action = 'update'
