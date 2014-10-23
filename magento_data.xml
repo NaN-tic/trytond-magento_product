@@ -73,6 +73,10 @@ result = parse(description)</field>
             <field name="mapping_type">in</field>
             <field name="external_type">str</field>
             <field name="active">True</field>
+            <field name="in_function">if value:
+    result = value
+else:
+    result = values['price']</field>
         </record>
         <record model="base.external.mapping.line" id="magento_base_external_mapping_line_name">
             <field name="mapping" ref="magento_base_external_mapping_template"/>
