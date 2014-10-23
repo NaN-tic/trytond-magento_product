@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- This file is part magento_product module for Tryton.
+The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<data>
+    <xpath expr="/form/notebook" position="inside">
+        <page string="Magento" id="magento" states="{'invisible': ~Eval('magento_id')}">
+            <label name="magento_app"/>
+            <field name="magento_app" readonly="1"/>
+            <label name="magento_id"/>
+            <field name="magento_id" readonly="1"/>
+        </page>
+    </xpath>
+</data>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- This file is part magento_product module for Tryton.
+The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<tryton>
+    <data>
+        <record model="ir.ui.view" id="menu_view_list">
+            <field name="model">esale.catalog.menu</field>
+            <field name="inherit" ref="product_esale.menu_view_list"/>
+            <field name="name">menu_list</field>
+        </record>
+        <record model="ir.ui.view" id="menu_view_tree">
+            <field name="model">esale.catalog.menu</field>
+            <field name="inherit" ref="product_esale.menu_view_tree"/>
+            <field name="name">menu_tree</field>
+        </record>
+        <record model="ir.ui.view" id="menu_view_form">
+            <field name="model">esale.catalog.menu</field>
+            <field name="inherit" ref="product_esale.menu_view_form"/>
+            <field name="name">menu_form</field>
+        </record>
+    </data>
+</tryton>

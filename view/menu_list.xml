@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!-- This file is part magento_product module for Tryton.
+The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<data>
+    <xpath expr="/tree/field[@name='active']" position="after">
+        <field name="magento_app" tree_invisible="1"/>
+        <field name="magento_id" tree_invisible="1"/>
+    </xpath>
+</data>
