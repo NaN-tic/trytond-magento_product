@@ -206,7 +206,7 @@ class SaleShop:
 
                         tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [template.id])
                         pvals, = BaseExternalMapping.map_tryton_to_external(product_mapping, [product.id])
-                        prices = self.magento_get_prices(shop, product)
+                        prices = shop.magento_get_prices(product)
 
                         values = {}
                         values.update(pvals)
