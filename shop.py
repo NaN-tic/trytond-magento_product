@@ -367,7 +367,7 @@ class SaleShop:
                         if not code:
                             continue
 
-                        data = self.magento_get_prices(product)
+                        data = shop.magento_get_prices(product)
 
                         if app.debug:
                             message = 'Magento %s. Product: %s. Data: %s' % (
