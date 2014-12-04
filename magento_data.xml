@@ -197,8 +197,8 @@ else:
             <field name="in_function">result = None
 if value:
     import datetime
-    d = '%s 00:00:00' % (value[:10]) #remove H:M:D
-    result = datetime.datetime.strptime(d, "%Y-%m-%d %H:%M:%S")</field>
+    d = '%s' % (value[:10]) #remove H:M:D
+    result = datetime.datetime.strptime(d, "%Y-%m-%d").date()</field>
         </record>
         <record model="base.external.mapping.line" id="magento_base_external_mapping_line_special_price_to">
             <field name="mapping" ref="magento_base_external_mapping_template"/>
@@ -210,8 +210,8 @@ if value:
             <field name="in_function">result = None
 if value:
     import datetime
-    d = '%s 00:00:00' % (value[:10]) #remove H:M:D
-    result = datetime.datetime.strptime(d, "%Y-%m-%d %H:%M:%S")</field>
+    d = '%s' % (value[:10]) #remove H:M:D
+    result = datetime.datetime.strptime(d, "%Y-%m-%d").date()</field>
         </record>
 
         <!-- Product -->
