@@ -620,7 +620,7 @@ class MagentoApp:
                     continue
                 name = url.split('/')[-1:][0]
                 attachments = Attachment.search([
-                    ('name', '=', name),
+                    ('name', 'ilike', name),
                     ('resource', '=', '%s' % (template)),
                     ], limit=1)
                 if attachments:
