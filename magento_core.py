@@ -536,6 +536,8 @@ class MagentoApp:
         else:
             template = product.template
             action = 'update'
+            if tvals.get('type'):
+                del tvals['type']
 
         for key, value in tvals.iteritems():
             setattr(template, key, value)
