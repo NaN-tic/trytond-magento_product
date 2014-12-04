@@ -545,7 +545,10 @@ class MagentoApp:
         for key, value in pvals.iteritems():
             setattr(product, key, value)
 
-        template.products = [product]
+        # TODO: update product with multiple variants
+        if action == 'create':
+            template.products = [product]
+
         template.save()
 
         logging.getLogger('magento').info(
@@ -667,6 +670,7 @@ class MagentoApp:
         Create/Update new products; not delete
         """
         pool = Pool()
+        ProductTemplate = pool.get('product.template')
         ProductProduct = pool.get('product.product')
 
         for app in apps:
@@ -737,7 +741,20 @@ class MagentoApp:
                     if prods:
                         prod, = prods
                     else:
-                        prod = None
+                        tpls = ProductTemplate.search([
+                            ('base_code', '=', product.get('sku')),
+                            ], limit=1)
+                        if tpls:
+                            tpl, = tpls
+                            if tpl.products:
+                                prod = tpl.products[0]
+                            else:
+                                logging.getLogger('magento').warning(
+                                    'Template ID %s not have products' % (
+                                        tpl.id))
+                                continue
+                        else:
+                            prod = None
 
                     #save product data
                     product_info = product_api.info(code)
