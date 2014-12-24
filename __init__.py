@@ -15,5 +15,6 @@ def register():
         MagentoSaleShopGroupPrice,
         CatalogMenu,
         Template,
+        Product,
         SaleShop,
         module='magento_product', type_='model')

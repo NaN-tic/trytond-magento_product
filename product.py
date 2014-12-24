@@ -6,7 +6,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
 
-__all__ = ['MagentoProductType', 'Template']
+__all__ = ['MagentoProductType', 'Template', 'Product']
 __metaclass__ = PoolMeta
 
 
@@ -59,3 +59,16 @@ class Template:
         if len(ids)>0:
             product_type = 'simple'
         return product_type
+
+
+class Product:
+    __name__ = 'product.product'
+
+    @classmethod
+    def magento_template_dict2vals(self, shop, values):
+        vals = super(Product, self).magento_template_dict2vals(shop, values)
+        vals['esale_available'] = True
+        vals['esale_active'] = True
+        vals['esale_shortdescription'] = values.get('short_description')
+        vals['esale_slug'] = values.get('url_key')
+        return vals
