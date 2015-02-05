@@ -114,6 +114,42 @@ msgctxt "field:magento.app,top_menu:"
 msgid "Top Menu"
 msgstr "Top menú"
 
+msgctxt "field:magento.attribute.configurable,active:"
+msgid "Active"
+msgstr "Activa"
+
+msgctxt "field:magento.attribute.configurable,create_date:"
+msgid "Create Date"
+msgstr "Data creació"
+
+msgctxt "field:magento.attribute.configurable,create_uid:"
+msgid "Create User"
+msgstr "Usuari creació"
+
+msgctxt "field:magento.attribute.configurable,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:magento.attribute.configurable,mgn_id:"
+msgid "Mgn ID"
+msgstr "Mgn ID"
+
+msgctxt "field:magento.attribute.configurable,name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:magento.attribute.configurable,rec_name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:magento.attribute.configurable,write_date:"
+msgid "Write Date"
+msgstr "Data modificació"
+
+msgctxt "field:magento.attribute.configurable,write_uid:"
+msgid "Write User"
+msgstr "Usuari modificació"
+
 msgctxt "field:magento.product.type,active:"
 msgid "Active"
 msgstr "Activa"
@@ -186,6 +222,10 @@ msgctxt "field:magento.sale.shop.group.price,write_uid:"
 msgid "Write User"
 msgstr "Usuari modificació"
 
+msgctxt "field:product.template,magento_attribute_configurable:"
+msgid "Configurable Attribute"
+msgstr "Atributs configurables"
+
 msgctxt "field:product.template,magento_group_price:"
 msgid "Magento Grup Price"
 msgstr "Magento preu grup"
@@ -234,12 +274,9 @@ msgctxt "help:magento.app,to_id_products:"
 msgid "This Integer is the range from import (filter)"
 msgstr "Aquest número és el rang a importar (filtre)"
 
-msgctxt "help:magento.product.type,active:"
-msgid ""
-"If the active field is set to False, it will allow you to hide the product "
-"without removing it."
-msgstr ""
-"Si el camp actiu està desactivat, pot ocultar el producte sense eliminar-lo."
+msgctxt "help:magento.attribute.configurable,mgn_id:"
+msgid "Magento ID"
+msgstr "Magento ID"
 
 msgctxt "help:magento.product.type,code:"
 msgid "Same name Magento product type, (example: simple)"
@@ -258,13 +295,25 @@ msgid "If check this value, when export product prices add prices by group"
 msgstr ""
 "Si marca aquesta opció, quan s'exporta els preus afegeix preus per grup"
 
+msgctxt "model:ir.action,name:act_magento_attribute_configurable_form"
+msgid "Magento Attribute Configurable"
+msgstr "Magento Atributs Configurables"
+
 msgctxt "model:ir.action,name:act_magento_product_type_form"
 msgid "Magento Product Type"
 msgstr "Tipus producte Magento"
 
+msgctxt "model:ir.ui.menu,name:menu_magento_attribute_configurable_form"
+msgid "Magento Attribute Configurable"
+msgstr "Magento Atributs Configurables"
+
 msgctxt "model:ir.ui.menu,name:menu_magento_product_type_form"
 msgid "Magento Product Type"
 msgstr "Tipus producte Magento"
+
+msgctxt "model:magento.attribute.configurable,name:"
+msgid "Magento Attribute Configurable"
+msgstr "Magento Atributs Configurables"
 
 msgctxt "model:magento.product.type,name:"
 msgid "Magento Product Type"
@@ -276,7 +325,7 @@ msgstr "Magento Preu grup botiga"
 
 msgctxt "selection:esale.catalog.menu,default_sort_by:"
 msgid ""
-msgstr ""
+msgstr " "
 
 msgctxt "selection:magento.app,catalog_price:"
 msgid "Global"
@@ -285,6 +334,10 @@ msgstr "Global"
 msgctxt "selection:magento.app,catalog_price:"
 msgid "Website"
 msgstr "Lloc Web"
+
+msgctxt "view:esale.catalog.menu:"
+msgid "Magento"
+msgstr "Magento"
 
 msgctxt "view:magento.app:"
 msgid "Export"
@@ -321,6 +374,10 @@ msgstr "Importa/Actualitza Magento Productes"
 msgctxt "view:magento.app:"
 msgid "Products"
 msgstr "Productes"
+
+msgctxt "view:magento.attribute.configurable:"
+msgid "Magento Attribute Configurable"
+msgstr "Magento Atributs Configurables"
 
 msgctxt "view:magento.product.type:"
 msgid "Magento Product Type"
