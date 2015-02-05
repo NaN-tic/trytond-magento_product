@@ -9,5 +9,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <field name="magento_product_type"/>
             <label name="magento_group_price"/>
             <field name="magento_group_price"/>
+            <label name="magento_attribute_configurable"/>
+            <field name="magento_attribute_configurable"/>
     </xpath>
 </data>

@@ -6,19 +6,31 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
 
-__all__ = ['MagentoProductType', 'Template', 'Product']
+__all__ = ['MagentoProductType', 'MagentoAttributeConfigurable', 
+    'Template', 'Product']
 __metaclass__ = PoolMeta
 
 
 class MagentoProductType(ModelSQL, ModelView):
     'Magento Product Type'
     __name__ = 'magento.product.type'
-
     name = fields.Char('Name', required=True, translate=True)
     code = fields.Char('Code', required=True,
         help='Same name Magento product type, (example: simple)')
-    active = fields.Boolean('Active',
-        help='If the active field is set to False, it will allow you to hide the product without removing it.')
+    active = fields.Boolean('Active')
+
+    @staticmethod
+    def default_active():
+        return True
+
+
+class MagentoAttributeConfigurable(ModelSQL, ModelView):
+    'Magento Attribute Configurable'
+    __name__ = 'magento.attribute.configurable'
+    name = fields.Char('Name', required=True, translate=True)
+    mgn_id = fields.Char('Mgn ID', required=True,
+        help='Magento ID')
+    active = fields.Boolean('Active')
 
     @staticmethod
     def default_active():
@@ -27,6 +39,20 @@ class MagentoProductType(ModelSQL, ModelView):
 
 class Template:
     __name__ = 'product.template'
+    magento_product_type = fields.Selection('get_magento_product_type', 'Product Type',
+        states={
+            'required': Eval('esale_available', True),
+        },
+        depends=['esale_available'])
+    magento_group_price = fields.Boolean('Magento Grup Price',
+        help='If check this value, when export product prices (and shop '
+            'is active group price), export prices by group')
+    magento_attribute_configurable = fields.Many2One('magento.attribute.configurable',
+        'Configurable Attribute', required=True, states={
+            'invisible': ~(Eval('magento_product_type') == 'configurable'),
+            'required': Eval('magento_product_type') == 'configurable',
+            },
+        depends=['magento_product_type'])
 
     @classmethod
     def get_magento_product_type(cls):
@@ -38,15 +64,6 @@ class Template:
             return [(None, '')]
         product_types = ProductType.read(records, ['code', 'name'])
         return [(pt['code'], pt['name']) for pt in product_types]
-
-    magento_product_type = fields.Selection('get_magento_product_type', 'Product Type',
-        states={
-            'required': Eval('esale_available', True),
-        },
-        depends=['esale_available'])
-    magento_group_price = fields.Boolean('Magento Grup Price',
-        help='If check this value, when export product prices (and shop '
-            'is active group price), export prices by group')
 
     @staticmethod
     def default_magento_product_type():
