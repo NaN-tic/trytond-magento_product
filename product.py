@@ -48,7 +48,7 @@ class Template:
         help='If check this value, when export product prices (and shop '
             'is active group price), export prices by group')
     magento_attribute_configurable = fields.Many2One('magento.attribute.configurable',
-        'Configurable Attribute', required=True, states={
+        'Configurable Attribute', states={
             'invisible': ~(Eval('magento_product_type') == 'configurable'),
             'required': Eval('magento_product_type') == 'configurable',
             },
