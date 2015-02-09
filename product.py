@@ -1,10 +1,9 @@
 # This file is part magento_product module for Tryton.
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
-
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
-from trytond.pyson import Eval
+from trytond.pyson import Eval, Or
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable', 
     'Template', 'Product']
@@ -53,6 +52,20 @@ class Template:
             'required': Eval('magento_product_type') == 'configurable',
             },
         depends=['magento_product_type'])
+
+    @classmethod
+    def __setup__(cls):
+        super(Template, cls).__setup__()
+        # Add base code require attribute
+        for fname in ('base_code',):
+            fstates = getattr(cls, fname).states
+            if fstates.get('required'):
+                fstates['required'] = Or(fstates['required'],
+                    Eval('magento_product_type', '=', 'configurable'))
+            else:
+                fstates['required'] = Eval('magento_product_type') == 'configurable'
+            getattr(cls, fname).states.update(fstates)
+            getattr(cls, fname).depends.append('magento_product_type')
 
     @classmethod
     def get_magento_product_type(cls):
