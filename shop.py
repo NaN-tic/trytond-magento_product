@@ -239,6 +239,23 @@ class SaleShop:
                             for tax in app.magento_taxes:
                                 values['tax_class_id'] = tax.tax_id
                                 break
+                        if product_type == 'configurable':
+                            # load attribute name from attribute selection
+                            subname = None
+                            attr_code = template.magento_attribute_configurable.code
+                            options = ProductTemplate.attribute_options(attr_code)
+                            if options:
+                                attr = product.attributes.get(
+                                    template.magento_attribute_configurable.code
+                                    )
+                                if options.get(attr):
+                                    subname = options[attr]
+                            if not subname:
+                                subname = template.magento_attribute_configurable.name
+                            values['name'] = '%s - %s' % (
+                                values['name'],
+                                subname,
+                                )
                         del values['id']
 
                         if app.debug:

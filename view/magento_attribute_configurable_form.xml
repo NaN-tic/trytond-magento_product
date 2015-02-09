@@ -4,6 +4,8 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
 <form string="Magento Attribute Configurable">
     <label name="name"/>
     <field name="name"/>
+    <label name="code"/>
+    <field name="code"/>
     <label name="mgn_id"/>
     <field name="mgn_id"/>
     <label name="active"/>

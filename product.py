@@ -27,6 +27,7 @@ class MagentoAttributeConfigurable(ModelSQL, ModelView):
     'Magento Attribute Configurable'
     __name__ = 'magento.attribute.configurable'
     name = fields.Char('Name', required=True, translate=True)
+    code = fields.Char('Code', required=True)
     mgn_id = fields.Char('Mgn ID', required=True,
         help='Magento ID')
     active = fields.Boolean('Active')
