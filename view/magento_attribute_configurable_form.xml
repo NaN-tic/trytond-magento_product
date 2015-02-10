@@ -2,6 +2,8 @@
 <!-- This file is part magento_product module for Tryton.
 The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
 <form string="Magento Attribute Configurable">
+    <label name="app"/>
+    <field name="app"/>
     <label name="name"/>
     <field name="name"/>
     <label name="code"/>

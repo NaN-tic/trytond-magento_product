@@ -193,6 +193,7 @@ class SaleShop:
             ProductProduct = pool.get('product.product')
             MagentoExternalReferential = pool.get('magento.external.referential')
             BaseExternalMapping = pool.get('base.external.mapping')
+            MagentoAttributeConfigurable = pool.get('magento.attribute.configurable')
 
             shop, = SaleShop.browse([sale_shop])
             app = shop.magento_website.magento_app
@@ -203,6 +204,16 @@ class SaleShop:
                 return
             template_mapping = app.template_mapping.name
             product_mapping = app.product_mapping.name
+
+            # Get options from attribute configurables
+            configurables = MagentoAttributeConfigurable.search([
+                ('app', '=', app),
+                ])
+            if configurables:
+                options = ProductTemplate.attribute_options(
+                        [c.code for c in configurables])
+            else:
+                options = None
 
             with Product(app.uri, app.username, app.password) as product_api:
                 for template in ProductTemplate.browse(templates):
@@ -240,22 +251,19 @@ class SaleShop:
                                 values['tax_class_id'] = tax.tax_id
                                 break
                         if product_type == 'configurable':
-                            # load attribute name from attribute selection
-                            subname = None
-                            attr_code = template.magento_attribute_configurable.code
-                            options = ProductTemplate.attribute_options(attr_code)
+                            # each variant add attribute options in product name
                             if options:
-                                attr = product.attributes.get(
-                                    template.magento_attribute_configurable.code
-                                    )
-                                if options.get(attr):
-                                    subname = options[attr]
-                            if not subname:
-                                subname = template.magento_attribute_configurable.name
-                            values['name'] = '%s - %s' % (
-                                values['name'],
-                                subname,
-                                )
+                                names = [values['name']]
+                                for attribute in template.magento_attribute_configurables:
+                                    attr = product.attributes.get(
+                                        attribute.code
+                                        )
+                                    if options.get(attribute.code):
+                                        vals = options[attribute.code]
+                                        if vals.get(attr):
+                                            names.append(vals.get(attr))
+
+                                values['name'] = ' - '.join(names)
                         del values['id']
 
                         if app.debug:
@@ -347,8 +355,6 @@ class SaleShop:
                         del values['id']
 
                         mgn_prods = product_api.list({'sku': {'=': code}})
-
-                        attribute = template.magento_attribute_configurable.mgn_id
                         
                         try:
                             if mgn_prods:
@@ -368,8 +374,9 @@ class SaleShop:
 
                                 # set attribute product configuration
                                 with ProductConfigurable(app.uri, app.username, app.password) as product_conf_api:
-                                    attribute = template.magento_attribute_configurable.mgn_id
-                                    product_conf_api.setSuperAttributeValues(mgn_id, attribute)
+                                    # assign each magento attribute
+                                    for attribute in template.magento_attribute_configurables:
+                                        product_conf_api.setSuperAttributeValues(mgn_id, attribute.mgn_id)
 
                                 message = 'Magento %s. %s product %s. Magento ID %s' % (
                                         shop.name, action.capitalize(), code, mgn_id)

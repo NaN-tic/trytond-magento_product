@@ -5,8 +5,8 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Or
 
-__all__ = ['MagentoProductType', 'MagentoAttributeConfigurable', 
-    'Template', 'Product']
+__all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
+    'TemplateMagentoAttributeConfigurable', 'Template', 'Product']
 __metaclass__ = PoolMeta
 
 
@@ -26,6 +26,7 @@ class MagentoProductType(ModelSQL, ModelView):
 class MagentoAttributeConfigurable(ModelSQL, ModelView):
     'Magento Attribute Configurable'
     __name__ = 'magento.attribute.configurable'
+    app = fields.Many2One('magento.app', 'APP', required=True)
     name = fields.Char('Name', required=True, translate=True)
     code = fields.Char('Code', required=True)
     mgn_id = fields.Char('Mgn ID', required=True,
@@ -35,6 +36,23 @@ class MagentoAttributeConfigurable(ModelSQL, ModelView):
     @staticmethod
     def default_active():
         return True
+
+    @staticmethod
+    def default_app():
+        App = Pool().get('magento.app')
+        apps = App.search([])
+        if len(apps) == 1:
+            return apps[0].id
+
+
+class TemplateMagentoAttributeConfigurable(ModelSQL):
+    'Product Template - Magento Attribute Configurable'
+    __name__ = 'product.template-magento.attribute.configurable'
+    _table = 'product_template_magento_attribute_configurable_rel'
+    template = fields.Many2One('product.template', 'Template', ondelete='CASCADE',
+            required=True, select=True)
+    configurable = fields.Many2One('magento.attribute.configurable', 'Attribute Configurable',
+        ondelete='CASCADE', required=True, select=True)
 
 
 class Template:
@@ -47,12 +65,13 @@ class Template:
     magento_group_price = fields.Boolean('Magento Grup Price',
         help='If check this value, when export product prices (and shop '
             'is active group price), export prices by group')
-    magento_attribute_configurable = fields.Many2One('magento.attribute.configurable',
-        'Configurable Attribute', states={
+    magento_attribute_configurables = fields.Many2Many('product.template-magento.attribute.configurable',
+        'template', 'configurable', 'Configurable Attribute', states={
             'invisible': ~(Eval('magento_product_type') == 'configurable'),
             'required': Eval('magento_product_type') == 'configurable',
             },
-        depends=['magento_product_type'])
+        depends=['magento_product_type'],
+        help='Add attributes before export configurable product')
 
     @classmethod
     def __setup__(cls):
