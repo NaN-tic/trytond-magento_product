@@ -436,7 +436,7 @@ msgstr "Magento precio grupo tienda"
 
 msgctxt "view:product.template:"
 msgid "Attribute Configurables"
-msgstr "Atributos configurable"
+msgstr "Atributos configurables"
 
 msgctxt "view:sale.shop:"
 msgid "Magento Product"
