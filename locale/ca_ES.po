@@ -118,6 +118,14 @@ msgctxt "field:magento.attribute.configurable,active:"
 msgid "Active"
 msgstr "Activa"
 
+msgctxt "field:magento.attribute.configurable,app:"
+msgid "APP"
+msgstr "APP"
+
+msgctxt "field:magento.attribute.configurable,code:"
+msgid "Code"
+msgstr "Codi"
+
 msgctxt "field:magento.attribute.configurable,create_date:"
 msgid "Create Date"
 msgstr "Data creació"
@@ -222,9 +230,9 @@ msgctxt "field:magento.sale.shop.group.price,write_uid:"
 msgid "Write User"
 msgstr "Usuari modificació"
 
-msgctxt "field:product.template,magento_attribute_configurable:"
+msgctxt "field:product.template,magento_attribute_configurables:"
 msgid "Configurable Attribute"
-msgstr "Atributs configurables"
+msgstr "Atribut configurable"
 
 msgctxt "field:product.template,magento_group_price:"
 msgid "Magento Grup Price"
@@ -233,6 +241,38 @@ msgstr "Magento preu grup"
 msgctxt "field:product.template,magento_product_type:"
 msgid "Product Type"
 msgstr "Tipus producte"
+
+msgctxt "field:product.template-magento.attribute.configurable,configurable:"
+msgid "Attribute Configurable"
+msgstr "Atribut configurable"
+
+msgctxt "field:product.template-magento.attribute.configurable,create_date:"
+msgid "Create Date"
+msgstr "Data creació"
+
+msgctxt "field:product.template-magento.attribute.configurable,create_uid:"
+msgid "Create User"
+msgstr "Usuari creació"
+
+msgctxt "field:product.template-magento.attribute.configurable,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:product.template-magento.attribute.configurable,rec_name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:product.template-magento.attribute.configurable,template:"
+msgid "Template"
+msgstr "Plantilla"
+
+msgctxt "field:product.template-magento.attribute.configurable,write_date:"
+msgid "Write Date"
+msgstr "Data modificació"
+
+msgctxt "field:product.template-magento.attribute.configurable,write_uid:"
+msgid "Write User"
+msgstr "Usuari modificació"
 
 msgctxt "field:sale.shop,magento_group_price:"
 msgid "Magento Grup Price"
@@ -282,6 +322,10 @@ msgctxt "help:magento.product.type,code:"
 msgid "Same name Magento product type, (example: simple)"
 msgstr "El mateix nom que el tipus de producte a Magento (exemple: simple)"
 
+msgctxt "help:product.template,magento_attribute_configurables:"
+msgid "Add attributes before export configurable product"
+msgstr "Afegeix atributs abans d'exportar producte configurable"
+
 msgctxt "help:product.template,magento_group_price:"
 msgid ""
 "If check this value, when export product prices (and shop is active group "
@@ -322,6 +366,10 @@ msgstr "Tipus producte Magento"
 msgctxt "model:magento.sale.shop.group.price,name:"
 msgid "Magento Sale Shop Group Price"
 msgstr "Magento Preu grup botiga"
+
+msgctxt "model:product.template-magento.attribute.configurable,name:"
+msgid "Product Template - Magento Attribute Configurable"
+msgstr "Plantilla producte - Magento atribut configurable"
 
 msgctxt "selection:esale.catalog.menu,default_sort_by:"
 msgid ""
@@ -386,6 +434,10 @@ msgstr "Tipus producte Magento"
 msgctxt "view:magento.sale.shop.group.price:"
 msgid "Magento Sale Shop Group Price"
 msgstr "Magento preu per grup botiga"
+
+msgctxt "view:product.template:"
+msgid "Attribute Configurables"
+msgstr "Atributs configurables"
 
 msgctxt "view:sale.shop:"
 msgid "Magento Product"
