@@ -144,6 +144,30 @@ wiki para el formateo de texto. Usando la sintaxis de wiki le permite controlar 
 más fácil para la lectura. `Ejemplos de la sintaxis wiki: <http://meta.wikimedia.org/wiki/Help:Wikitext_examples>`_ 
 En los campos de SEO no se debe usar el formato HTML.
 
+.. inheritref:: magento/magento:section:exportacion_de_productos_configurables
+
+Exportación productos configurables
+-----------------------------------
+
+En el caso que Magento use productos del tipo "Configurable", deberemos marcar en la plantilla
+eSale la opción del tipo de producto configurable. Al activar esta opción deberemos añadir los atributos
+configurables relacionados con el producto (campo requerido). También el campo "Código base" del producto
+pasará a ser un campo requerido.
+
+Es importante antes de exportar el producto a Magento, seleccionar los atributos configurables
+relacionados con el producto que usará. Después de la exportación, no podrá se actualizará el producto
+a Magento con nuevos productos. En el caso que desea actualizar los atributos configurables que usará
+el producto, deberá eliminar el producto a Magento y volver a exportar.
+
+Para que las variantes del producto queden relacionados con los atributos configurables, también
+es importante que a cada variante lo relacione con el atributo deseado.
+
+Por ejemplo, si disponemos del atributos configurable "color", por cada variante, deberemos
+seleccionar el atributo "color" y su opción. Un ejemplo gráfico seria:
+
+* Camiseta Tryton - Roja
+* Camiseta Tryton - Negra
+
 .. inheritref:: magento/magento:section:exportacion_de_precios_de_productos
 
 Exportación de precios de productos
