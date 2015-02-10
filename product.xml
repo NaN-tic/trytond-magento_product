@@ -3,7 +3,12 @@
 The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
-        <!--Product -->
+        <!--eSale Product -->
+        <record model="ir.ui.view" id="esale_template_view_tree">
+            <field name="model">product.template</field>
+            <field name="inherit" ref="product_esale.esale_template_view_tree"/>
+            <field name="name">esale_template_tree</field>
+        </record>
         <record model="ir.ui.view" id="esale_template_view_form">
             <field name="model">product.template</field>
             <field name="inherit" ref="product_esale.esale_template_view_form"/>
