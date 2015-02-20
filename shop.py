@@ -225,6 +225,8 @@ class SaleShop:
                         logging.getLogger('magento').error(message)
                         continue
 
+                    total_products = len(template.products)
+
                     for product in template.products:
                         code = product.code
                         if not code:
@@ -265,6 +267,10 @@ class SaleShop:
 
                                 values['name'] = ' - '.join(names)
                         del values['id']
+                        # if products > 1, add code prefix in url key
+                        if total_products > 1:
+                            url_key = values.get('url_key')
+                            values['url_key'] = '%s-%s' % (code.lower(), url_key)
 
                         if app.debug:
                             message = 'Magento %s. Product: %s. Values: %s' % (
