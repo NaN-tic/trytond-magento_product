@@ -656,11 +656,16 @@ class SaleShop:
                             data['attachment'] = attachment
                             images.append(data)
 
+                    # Get product codes and base code
+                    codes = []
                     for product in template.products:
                         code = product.code
                         if not code:
                             continue
+                    if template.magento_product_type == 'configurable':
+                        codes.append(template.base_code)
 
+                    for code in codes:
                         # find images available every product
                         creates = []
                         updates = []
@@ -674,14 +679,14 @@ class SaleShop:
                         # Update images
                         for data in updates:
                             filename = data['file']
-                            del data['data']
-                            del data['name']
-                            del data['file']
-                            del data['mime']
-                            del data['attachment']
+                            img_data = {}
+                            img_data['label'] = data['label']
+                            img_data['position'] = data['position']
+                            img_data['exclude'] = data['exclude']
+                            img_data['types'] = data['types']
 
                             try:
-                                product_image_api.update(code, filename, data)
+                                product_image_api.update(code, filename, img_data)
                                 message = 'Magento %s. Updated image %s product %s.' % (
                                         shop.name, filename, code)
                                 logging.getLogger('magento').info(message)
@@ -697,11 +702,11 @@ class SaleShop:
                             filename = data['file']
                             mime = data['mime']
                             attachment = data['attachment']
-                            del data['data']
-                            del data['file']
-                            del data['name']
-                            del data['mime']
-                            del data['attachment']
+                            img_data = {}
+                            img_data['label'] = data['label']
+                            img_data['position'] = data['position']
+                            img_data['exclude'] = data['exclude']
+                            img_data['types'] = data['types']
 
                             fdata = {'file': {
                                 'content': base64.b64encode(filedata),
@@ -710,7 +715,7 @@ class SaleShop:
                                 }}
                             try:
                                 mgn_img = product_image_api.create(code, fdata)
-                                product_image_api.update(code, mgn_img, data)
+                                product_image_api.update(code, mgn_img, img_data)
                                 new_name = mgn_img.split('/')[-1]
                                 Attachment.write([attachment], {'name': new_name})
                                 message = 'Magento %s. Created image %s product %s.' % (
