@@ -253,6 +253,8 @@ class SaleShop:
                                 values['tax_class_id'] = tax.tax_id
                                 break
                         if product_type == 'configurable':
+                            # force visibility Not Visible Individually
+                            values['visibility'] = '1'
                             # each variant add attribute options in product name
                             if options:
                                 names = [values['name']]
@@ -264,9 +266,12 @@ class SaleShop:
                                         vals = options[attribute.code]
                                         if vals.get(attr):
                                             names.append(vals.get(attr))
-
                                 values['name'] = ' - '.join(names)
+                        if product_type == 'grouped':
+                            # force visibility Not Visible Individually
+                            values['visibility'] = '1'
                         del values['id']
+
                         # if products > 1, add code prefix in url key
                         if total_products > 1:
                             url_key = values.get('url_key')
