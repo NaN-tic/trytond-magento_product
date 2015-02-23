@@ -325,6 +325,10 @@ class SaleShop:
                                 pvals, = BaseExternalMapping.map_tryton_to_external(product_mapping, [product.id])
                             values = dict(pvals, **tvals)
 
+                            if product_type in ['configurable', 'grouped']:
+                                # force visibility Not Visible Individually
+                                values['visibility'] = '1'
+
                             if app.debug:
                                 message = 'Magento %s. Product: %s. Values: %s' % (
                                         shop.name, code, values)
