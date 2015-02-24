@@ -193,7 +193,6 @@ class SaleShop:
             ProductProduct = pool.get('product.product')
             MagentoExternalReferential = pool.get('magento.external.referential')
             BaseExternalMapping = pool.get('base.external.mapping')
-            MagentoAttributeConfigurable = pool.get('magento.attribute.configurable')
 
             shop, = SaleShop.browse([sale_shop])
             app = shop.magento_website.magento_app
@@ -204,16 +203,6 @@ class SaleShop:
                 return
             template_mapping = app.template_mapping.name
             product_mapping = app.product_mapping.name
-
-            # Get options from attribute configurables
-            configurables = MagentoAttributeConfigurable.search([
-                ('app', '=', app),
-                ])
-            if configurables:
-                options = ProductTemplate.attribute_options(
-                        [c.code for c in configurables])
-            else:
-                options = None
 
             with Product(app.uri, app.username, app.password) as product_api:
                 for template in ProductTemplate.browse(templates):
@@ -255,18 +244,8 @@ class SaleShop:
                         if product_type == 'configurable':
                             # force visibility Not Visible Individually
                             values['visibility'] = '1'
+                            values['name'] = product.description if product.description else product.name
                             # each variant add attribute options in product name
-                            if options:
-                                names = [values['name']]
-                                for attribute in template.magento_attribute_configurables:
-                                    attr = product.attributes.get(
-                                        attribute.code
-                                        )
-                                    if options.get(attribute.code):
-                                        vals = options[attribute.code]
-                                        if vals.get(attr):
-                                            names.append(vals.get(attr))
-                                values['name'] = ' - '.join(names)
                         if product_type == 'grouped':
                             # force visibility Not Visible Individually
                             values['visibility'] = '1'
@@ -328,6 +307,7 @@ class SaleShop:
                             if product_type in ['configurable', 'grouped']:
                                 # force visibility Not Visible Individually
                                 values['visibility'] = '1'
+                                values['name'] = product.description if product.description else product.name
 
                             if app.debug:
                                 message = 'Magento %s. Product: %s. Values: %s' % (
