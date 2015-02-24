@@ -15,8 +15,9 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <field name="catalog_price"/>
     </xpath>
     <xpath
-        expr="/form/notebook/page[@id='import']/button[@name='core_customer_group']"
+        expr="/form/notebook/page[@id='core']"
         position="after">
+        <page string="Catalog" id="catalog">
             <separator string="Products" colspan="4" id="products"/>
             <button name="core_import_product_type" string="Import Product Type" colspan="4"/>
             <button name="core_import_group_attributes" string="Import Group Attributes" colspan="4"/>
@@ -39,17 +40,12 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
                 <label name="to_date_products"/>
                 <field name="to_date_products"/>
             </group>
-    </xpath>
-    <xpath
-        expr="/form/notebook/page[@id='import']"
-        position="after">
-            <page string="Export" id="export">
-                <separator string="Products" colspan="4" id="products"/>
-                <group col="5" colspan="4" id="categories-export">
-                    <button name="core_export_categories" string="Export Magento Categories"/>
-                    <label name="top_menu"/>
-                    <field name="top_menu"/>
-                </group>
-            </page>
+            <separator string="Export" colspan="4" id="export"/>
+            <group col="5" colspan="4" id="categories-export">
+                <button name="core_export_categories" string="Export Magento Categories"/>
+                <label name="top_menu"/>
+                <field name="top_menu"/>
+            </group>
+        </page>
     </xpath>
 </data>
