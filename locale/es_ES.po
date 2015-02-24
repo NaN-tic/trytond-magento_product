@@ -387,6 +387,10 @@ msgid "Magento"
 msgstr "Magento"
 
 msgctxt "view:magento.app:"
+msgid "Catalog"
+msgstr "Catálogo"
+
+msgctxt "view:magento.app:"
 msgid "Export"
 msgstr "Exportar"
 
