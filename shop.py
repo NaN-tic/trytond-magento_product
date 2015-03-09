@@ -643,9 +643,8 @@ class SaleShop:
                     # Get product codes and base code
                     codes = []
                     for product in template.products:
-                        code = product.code
-                        if not code:
-                            continue
+                        if product.code:
+                            codes.append(product.code)
                     if template.magento_product_type == 'configurable':
                         codes.append(template.base_code)
 
