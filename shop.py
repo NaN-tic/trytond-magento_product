@@ -244,7 +244,8 @@ class SaleShop:
                         if product_type == 'configurable':
                             # force visibility Not Visible Individually
                             values['visibility'] = '1'
-                            values['name'] = product.description if product.description else product.name
+                            # product name from product_name module if installed
+                            values['name'] = product.name if product.name else product.template.name
                             # each variant add attribute options in product name
                         if product_type == 'grouped':
                             # force visibility Not Visible Individually
