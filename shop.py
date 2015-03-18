@@ -647,7 +647,9 @@ class SaleShop:
                         if product.code:
                             codes.append(product.code)
                     if template.magento_product_type == 'configurable':
-                        codes.append(template.base_code)
+                        # only sinc images from main product, not simples, because Mgn
+                        # add new image filename in each product - attachment
+                        codes = [template.base_code]
 
                     for code in codes:
                         # find images available every product
