@@ -26,7 +26,7 @@ Añade en Magento APP los Base External Mapping:
 
 No es necesario crear en el Base External Mapping los campos:
 
-* esale_saleshops
+* shops
 * customer_taxes
 * list_price
 * cost_price

@@ -117,7 +117,7 @@ class SaleShop:
         '''Domain filter Products'''
         return [
                 ('esale_available', '=', True),
-                ('esale_saleshops', 'in', [self.id]),
+                ('shops', 'in', [self.id]),
                 ]
 
     def magento_get_categories(self, app, template):
@@ -128,7 +128,7 @@ class SaleShop:
         MagentoExternalReferential = pool.get('magento.external.referential')
 
         websites = []
-        for shop in template.esale_saleshops:
+        for shop in template.shops:
             ext_ref = MagentoExternalReferential.get_try2mgn(app,
                     'magento.website',
                     shop.magento_website.id)
@@ -441,7 +441,7 @@ class SaleShop:
         if tpls:
             templates = []
             for t in Template.browse(tpls):
-                shops = [s.id for s in t.esale_saleshops]
+                shops = [s.id for s in t.shops]
                 if t.esale_available and shop.id in shops:
                     templates.append(t)
         else:
@@ -450,7 +450,7 @@ class SaleShop:
 
             templates = Template.search([
                     ('esale_available', '=', True),
-                    ('esale_saleshops', 'in', [shop.id]),
+                    ('shops', 'in', [shop.id]),
                     ['OR',
                         ('create_date', '>=', last_prices),
                         ('write_date', '>', last_prices),
@@ -541,7 +541,7 @@ class SaleShop:
         if tpls:
             templates = []
             for t in Template.browse(tpls):
-                shops = [s.id for s in t.esale_saleshops]
+                shops = [s.id for s in t.shops]
                 if t.esale_available and shop.id in shops:
                     templates.append(t)
         else:
@@ -550,7 +550,7 @@ class SaleShop:
 
             templates = Template.search([
                     ('esale_available', '=', True),
-                    ('esale_saleshops', 'in', [shop.id]),
+                    ('shops', 'in', [shop.id]),
                     ['OR',
                         ('create_date', '>=', last_images),
                         ('write_date', '>', last_images),

@@ -23,7 +23,7 @@ Add in Magento APP Base External Mapping:
 
 Not necessary to create a Base External Mapping fields:
 
-* esale_saleshops
+* shops
 * customer_taxes
 * list_price
 * cost_price

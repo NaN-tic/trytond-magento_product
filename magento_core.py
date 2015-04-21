@@ -489,7 +489,7 @@ class MagentoApp:
         pvals.update(BaseExternalMapping.map_external_to_tryton(product_mapping, data))
 
         # Shops - websites
-        shops = ProductProduct.magento_product_esale_saleshops(app, data)
+        shops = ProductProduct.magento_product_shops(app, data)
         if not shops:
             self.raise_user_error('shop_not_found')
         shop = Shop(shops[0])
@@ -499,7 +499,7 @@ class MagentoApp:
             self.raise_user_error('shop_without_default_uom')
 
         if shops:
-            tvals['esale_saleshops'] = shops
+            tvals['shops'] = shops
 
         # Categories -> menus
         menus = Menu.search([
