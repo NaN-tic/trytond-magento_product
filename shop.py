@@ -574,6 +574,121 @@ class SaleShop:
                 args=(db_name, user.id, shop.id, templates,))
             thread1.start()
 
+    @staticmethod
+    def magento_images_from_attachments(attachments):
+        images = []
+        for attachment in attachments:
+            if attachment.esale_available:
+                # Check if attachment is a image file
+                image_mime = guess_type(attachment.name)
+                if not image_mime:
+                    message = 'Magento %s. Error export image %s ' \
+                        'have not mime' % (
+                            shop.name, attachment.name)
+                    logging.getLogger('magento').error(message)
+                    continue
+                mime = image_mime[0]
+                if not mime in _MIME_TYPES:
+                    message = 'Magento %s. Error export image %s ' \
+                        'is not mime valid' % (
+                            shop.name, attachment.name)
+                    logging.getLogger('magento').error(message)
+                    continue
+
+                # Get types image
+                types = []
+                if attachment.esale_base_image:
+                    types.append('image')
+                if attachment.esale_small_image:
+                    types.append('small_image')
+                if attachment.esale_thumbnail:
+                    types.append('thumbnail')
+
+                # Create dict values
+                data = {}
+                data['label'] = attachment.description
+                data['position'] = attachment.esale_position
+                data['exclude'] = attachment.esale_exclude
+                data['types'] = types
+                data['data'] = attachment.data
+                data['name'] = attachment.name.split('.')[0] #remove ext file
+                data['file'] = '/%s/%s/%s' % (
+                        attachment.name[0],
+                        attachment.name[1],
+                        attachment.name,
+                        ) # m/y/my_image.jpg
+                data['mime'] = mime
+                data['attachment'] = attachment
+                images.append(data)
+        return images
+
+    @staticmethod
+    def create_update_magento_images(app, shop, code, images):
+        '''Create/Update image by code product'''
+        pool = Pool()
+        Attachment = pool.get('ir.attachment')
+
+        with ProductImages(app.uri, app.username, app.password) as product_image_api:
+            # find images available every product
+            creates = []
+            updates = []
+            mgn_imgs = product_image_api.list(code)
+            for image in images:
+                if image.get('file') in [mgn_img.get('file') for mgn_img in mgn_imgs]:
+                    updates.append(image)
+                else:
+                    creates.append(image)
+
+            # Update images
+            for data in updates:
+                filename = data['file']
+                img_data = {}
+                img_data['label'] = data['label']
+                img_data['position'] = data['position']
+                img_data['exclude'] = data['exclude']
+                img_data['types'] = data['types']
+
+                try:
+                    product_image_api.update(code, filename, img_data)
+                    message = 'Magento %s. Updated image %s product %s.' % (
+                            shop.name, filename, code)
+                    logging.getLogger('magento').info(message)
+                except Exception, e:
+                    message = 'Magento %s. Error update image %s to product %s: %s' % (
+                                shop.name, filename, code, e)
+                    logging.getLogger('magento').error(message)
+
+            # Create images
+            for data in creates:
+                filedata = data.get('data')
+                name = data['name']
+                filename = data['file']
+                mime = data['mime']
+                attachment = data['attachment']
+                img_data = {}
+                img_data['label'] = data['label']
+                img_data['position'] = data['position']
+                img_data['exclude'] = data['exclude']
+                img_data['types'] = data['types']
+
+                fdata = {'file': {
+                    'content': base64.b64encode(filedata),
+                    'name': name,
+                    'mime': mime,
+                    }}
+                try:
+                    mgn_img = product_image_api.create(code, fdata)
+                    product_image_api.update(code, mgn_img, img_data)
+                    new_name = mgn_img.split('/')[-1]
+                    Attachment.write([attachment], {'name': new_name})
+                    message = 'Magento %s. Created image %s product %s.' % (
+                            shop.name, new_name, code)
+                    logging.getLogger('magento').info(message)
+                except Exception, e:
+                    message = 'Magento %s. Error create image %s to product %s: %s' % (
+                                shop.name, filename, code, e)
+                    logging.getLogger('magento').error(message)
+
     def export_images_magento_thread(self, db_name, user, sale_shop, templates):
         """Export product images to Magento APP
         :param db_name: str
@@ -586,131 +701,44 @@ class SaleShop:
             pool = Pool()
             SaleShop = pool.get('sale.shop')
             Template = pool.get('product.template')
-            Attachment = pool.get('ir.attachment')
 
             shop, = SaleShop.browse([sale_shop])
             app = shop.magento_website.magento_app
 
-            with ProductImages(app.uri, app.username, app.password) as product_image_api:
-                for template in Template.browse(templates):
+            for template in Template.browse(templates):
+                if not template.products:
+                    continue
+
+                if template.magento_product_type == 'configurable':
+                    # template -> configurable
+                    if template.attachments:
+                        code = template.base_code
+                        if code:
+                            images = self.magento_images_from_attachments(template.attachments)
+                            if images:
+                                self.create_update_magento_images(app, shop, code, images)
+                    # variants -> simple
+                    for product in template.products:
+                        if not product.attachments:
+                            continue
+                        code = product.code
+                        if not code:
+                            continue
+                        images = self.magento_images_from_attachments(product.attachments)
+                        if images:
+                            self.create_update_magento_images(app, shop, code, images)
+                elif template.attachments:
                     if not template.attachments:
                         continue
-
-                    images = []
-                    for attachment in template.attachments:
-                        if attachment.esale_available:
-                            # Check if attachment is a image file
-                            image_mime = guess_type(attachment.name)
-                            if not image_mime:
-                                message = 'Magento %s. Error export image %s ' \
-                                    'have not mime' % (
-                                        shop.name, attachment.name)
-                                logging.getLogger('magento').error(message)
-                                continue
-                            mime = image_mime[0]
-                            if not mime in _MIME_TYPES:
-                                message = 'Magento %s. Error export image %s ' \
-                                    'is not mime valid' % (
-                                        shop.name, attachment.name)
-                                logging.getLogger('magento').error(message)
-                                continue
-
-                            # Get types image
-                            types = []
-                            if attachment.esale_base_image:
-                                types.append('image')
-                            if attachment.esale_small_image:
-                                types.append('small_image')
-                            if attachment.esale_thumbnail:
-                                types.append('thumbnail')
-
-                            # Create dict values
-                            data = {}
-                            data['label'] = attachment.description
-                            data['position'] = attachment.esale_position
-                            data['exclude'] = attachment.esale_exclude
-                            data['types'] = types
-                            data['data'] = attachment.data
-                            data['name'] = attachment.name.split('.')[0] #remove ext file
-                            data['file'] = '/%s/%s/%s' % (
-                                    attachment.name[0],
-                                    attachment.name[1],
-                                    attachment.name,
-                                    ) # m/y/my_image.jpg
-                            data['mime'] = mime
-                            data['attachment'] = attachment
-                            images.append(data)
-
-                    # Get product codes and base code
-                    codes = []
-                    for product in template.products:
-                        if product.code:
-                            codes.append(product.code)
-                    if template.magento_product_type == 'configurable':
-                        # only sinc images from main product, not simples, because Mgn
-                        # add new image filename in each product - attachment
-                        codes = [template.base_code]
-
-                    for code in codes:
-                        # find images available every product
-                        creates = []
-                        updates = []
-                        mgn_imgs = product_image_api.list(code)
-                        for image in images:
-                            if image.get('file') in [mgn_img.get('file') for mgn_img in mgn_imgs]:
-                                updates.append(image)
-                            else:
-                                creates.append(image)
-
-                        # Update images
-                        for data in updates:
-                            filename = data['file']
-                            img_data = {}
-                            img_data['label'] = data['label']
-                            img_data['position'] = data['position']
-                            img_data['exclude'] = data['exclude']
-                            img_data['types'] = data['types']
-
-                            try:
-                                product_image_api.update(code, filename, img_data)
-                                message = 'Magento %s. Updated image %s product %s.' % (
-                                        shop.name, filename, code)
-                                logging.getLogger('magento').info(message)
-                            except Exception, e:
-                                message = 'Magento %s. Error update image %s to product %s: %s' % (
-                                            shop.name, filename, code, e)
-                                logging.getLogger('magento').error(message)
-
-                        # Create images
-                        for data in creates:
-                            filedata = data.get('data')
-                            name = data['name']
-                            filename = data['file']
-                            mime = data['mime']
-                            attachment = data['attachment']
-                            img_data = {}
-                            img_data['label'] = data['label']
-                            img_data['position'] = data['position']
-                            img_data['exclude'] = data['exclude']
-                            img_data['types'] = data['types']
-
-                            fdata = {'file': {
-                                'content': base64.b64encode(filedata),
-                                'name': name,
-                                'mime': mime,
-                                }}
-                            try:
-                                mgn_img = product_image_api.create(code, fdata)
-                                product_image_api.update(code, mgn_img, img_data)
-                                new_name = mgn_img.split('/')[-1]
-                                Attachment.write([attachment], {'name': new_name})
-                                message = 'Magento %s. Created image %s product %s.' % (
-                                        shop.name, new_name, code)
-                                logging.getLogger('magento').info(message)
-                            except Exception, e:
-                                message = 'Magento %s. Error create image %s to product %s: %s' % (
-                                            shop.name, filename, code, e)
-                                logging.getLogger('magento').error(message)
+                    product, = template.products
+                    code = product.code
+                    if not code:
+                        continue
+                    images = self.magento_images_from_attachments(template.attachments)
+                    if images:
+                        self.create_update_magento_images(app, shop, code, images)
+                else:
+                    continue
 
             Transaction().cursor.commit()
             logging.getLogger('magento').info(
