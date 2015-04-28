@@ -89,17 +89,22 @@ class Template:
     @classmethod
     def get_magento_product_type(cls):
         ProductType = Pool().get('magento.product.type')
+
+        types = [(None, '')]
         records = ProductType.search([
             ('active', '=', True),
             ], order=[('id', 'DESC')])
         if not records:
-            return [(None, '')]
+            return types
         product_types = ProductType.read(records, ['code', 'name'])
-        return [(pt['code'], pt['name']) for pt in product_types]
+        if product_types:
+            for pt in product_types:
+                types.append((pt['code'], pt['name']))
+        return types
 
     @staticmethod
     def default_magento_product_type():
-        product_type = ''
+        product_type = None
         ProductType = Pool().get('magento.product.type')
         ids = ProductType.search([
             ('code', '=', 'simple'),
