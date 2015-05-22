@@ -113,13 +113,6 @@ class SaleShop:
         data['group_price'] = group_price
         return data
 
-    def magento_product_domain(self):
-        '''Domain filter Products'''
-        return [
-                ('esale_available', '=', True),
-                ('shops', 'in', [self.id]),
-                ]
-
     def magento_get_categories(self, app, template):
         return [menu.magento_id for menu in template.esale_menus if menu.magento_app == app]
 
@@ -142,8 +135,9 @@ class SaleShop:
         """
         pool = Pool()
         Template = pool.get('product.template')
+        Product = pool.get('product.product')
 
-        product_domain = self.magento_product_domain()
+        product_domain = Product.magento_product_domain([self.id])
 
         if tpls:
             templates = []
