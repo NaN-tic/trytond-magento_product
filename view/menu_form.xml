@@ -5,9 +5,9 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
     <xpath expr="/form/notebook" position="inside">
         <page string="Magento" id="magento" states="{'invisible': ~Eval('magento_id')}">
             <label name="magento_app"/>
-            <field name="magento_app" readonly="1"/>
+            <field name="magento_app"/>
             <label name="magento_id"/>
-            <field name="magento_id" readonly="1"/>
+            <field name="magento_id"/>
         </page>
     </xpath>
 </data>
