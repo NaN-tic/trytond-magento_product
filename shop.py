@@ -290,7 +290,7 @@ class SaleShop:
                     # save products by language
                     for lang in app.languages:
                         with Transaction().set_context(language=lang.lang.code):
-                            product = ProductProduct(product.id)
+                            product = Prod(product.id)
                             tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [product.template.id])
                             pvals, = BaseExternalMapping.map_tryton_to_external(product_mapping, [product.id])
                         values = dict(pvals, **tvals)
@@ -392,7 +392,7 @@ class SaleShop:
                     # save products by language
                     for lang in app.languages:
                         with Transaction().set_context(language=lang.lang.code):
-                            product = ProductProduct(product.id)
+                            product = Prod(product.id)
                             tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [product.template.id])
                         values = tvals
 
