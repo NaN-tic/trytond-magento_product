@@ -136,6 +136,7 @@ class SaleShop:
         Prod = pool.get('product.product')
         MagentoExternalReferential = pool.get('magento.external.referential')
         BaseExternalMapping = pool.get('base.external.mapping')
+        User = pool.get('res.user')
 
         product_domain = Prod.magento_product_domain([self.id])
 
@@ -427,6 +428,7 @@ class SaleShop:
         pool = Pool()
         Template = pool.get('product.template')
         MagentoExternalReferential = pool.get('magento.external.referential')
+        User = pool.get('res.user')
 
         user = self.get_shop_user()
 
@@ -514,6 +516,7 @@ class SaleShop:
         """
         pool = Pool()
         Template = pool.get('product.template')
+        User = pool.get('res.user')
 
         context = Transaction().context
         if not context.get('shop'): # reload context when run cron user
