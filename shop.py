@@ -208,12 +208,12 @@ class SaleShop:
                 total_products = len(template.products)
 
                 for product in template.products:
-                    code = product.code
-                    if not code:
+                    if not product.code:
                         message = 'Magento %s. Error export product ID %s. ' \
                                 'Add a code' % (self.name, product.id)
                         logging.getLogger('magento').error(message)
                         continue
+                    code = '%s ' % product.code # force a space - sku int/str
 
                     tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [template.id])
                     pvals, = BaseExternalMapping.map_tryton_to_external(product_mapping, [product.id])
@@ -316,10 +316,10 @@ class SaleShop:
                 # Export Configurable Product
                 # ===========================
                 if product_type == 'configurable':
-                    code = template.base_code
-                    if not code:
+                    if not template.base_code:
                         logging.getLogger('magento').warning('Product Template not have base code')
                         continue
+                    code = '%s ' % template.base_code # force a space - sku int/str
 
                     tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [template.id])
                     if not template.products:
@@ -375,7 +375,7 @@ class SaleShop:
                         continue
 
                     # Relate product simple to product configuration
-                    ofilter = {'sku': {'in': [p.code for p in template.products]}}
+                    ofilter = {'sku': {'in': ['%s ' % p.code for p in template.products]}} # force a space - sku int/str
                     products = product_api.list(ofilter)
                     with ProductConfigurable(app.uri, app.username, app.password) as product_conf_api:
                         try:
@@ -474,9 +474,9 @@ class SaleShop:
         with Product(app.uri, app.username, app.password) as product_api:
             for template in templates:
                 for product in template.products:
-                    code = product.code
-                    if not code:
+                    if not product.code:
                         continue
+                    code = '%s ' % product.code # force a space - sku int/str
 
                     data = self.magento_get_prices(product)
 
@@ -564,7 +564,7 @@ class SaleShop:
             if template.magento_product_type == 'configurable':
                 # template -> configurable
                 if template.attachments:
-                    code = template.base_code
+                    code = '%s ' % template.base_code # force a space - sku int/str
                     if code:
                         images = self.magento_images_from_attachments(template.attachments)
                         if images:
@@ -573,9 +573,9 @@ class SaleShop:
                 for product in template.products:
                     if not product.attachments:
                         continue
-                    code = product.code
-                    if not code:
+                    if not product.code:
                         continue
+                    code = '% ' % product.code # force a space - sku int/str
                     images = self.magento_images_from_attachments(product.attachments)
                     if images:
                         self.create_update_magento_images(app, self, code, images)
@@ -583,9 +583,9 @@ class SaleShop:
                 if not template.attachments:
                     continue
                 product, = template.products
-                code = product.code
-                if not code:
+                if not product.code:
                     continue
+                code = '%s ' % product.code # force a space - sku int/str
                 images = self.magento_images_from_attachments(template.attachments)
                 if images:
                     self.create_update_magento_images(app, self, code, images)
@@ -652,6 +652,8 @@ class SaleShop:
             # find images available every product
             creates = []
             updates = []
+
+            code = '%s ' % code # force a space - sku int/str
             mgn_imgs = product_image_api.list(code)
             for image in images:
                 if image.get('file') in [mgn_img.get('file') for mgn_img in mgn_imgs]:
