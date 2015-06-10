@@ -174,6 +174,7 @@ class SaleShop:
 
                 # Update date last import
                 self.write([self], {'esale_last_products': now})
+                Transaction().cursor.commit()
 
         templates = list(templates)
         if not templates:
@@ -459,6 +460,7 @@ class SaleShop:
 
                 # Update date last import
                 self.write([self], {'esale_last_prices': now})
+                Transaction().cursor.commit()
 
         if not templates:
             logging.getLogger('magento').info(
@@ -545,6 +547,7 @@ class SaleShop:
 
                 # Update date last import
                 self.write([self], {'esale_last_images': now})
+                Transaction().cursor.commit()
 
         if not templates:
             logging.getLogger('magento').info(
