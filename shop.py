@@ -699,13 +699,6 @@ class SaleShop:
                                 shop.name, filename, code, e)
                     logging.getLogger('magento').error(message)
 
-    def export_stocks_magento(self, tpls=[]):
-        """Export Stock to Magento. Install magento stock module
-        :param shop: object
-        :param tpls: list
-        """
-        pass
-
     def export_menus_magento(self, shop, tpls=[]):
         """Export Menus to Magento
         :param shop: object
