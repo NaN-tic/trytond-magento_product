@@ -132,7 +132,6 @@ class SaleShop:
         :param tpls: list
         """
         pool = Pool()
-        Template = pool.get('product.template')
         Prod = pool.get('product.product')
         MagentoExternalReferential = pool.get('magento.external.referential')
         BaseExternalMapping = pool.get('base.external.mapping')
@@ -146,37 +145,27 @@ class SaleShop:
             context = User._get_preferences(user, context_only=True)
         context['shop'] = self.id # force current shop
 
-        templates = set()
         with Transaction().set_context(context):
             if tpls:
                 product_domain += [('template.id', 'in', tpls)]
-                for p in Prod.search(product_domain):
-                    templates.add(p.template)
             else:
                 now = datetime.datetime.now()
                 last_products = self.esale_last_products
 
                 product_domain += [['OR',
                             ('create_date', '>=', last_products),
-                            ('write_date', '>', last_products),
+                            ('write_date', '>=', last_products),
+                            ('template.create_date', '>=', last_products),
+                            ('template.write_date', '>=', last_products),
                         ]]
-                for p in Prod.search(product_domain):
-                    templates.add(p.template)
-                for t in Template.search(['OR',
-                            ('create_date', '>=', last_products),
-                            ('write_date', '>', last_products),
-                        ], [
-                            ('esale_available', '=', True),
-                            ('shops', 'in', [self.id]),
-                            ('id', 'not in', [t.id for template in templates]),
-                        ]):
-                    templates.add(t)
 
                 # Update date last import
                 self.write([self], {'esale_last_products': now})
                 Transaction().cursor.commit()
 
-        templates = list(templates)
+        products = Prod.search(product_domain)
+        templates = list(set(p.template for p in products))
+
         if not templates:
             logging.getLogger('magento').info(
                 'Magento %s. Not products to export.' % (self.name))
@@ -186,7 +175,6 @@ class SaleShop:
             'Magento %s. Start export %s product(s).' % (
                 self.name, len(templates)))
 
-        user = self.get_shop_user()
         app = self.magento_website.magento_app
 
         if not app.template_mapping or not app.product_mapping:
@@ -410,15 +398,16 @@ class SaleShop:
                         logging.getLogger('magento').info(message)
                     # END product configuration
 
-                # =====================
-                # Export Stock + Images
-                # =====================
-                self.export_stocks_magento([template]) # Export Inventory - Stock
-                self.export_images_magento(self, [template]) # Export Images
-                #TODO: Export Product Links
+        # =====================
+        # Export Stock + Images
+        # =====================
+        if hasattr(self, 'export_stocks_magento'):
+            self.export_stocks_magento([t.id for t in templates]) # Export Inventory - Stock
+        self.export_images_magento(self, [t.id for t in templates]) # Export Images
+        #TODO: Export Product Links
 
         logging.getLogger('magento').info(
-            'Magento %s. End export prices %s products.' % (
+            'Magento %s. End export %s product(s).' % (
                 self.name, len(templates)))
 
     def export_prices_magento(self, shop, tpls=[]):
@@ -427,11 +416,11 @@ class SaleShop:
         :param tpls: list
         """
         pool = Pool()
-        Template = pool.get('product.template')
+        Prod = pool.get('product.product')
         MagentoExternalReferential = pool.get('magento.external.referential')
         User = pool.get('res.user')
 
-        user = self.get_shop_user()
+        product_domain = Prod.magento_product_domain([self.id])
 
         context = Transaction().context
         if not context.get('shop'): # reload context when run cron user
@@ -441,75 +430,71 @@ class SaleShop:
 
         with Transaction().set_context(context):
             if tpls:
-                templates = []
-                for t in Template.browse(tpls):
-                    shops = [s.id for s in t.shops]
-                    if t.esale_available and self.id in shops:
-                        templates.append(t)
+                product_domain += [('template.id', 'in', tpls)]
             else:
                 now = datetime.datetime.now()
                 last_prices = self.esale_last_prices
 
-                templates = Template.search([
-                        ('esale_available', '=', True),
-                        ('shops', 'in', [self.id]),
-                        ['OR',
+                product_domain += [['OR',
                             ('create_date', '>=', last_prices),
-                            ('write_date', '>', last_prices),
-                        ]])
+                            ('write_date', '>=', last_prices),
+                            ('template.create_date', '>=', last_prices),
+                            ('template.write_date', '>=', last_prices),
+                        ]]
 
                 # Update date last import
                 self.write([self], {'esale_last_prices': now})
                 Transaction().cursor.commit()
 
-        if not templates:
+        products = Prod.search(product_domain)
+
+        if not products:
             logging.getLogger('magento').info(
                 'Magento %s. Not products to export prices.' % (self.name))
             return
 
         logging.getLogger('magento').info(
             'Magento %s. Start export prices. %s product(s).' % (
-                self.name, len(templates)))
+                self.name, len(products)))
 
         app = self.magento_website.magento_app
 
         with Product(app.uri, app.username, app.password) as product_api:
-            for template in templates:
-                for product in template.products:
-                    if not product.code:
-                        continue
-                    code = '%s ' % product.code # force a space - sku int/str
+            for product in products:
+                if not product.code:
+                    continue
+                code = '%s ' % product.code # force a space - sku int/str
 
-                    data = self.magento_get_prices(product)
+                data = self.magento_get_prices(product)
 
-                    if app.debug:
-                        message = 'Magento %s. Product: %s. Data: %s' % (
-                                self.name, code, data)
-                        logging.getLogger('magento').info(message)
+                if app.debug:
+                    message = 'Magento %s. Product: %s. Data: %s' % (
+                            self.name, code, data)
+                    logging.getLogger('magento').info(message)
 
-                    try:
-                        if app.catalog_price == 'website':
-                            ext_ref = MagentoExternalReferential.get_try2mgn(app,
-                                    'magento.external.referential',
-                                    self.magento_website.id)
-                            magento_website = ext_ref.mgn_id
-                            product_api.update(code, data, magento_website)
-                            if self.magento_price_global: # Global price
-                                product_api.update(code, data) 
-                        else:
-                            product_api.update(code, data)
+                try:
+                    if app.catalog_price == 'website':
+                        ext_ref = MagentoExternalReferential.get_try2mgn(app,
+                                'magento.external.referential',
+                                self.magento_website.id)
+                        magento_website = ext_ref.mgn_id
+                        product_api.update(code, data, magento_website)
+                        if self.magento_price_global: # Global price
+                            product_api.update(code, data) 
+                    else:
+                        product_api.update(code, data)
 
-                        message = 'Magento %s. Export price %s product.' % (
-                                self.name, code)
-                        logging.getLogger('magento').info(message)
-                    except Exception, e:
-                        message = 'Magento %s. Error export prices to product %s: %s' % (
-                                    self.name, code, e)
-                        logging.getLogger('magento').error(message)
+                    message = 'Magento %s. Export price %s product.' % (
+                            self.name, code)
+                    logging.getLogger('magento').info(message)
+                except Exception, e:
+                    message = 'Magento %s. Error export prices to product %s: %s' % (
+                                self.name, code, e)
+                    logging.getLogger('magento').error(message)
 
         logging.getLogger('magento').info(
             'Magento %s. End export prices %s products.' % (
-                self.name, len(templates)))
+                self.name, len(products)))
 
     def export_images_magento(self, shop, tpls=[]):
         """Export Images to Magento
@@ -517,8 +502,10 @@ class SaleShop:
         :param tpls: list
         """
         pool = Pool()
-        Template = pool.get('product.template')
+        Prod = pool.get('product.product')
         User = pool.get('res.user')
+
+        product_domain = Prod.magento_product_domain([self.id])
 
         context = Transaction().context
         if not context.get('shop'): # reload context when run cron user
@@ -528,26 +515,24 @@ class SaleShop:
 
         with Transaction().set_context(context):
             if tpls:
-                templates = []
-                for t in Template.browse(tpls):
-                    shops = [s.id for s in t.shops]
-                    if t.esale_available and shop.id in shops:
-                        templates.append(t)
+                product_domain += [('template.id', 'in', tpls)]
             else:
                 now = datetime.datetime.now()
                 last_images = self.esale_last_images
 
-                templates = Template.search([
-                        ('esale_available', '=', True),
-                        ('shops', 'in', [shop.id]),
-                        ['OR',
+                product_domain += [['OR',
                             ('create_date', '>=', last_images),
-                            ('write_date', '>', last_images),
-                        ]])
+                            ('write_date', '>=', last_images),
+                            ('template.create_date', '>=', last_images),
+                            ('template.write_date', '>=', last_images),
+                        ]]
 
                 # Update date last import
                 self.write([self], {'esale_last_images': now})
                 Transaction().cursor.commit()
+
+        products = Prod.search(product_domain)
+        templates = list(set(p.template for p in products))
 
         if not templates:
             logging.getLogger('magento').info(
