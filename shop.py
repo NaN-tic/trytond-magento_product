@@ -403,14 +403,14 @@ class SaleShop:
         # =====================
         if hasattr(self, 'export_stocks_magento'):
             self.export_stocks_magento([t.id for t in templates]) # Export Inventory - Stock
-        self.export_images_magento(self, [t.id for t in templates]) # Export Images
+        self.export_images_magento([t.id for t in templates]) # Export Images
         #TODO: Export Product Links
 
         logging.getLogger('magento').info(
             'Magento %s. End export %s product(s).' % (
                 self.name, len(templates)))
 
-    def export_prices_magento(self, shop, tpls=[]):
+    def export_prices_magento(self, tpls=[]):
         """Export Prices to Magento
         :param shop: object
         :param tpls: list
@@ -496,7 +496,7 @@ class SaleShop:
             'Magento %s. End export prices %s products.' % (
                 self.name, len(products)))
 
-    def export_images_magento(self, shop, tpls=[]):
+    def export_images_magento(self, tpls=[]):
         """Export Images to Magento
         :param shop: object
         :param tpls: list
@@ -699,7 +699,7 @@ class SaleShop:
                                 shop.name, filename, code, e)
                     logging.getLogger('magento').error(message)
 
-    def export_menus_magento(self, shop, tpls=[]):
+    def export_menus_magento(self, tpls=[]):
         """Export Menus to Magento
         :param shop: object
         :param tpls: list
