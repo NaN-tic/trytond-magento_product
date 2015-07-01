@@ -285,9 +285,15 @@ class SaleShop:
                     for lang in app.languages:
                         with Transaction().set_context(language=lang.lang.code):
                             product = Prod(product.id)
-                            tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [product.template.id])
-                            pvals, = BaseExternalMapping.map_tryton_to_external(product_mapping, [product.id])
+                            sview_template_mapping = lang.storeview.template_mapping.name \
+                                    if lang.storeview.template_mapping else template_mapping
+                            sview_product_mapping = lang.storeview.product_mapping.name \
+                                    if lang.storeview.product_mapping else product_mapping
+                            tvals, = BaseExternalMapping.map_tryton_to_external(sview_template_mapping, [product.template.id])
+                            pvals, = BaseExternalMapping.map_tryton_to_external(sview_product_mapping, [product.id])
                         values = dict(pvals, **tvals)
+                        if 'id' in values:
+                            del values['id']
 
                         if product_type in ['configurable', 'grouped']:
                             # force visibility Not Visible Individually

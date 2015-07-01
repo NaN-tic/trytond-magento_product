@@ -10,6 +10,7 @@ from .shop import *
 def register():
     Pool.register(
         MagentoApp,
+        MagentoStoreView,
         MagentoProductType,
         MagentoAttributeConfigurable,
         MagentoSaleShopGroupPrice,

@@ -11,7 +11,7 @@ from magento import *
 import logging
 import urllib
 
-__all__ = ['MagentoApp', 'MagentoSaleShopGroupPrice']
+__all__ = ['MagentoApp', 'MagentoStoreView', 'MagentoSaleShopGroupPrice']
 __metaclass__ = PoolMeta
 
 _ATTRIBUTE_OPTIONS_TYPE = ['select']
@@ -802,6 +802,13 @@ class MagentoApp:
 
             logging.getLogger('magento').info(
                 'End import product links %s' % (app.name))
+
+class MagentoStoreView:
+    __name__ = 'magento.storeview'
+    template_mapping = fields.Many2One('base.external.mapping',
+        'Template Mapping', help='Product Template mapping values')
+    product_mapping = fields.Many2One('base.external.mapping',
+        'Product Mapping', help='Product Product mapping values')
 
 
 class MagentoSaleShopGroupPrice(ModelSQL, ModelView):
