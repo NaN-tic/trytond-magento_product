@@ -229,6 +229,14 @@ msgctxt "field:magento.sale.shop.group.price,write_uid:"
 msgid "Write User"
 msgstr "Usuario modificación"
 
+msgctxt "field:magento.storeview,product_mapping:"
+msgid "Product Mapping"
+msgstr "Mapping producto"
+
+msgctxt "field:magento.storeview,template_mapping:"
+msgid "Template Mapping"
+msgstr "Mapping plantilla"
+
 msgctxt "field:product.template,magento_attribute_configurables:"
 msgid "Configurable Attribute"
 msgstr "Atributo configurable"
@@ -320,6 +328,14 @@ msgstr "Magento ID"
 msgctxt "help:magento.product.type,code:"
 msgid "Same name Magento product type, (example: simple)"
 msgstr "El mismo nombre que el tipo de producto (ejemplo: simple)"
+
+msgctxt "help:magento.storeview,product_mapping:"
+msgid "Product Product mapping values"
+msgstr "Valores de mapping de productos"
+
+msgctxt "help:magento.storeview,template_mapping:"
+msgid "Product Template mapping values"
+msgstr "Valores de mapping de plantillas"
 
 msgctxt "help:product.template,magento_attribute_configurables:"
 msgid "Add attributes before export configurable product"
