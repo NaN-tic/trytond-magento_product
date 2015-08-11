@@ -6,7 +6,6 @@ from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.modules.product_esale.tools import slugify, seo_lenght
 from wikimarkup import parse as wikihtml
-
 from magento import *
 import logging
 import urllib
@@ -15,6 +14,7 @@ __all__ = ['MagentoApp', 'MagentoStoreView', 'MagentoSaleShopGroupPrice']
 __metaclass__ = PoolMeta
 
 _ATTRIBUTE_OPTIONS_TYPE = ['select']
+logger = logging.getLogger(__name__)
 
 
 class MagentoApp:
@@ -92,14 +92,14 @@ class MagentoApp:
                             'code': product_type['type'],
                         }
                         ptype = ProductType.create([values])[0]
-                        logging.getLogger('magento').info(
+                        logger.info(
                             'Create Product Type: App %s, Type %s, ID %s.' % (
                             app.name, 
                             product_type['type'],
                             ptype,
                             ))
                     else:
-                        logging.getLogger('magento').info(
+                        logger.info(
                             'Skip! Product Type %s exists' % (
                             product_type['type'],
                             ))
@@ -135,7 +135,7 @@ class MagentoApp:
                             'id': product_attribute_set['set_id']
                             })
                     else:
-                        logging.getLogger('magento').info(
+                        logger.info(
                             'Skip! Attribute Group exists: APP %s, Attribute %s.' % (
                                 app.name, 
                                 product_attribute_set['set_id'],
@@ -156,7 +156,7 @@ class MagentoApp:
                     attribute_group.id,
                     external_id,
                     )
-                logging.getLogger('magento').info(
+                logger.info(
                     'Create Attribute Group: APP %s, Attribute %s.' % (
                         app.name, 
                         external_id,
@@ -206,10 +206,10 @@ class MagentoApp:
                                     Attribute.write([attr], {
                                         'selection': '\n'.join(opt),
                                         })
-                                    logging.getLogger('magento').info(
+                                    logger.info(
                                         'Save attribute options %s' % (attr.name))
 
-        logging.getLogger('magento').info('End import attribute options')
+        logger.info('End import attribute options')
 
     def save_menu(self, data, parent=None, menu=None):
         '''
@@ -249,7 +249,7 @@ class MagentoApp:
         menu.magento_id = data.get('category_id')
         menu.save()
 
-        logging.getLogger('magento').info(
+        logger.info(
             '%s category %s (%s)' % (action.capitalize(), menu.name, menu.id))
         return menu
 
@@ -283,7 +283,7 @@ class MagentoApp:
 
         with Transaction().set_context(language=language):
             Menu.write([menu], vals)
-        logging.getLogger('magento').info(
+        logger.info(
             'Update category %s (%s-%s)' % (data.get('name'), menu.id, language))
         return menu
 
@@ -332,7 +332,7 @@ class MagentoApp:
         Menu = Pool().get('esale.catalog.menu')
 
         for app in apps:
-            logging.getLogger('magento').info(
+            logger.info(
                 'Start import categories %s' % (app.name))
             if not app.category_root_id:
                 self.raise_user_error('select_category_root')
@@ -357,8 +357,7 @@ class MagentoApp:
                 Transaction().cursor.commit()
                 self.children_categories(app, category_root.id, data)
 
-            logging.getLogger('magento').info(
-                'End import categories %s' % (app.name))
+            logger.info('End import categories %s' % (app.name))
 
     @classmethod
     def magento_category_values(self, menu):
@@ -392,8 +391,7 @@ class MagentoApp:
         Menu = Pool().get('esale.catalog.menu')
 
         for app in apps:
-            logging.getLogger('magento').info(
-                'Start export categories %s' % (app.name))
+            logger.info('Start export categories %s' % (app.name))
             if not app.top_menu:
                 self.raise_user_error('select_top_menu')
             if not app.magento_default_storeview:
@@ -413,7 +411,7 @@ class MagentoApp:
                     if app.debug:
                         message = 'Magento %s. Category: %s' % (
                                 app.name, data)
-                        logging.getLogger('magento').info(message)
+                        logger.info(message)
 
                     try:
                         if magento_id:
@@ -430,11 +428,11 @@ class MagentoApp:
 
                         message = 'Magento %s. %s category: %s (%s)' % (
                                 app.name, action.capitalize(), menu.name, menu.id)
-                        logging.getLogger('magento').info(message)
+                        logger.info(message)
                     except Exception, e:
                         message = 'Magento %s. Error export category ID %s: %s' % (
                                     app.name, menu.id, e)
-                        logging.getLogger('magento').error(message)
+                        logger.error(message)
 
                     Transaction().cursor.commit()
 
@@ -452,14 +450,13 @@ class MagentoApp:
                             category_api.update(magento_id, data, sview)
                             message = 'Magento %s. Update category: %s (%s)' % (
                                     app.name, menu.name, language)
-                            logging.getLogger('magento').info(message)
+                            logger.info(message)
                         except Exception, e:
                             message = 'Magento %s. Error export category lang ID %s: %s' % (
                                         app.name, menu.id, e)
-                            logging.getLogger('magento').error(message)
+                            logger.error(message)
 
-            logging.getLogger('magento').info(
-                'End import categories %s' % (app.name))
+            logger.info('End import categories %s' % (app.name))
 
     @classmethod
     def save_product(self, app, data, product=None):
@@ -510,7 +507,7 @@ class MagentoApp:
             tvals['esale_menus'] = [menu.id for menu in menus]
 
         if app.debug:
-            logging.getLogger('magento').info(
+            logger.info(
                 'Product values: %s' % (dict(tvals.items() + pvals.items())))
 
         if not product:
@@ -551,7 +548,7 @@ class MagentoApp:
 
         template.save()
 
-        logging.getLogger('magento').info(
+        logger.info(
             '%s product %s (%s)' % (action.capitalize(), template.rec_name, template.id))
 
         return template
@@ -591,12 +588,12 @@ class MagentoApp:
 
         with Transaction().set_context(language=language):
             Template.write([template], tmpl_vals)
-            logging.getLogger('magento').info(
+            logger.info(
                 'Update template %s (%s-%s)' % (data.get('name'), template.id, language))
             for product in template.products:
                 if product.code == pvals.get('code'):
                     Product.write([product], prod_vals)
-                    logging.getLogger('magento').info(
+                    logger.info(
                         'Update product %s (%s-%s)' % (data.get('name'), product.id, language))
 
         return template
@@ -660,7 +657,7 @@ class MagentoApp:
                 attachment.esale_position = image.get('position')
                 attachment.save()
 
-                logging.getLogger('magento').info(
+                logger.info(
                     '%s image %s (%s)' % (action.capitalize(), name, attachment.id))
 
     @classmethod
@@ -680,7 +677,7 @@ class MagentoApp:
             if not app.magento_websites or not app.product_mapping:
                 self.raise_user_error('select_mapping')
 
-            logging.getLogger('magento').info(
+            logger.info(
                 'Start import products %s' % (app.name))
 
             with Product(app.uri, app.username, app.password) as product_api:
@@ -725,7 +722,7 @@ class MagentoApp:
                 if not products:
                     self.raise_user_error('not_import_products')
 
-                logging.getLogger('magento').info(
+                logger.info(
                     'Import Magento %s products: %s' % (len(products), ofilter))
 
                 # Update last import
@@ -749,7 +746,7 @@ class MagentoApp:
                             if tpl.products:
                                 prod = tpl.products[0]
                             else:
-                                logging.getLogger('magento').warning(
+                                logger.warning(
                                     'Template ID %s not have products' % (
                                         tpl.id))
                                 continue
@@ -771,8 +768,7 @@ class MagentoApp:
 
                     Transaction().cursor.commit()
 
-            logging.getLogger('magento').info(
-                'End import products %s' % (app.name))
+            logger.info('End import products %s' % (app.name))
 
     @classmethod
     @ModelView.button
@@ -784,8 +780,7 @@ class MagentoApp:
         self.raise_user_error('magento_api_error') #TODO: delete this line
 
         for app in apps:
-            logging.getLogger('magento').info(
-                'Start import product links %s' % (app.name))
+            logger.info('Start import product links %s' % (app.name))
 
             #~ with ProductLinks(app.uri, app.username, app.password) as product_links_api:
                 #~ products = []
@@ -800,8 +795,8 @@ class MagentoApp:
 
                     #TODO: save product links
 
-            logging.getLogger('magento').info(
-                'End import product links %s' % (app.name))
+            logger.info('End import product links %s' % (app.name))
+
 
 class MagentoStoreView:
     __name__ = 'magento.storeview'

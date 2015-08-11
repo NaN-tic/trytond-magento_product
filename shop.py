@@ -4,16 +4,18 @@
 from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
+from mimetypes import guess_type
+from magento import *
 import datetime
 import logging
-from mimetypes import guess_type
 import base64
-
-from magento import *
 
 __all__ = ['SaleShop']
 __metaclass__ = PoolMeta
+
 _MIME_TYPES = ['image/jpeg', 'image/png']
+logger = logging.getLogger(__name__)
+
 
 class SaleShop:
     __name__ = 'sale.shop'
@@ -143,7 +145,7 @@ class SaleShop:
         if not context.get('shop'): # reload context when run cron user
             user = self.get_shop_user()
             if not user:
-                logging.getLogger('magento').info(
+                logger.info(
                     'Magento %s. Add a user in shop configuration.' % (self.name))
                 return
             context = User._get_preferences(user, context_only=True)
@@ -171,11 +173,11 @@ class SaleShop:
         templates = list(set(p.template for p in products))
 
         if not templates:
-            logging.getLogger('magento').info(
+            logger.info(
                 'Magento %s. Not products to export.' % (self.name))
             return
 
-        logging.getLogger('magento').info(
+        logger.info(
             'Magento %s. Start export %s product(s).' % (
                 self.name, len(templates)))
 
@@ -183,7 +185,7 @@ class SaleShop:
 
         if not app.template_mapping or not app.product_mapping:
             message = 'Add Mapping Product in Magento APP.'
-            logging.getLogger('magento').error(message)
+            logger.error(message)
             return
         template_mapping = app.template_mapping.name
         product_mapping = app.product_mapping.name
@@ -195,7 +197,7 @@ class SaleShop:
                 if not template.esale_attribute_group:
                     message = 'Magento %s. Error export template ID %s. ' \
                             'Select eSale Attribute' % (self.name, template.id)
-                    logging.getLogger('magento').error(message)
+                    logger.error(message)
                     continue
 
                 total_products = len(template.products)
@@ -204,7 +206,7 @@ class SaleShop:
                     if not product.code:
                         message = 'Magento %s. Error export product ID %s. ' \
                                 'Add a code' % (self.name, product.id)
-                        logging.getLogger('magento').error(message)
+                        logger.error(message)
                         continue
                     code = '%s ' % product.code # force a space - sku int/str
 
@@ -244,7 +246,7 @@ class SaleShop:
                     if app.debug:
                         message = 'Magento %s. Product: %s. Values: %s' % (
                                 self.name, code, values)
-                        logging.getLogger('magento').info(message)
+                        logger.info(message)
 
                     mgn_prods = product_api.list({'sku': {'=': code}})
 
@@ -271,12 +273,12 @@ class SaleShop:
 
                             message = 'Magento %s. %s product %s. Magento ID %s' % (
                                     self.name, action.capitalize(), code, mgn_id)
-                            logging.getLogger('magento').info(message)
+                            logger.info(message)
                     except Exception, e:
                         action = None
                         message = 'Magento %s. Error export product %s: %s' % (
                                     self.name, code, e)
-                        logging.getLogger('magento').error(message)
+                        logger.error(message)
 
                     if not action:
                         continue
@@ -303,26 +305,26 @@ class SaleShop:
                         if app.debug:
                             message = 'Magento %s. Product: %s. Values: %s' % (
                                     self.name, code, values)
-                            logging.getLogger('magento').info(message)
+                            logger.info(message)
 
                         product_api.update(code, values, lang.storeview.code)
 
                         message = 'Magento %s. Update product %s (%s)' % (
                                 self.name, code, lang.lang.code)
-                        logging.getLogger('magento').info(message)
+                        logger.info(message)
 
                 # ===========================
                 # Export Configurable Product
                 # ===========================
                 if product_type == 'configurable':
                     if not template.base_code:
-                        logging.getLogger('magento').warning('Product Template not have base code')
+                        logger.warning('Product Template not have base code')
                         continue
                     code = '%s ' % template.base_code # force a space - sku int/str
 
                     tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [template.id])
                     if not template.products:
-                        logging.getLogger('magento').warning('Template not have products')
+                        logger.warning('Template not have products')
                         continue
                     prices = self.magento_get_prices(template.products[0])
 
@@ -366,11 +368,11 @@ class SaleShop:
 
                             message = 'Magento %s. %s product %s. Magento ID %s' % (
                                     self.name, action.capitalize(), code, mgn_id)
-                            logging.getLogger('magento').info(message)
+                            logger.info(message)
                     except Exception, e:
                         message = 'Magento %s. Error export product %s: %s' % (
                                     self.name, code, e)
-                        logging.getLogger('magento').error(message)
+                        logger.error(message)
                         continue
 
                     # Relate product simple to product configuration
@@ -382,12 +384,12 @@ class SaleShop:
                             product_conf_api.update(code, simples, {})
                             message = 'Magento %s. Update %s with configurable %s' % (
                                     self.name, code, simples)
-                            logging.getLogger('magento').info(message)
+                            logger.info(message)
                         except Exception, e:
                             action = None
                             message = 'Magento %s. Error export product %s: %s' % (
                                         self.name, code, e)
-                            logging.getLogger('magento').error(message)
+                            logger.error(message)
 
                     # save products by language
                     for lang in app.languages:
@@ -399,13 +401,13 @@ class SaleShop:
                         if app.debug:
                             message = 'Magento %s. Product: %s. Values: %s' % (
                                     self.name, code, values)
-                            logging.getLogger('magento').info(message)
+                            logger.info(message)
 
                         product_api.update(code, values, lang.storeview.code)
 
                         message = 'Magento %s. Update product %s (%s)' % (
                                 self.name, code, lang.lang.code)
-                        logging.getLogger('magento').info(message)
+                        logger.info(message)
                     # END product configuration
 
         # =====================
@@ -416,7 +418,7 @@ class SaleShop:
         self.export_images_magento([t.id for t in templates]) # Export Images
         #TODO: Export Product Links
 
-        logging.getLogger('magento').info(
+        logger.info(
             'Magento %s. End export %s product(s).' % (
                 self.name, len(templates)))
 
@@ -436,7 +438,7 @@ class SaleShop:
         if not context.get('shop'): # reload context when run cron user
             user = self.get_shop_user()
             if not user:
-                logging.getLogger('magento').info(
+                logger.info(
                     'Magento %s. Add a user in shop configuration.' % (self.name))
                 return
             context = User._get_preferences(user, context_only=True)
@@ -463,11 +465,11 @@ class SaleShop:
         products = Prod.search(product_domain)
 
         if not products:
-            logging.getLogger('magento').info(
+            logger.info(
                 'Magento %s. Not products to export prices.' % (self.name))
             return
 
-        logging.getLogger('magento').info(
+        logger.info(
             'Magento %s. Start export prices. %s product(s).' % (
                 self.name, len(products)))
 
@@ -484,7 +486,7 @@ class SaleShop:
                 if app.debug:
                     message = 'Magento %s. Product: %s. Data: %s' % (
                             self.name, code, data)
-                    logging.getLogger('magento').info(message)
+                    logger.info(message)
 
                 try:
                     if app.catalog_price == 'website':
@@ -500,13 +502,13 @@ class SaleShop:
 
                     message = 'Magento %s. Export price %s product.' % (
                             self.name, code)
-                    logging.getLogger('magento').info(message)
+                    logger.info(message)
                 except Exception, e:
                     message = 'Magento %s. Error export prices to product %s: %s' % (
                                 self.name, code, e)
-                    logging.getLogger('magento').error(message)
+                    logger.error(message)
 
-        logging.getLogger('magento').info(
+        logger.info(
             'Magento %s. End export prices %s products.' % (
                 self.name, len(products)))
 
@@ -525,7 +527,7 @@ class SaleShop:
         if not context.get('shop'): # reload context when run cron user
             user = self.get_shop_user()
             if not user:
-                logging.getLogger('magento').info(
+                logger.info(
                     'Magento %s. Add a user in shop configuration.' % (self.name))
                 return
             context = User._get_preferences(user, context_only=True)
@@ -553,11 +555,11 @@ class SaleShop:
         templates = list(set(p.template for p in products))
 
         if not templates:
-            logging.getLogger('magento').info(
+            logger.info(
                 'Magento %s. Not product images to export.' % (self.name))
             return
 
-        logging.getLogger('magento').info(
+        logger.info(
             'Magento %s. Start export images. %s product(s).' % (
                 self.name, len(templates)))
 
@@ -598,7 +600,7 @@ class SaleShop:
             else:
                 continue
 
-        logging.getLogger('magento').info(
+        logger.info(
             'Magento %s. End export images %s products.' % (
                 self.name, len(templates)))
 
@@ -612,13 +614,13 @@ class SaleShop:
                 if not image_mime:
                     message = 'Magento. Error export image %s ' \
                         'have not mime' % (attachment.name)
-                    logging.getLogger('magento').error(message)
+                    logger.error(message)
                     continue
                 mime = image_mime[0]
                 if not mime in _MIME_TYPES:
                     message = 'Magento. Error export image %s ' \
                         'is not mime valid' % (attachment.name)
-                    logging.getLogger('magento').error(message)
+                    logger.error(message)
                     continue
 
                 # Get types image
@@ -680,11 +682,11 @@ class SaleShop:
                     product_image_api.update(code, filename, img_data)
                     message = 'Magento %s. Updated image %s product %s.' % (
                             shop.name, filename, code)
-                    logging.getLogger('magento').info(message)
+                    logger.info(message)
                 except Exception, e:
                     message = 'Magento %s. Error update image %s to product %s: %s' % (
                                 shop.name, filename, code, e)
-                    logging.getLogger('magento').error(message)
+                    logger.error(message)
 
             # Create images
             for data in creates:
@@ -711,11 +713,11 @@ class SaleShop:
                     Attachment.write([attachment], {'name': new_name})
                     message = 'Magento %s. Created image %s product %s.' % (
                             shop.name, new_name, code)
-                    logging.getLogger('magento').info(message)
+                    logger.info(message)
                 except Exception, e:
                     message = 'Magento %s. Error create image %s to product %s: %s' % (
                                 shop.name, filename, code, e)
-                    logging.getLogger('magento').error(message)
+                    logger.error(message)
 
     def export_menus_magento(self, tpls=[]):
         """Export Menus to Magento
