@@ -3,7 +3,7 @@
 # the full copyright notices and license terms.
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
-from trytond.pyson import Eval, Or
+from trytond.pyson import Eval, Not, Equal, Or
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
     'TemplateMagentoAttributeConfigurable', 'Template', 'Product']
@@ -85,6 +85,13 @@ class Template:
             else:
                 fstates['required'] = Eval('magento_product_type') == 'configurable'
             getattr(cls, fname).depends.append('magento_product_type')
+
+    @classmethod
+    def view_attributes(cls):
+        return super(Template, cls).view_attributes() + [
+            ('//page[@id="magento-attribute-configurables"]', 'states', {
+                    'invisible': Not(Equal(Eval('magento_product_type'), 'configurable')),
+                    })]
 
     @classmethod
     def get_magento_product_type(cls):

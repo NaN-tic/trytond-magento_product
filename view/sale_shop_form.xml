@@ -5,7 +5,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
     <xpath
         expr="/form/notebook/page[@id='esale']/notebook/page[@id='configuration']"
         position="before">
-        <page string="Magento Product" col="4" id="magento-product" states="{'invisible': Not(Equal(Eval('esale_shop_app'), 'magento'))}">
+        <page string="Magento Product" col="4" id="magento-product">
             <label name="magento_group_price"/>
             <field name="magento_group_price"/>
             <field name="magento_shop_group_prices" colspan="4"/>

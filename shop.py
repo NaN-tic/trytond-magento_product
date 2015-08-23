@@ -4,6 +4,7 @@
 from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
+from trytond.pyson import Eval, Not, Equal
 from mimetypes import guess_type
 from magento import *
 import datetime
@@ -30,6 +31,13 @@ class SaleShop:
         cls._error_messages.update({
             'export_menus': 'Use Magento APP to export menus (categories).',
         })
+
+    @classmethod
+    def view_attributes(cls):
+        return super(SaleShop, cls).view_attributes() + [
+            ('//page[@id="magento-product"]', 'states', {
+                    'invisible': Not(Equal(Eval('esale_shop_app'), 'magento')),
+                    })]
 
     def magento_get_prices(self, product, quantity=1):
         """

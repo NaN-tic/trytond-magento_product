@@ -13,8 +13,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
     <xpath
         expr="/form/notebook/page[@id='esale']/notebook/page[@id='esale-general']"
         position="after">
-            <page string="Attribute Configurables" col="4" id="magento-attribute-configurables"
-                states="{'invisible': Not(Equal(Eval('magento_product_type'), 'configurable'))}">
+            <page string="Attribute Configurables" col="4" id="magento-attribute-configurables">
                 <field name="magento_attribute_configurables" colspan="4"/>
             </page>
     </xpath>
