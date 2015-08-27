@@ -59,7 +59,8 @@ class SaleShop:
                 'without_special_price': True,
                 }
             with Transaction().set_context(context):
-                price = Product.get_sale_price([product], quantity)[product.id]
+                prices = Product.get_sale_price([product], quantity)
+                price = prices[product.id]
         else:
             price = product.template.list_price
 
@@ -78,7 +79,9 @@ class SaleShop:
                     'customer': self.esale_price_party.id,
                     }
                 with Transaction().set_context(context):
-                    special_price = Product.get_sale_price([product], quantity)[product.id]
+                    special_prices = Product.get_sale_price([product],
+                        quantity)
+                    special_price = special_prices[product.id]
             else:
                 special_price = product.template.special_price or 0
 
@@ -100,8 +103,9 @@ class SaleShop:
                     'without_special_price': True,
                     }
                 with Transaction().set_context(context):
-                    gprice = Product.get_sale_price([product], quantity)[product.id]
-
+                    gprices = Product.get_sale_price([product],
+                        quantity)
+                    gprice = gprices[product.id]
                 if gprice > 0.0:
                     if self.esale_tax_include:
                         gprice = self.esale_price_w_taxes(product, gprice, quantity)
