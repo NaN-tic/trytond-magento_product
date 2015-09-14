@@ -389,7 +389,7 @@ msgstr "Plantilla producte - Magento atribut configurable"
 
 msgctxt "selection:esale.catalog.menu,default_sort_by:"
 msgid ""
-msgstr " "
+msgstr ""
 
 msgctxt "selection:magento.app,catalog_price:"
 msgid "Global"
