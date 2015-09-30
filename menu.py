@@ -1,7 +1,7 @@
 # This file is part magento_product module for Tryton.
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
-from trytond.model import fields
+from trytond.model import fields, Unique
 from trytond.pool import PoolMeta
 
 __all__ = ['CatalogMenu']
@@ -16,12 +16,13 @@ class CatalogMenu:
     @classmethod
     def __setup__(cls):
         super(CatalogMenu, cls).__setup__()
+        t = cls.__table__()
         cls._error_messages.update({
             'delete_esale_menu': 'Menu %s is available in %s Magento. '
                 'Descheck active field to dissable menu',
         })
         cls._sql_constraints += [
-            ('categ_uniq', 'UNIQUE(magento_app, magento_id)',
+            ('categ_uniq', Unique(t, t.magento_app, t.magento_id),
                 'Category of product must be unique for every eShop.'),
         ]
 
