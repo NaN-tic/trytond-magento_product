@@ -4,6 +4,8 @@
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Not, Equal, Or
+from trytond.transaction import Transaction
+from trytond import backend
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
     'TemplateMagentoAttributeConfigurable', 'Template', 'Product']
@@ -48,11 +50,22 @@ class MagentoAttributeConfigurable(ModelSQL, ModelView):
 class TemplateMagentoAttributeConfigurable(ModelSQL):
     'Product Template - Magento Attribute Configurable'
     __name__ = 'product.template-magento.attribute.configurable'
-    _table = 'product_template_magento_attribute_configurable_rel'
+    _table = 'product_tpl_mgn_attribute_configurable'
     template = fields.Many2One('product.template', 'Template', ondelete='CASCADE',
             required=True, select=True)
     configurable = fields.Many2One('magento.attribute.configurable', 'Attribute Configurable',
         ondelete='CASCADE', required=True, select=True)
+
+    @classmethod
+    def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
+        cursor = Transaction().cursor
+
+        # Migration from 3.6: rename table
+        old_table = 'product_template_magento_attribute_configurable_rel'
+        new_table = 'product_tpl_mgn_attribute_configurable'
+        if TableHandler.table_exist(cursor, old_table):
+            TableHandler.table_rename(cursor, old_table, new_table)
 
 
 class Template:
