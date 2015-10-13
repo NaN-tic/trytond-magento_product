@@ -61,6 +61,8 @@ class TemplateMagentoAttributeConfigurable(ModelSQL):
         TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
 
+        super(TemplateMagentoAttributeConfigurable, cls).__register__(module_name)
+
         # Migration from 3.6: rename table
         old_table = 'product_template_magento_attribute_configurable_rel'
         new_table = 'product_tpl_mgn_attribute_configurable'
