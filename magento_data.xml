@@ -159,7 +159,8 @@ else:
             <field name="mapping_type">in</field>
             <field name="external_type">str</field>
             <field name="active">True</field>
-            <field name="in_function">result = pool.get('esale.attribute.group')(1) #ID default attribute</field>
+            <field name="in_function">esale_attribute_group = 1 #ID default attribute
+result = pool.get('esale.attribute.group')(esale_attribute_group)</field>
             <field name="out_function">result = '4' #ID default attribute</field>
         </record>
         <record model="base.external.mapping.line" id="magento_base_external_mapping_line_esale_available">
