@@ -1,14 +1,14 @@
 #:before:magento/magento:section:pedidos#
 
-.. inheritref:: magento/magento:section:productos
+.. inheritref:: magento_product/magento:title:productos
 
 Productos
 =========
 
-.. inheritref:: magento/magento:section:importacion_de_productos
+.. inheritref:: magento_product/magento:title:importacion_de_productos
 
 Importación productos
-=====================
+---------------------
 
 Para importar productos de Magento a Tryton abra el menú |menu_magento_app| y
 en la pestaña **Importar** verá los botones de importación de Magento a Tryton
@@ -49,10 +49,10 @@ siguientes:
 
 .. figure:: images/tryton-magento-importar-productos.png
 
-.. inheritref:: magento/magento:section:importacion_de_atributos
+.. inheritref:: magento_product/magento:title:importacion_de_atributos
 
 Importación de atributos
-========================
+------------------------
 
 En Magento APP dispone de la importación de atributos:
 
@@ -68,10 +68,10 @@ del tipo "selección" puede importar las opciones mediante el botón "Importar o
 Recuerde que si estos atributos desean después importar/exportar entre Tryton <-> Magento deberá
 crear el tipo de mapeo que se va realizar entre los campos del ERP y los campos de Magento.
 
-.. inheritref:: magento/magento:section:exportacion_de_categorias_de_productos
+.. inheritref:: magento_product/magento:title:exportacion_de_categorias_de_productos
 
 Exportación de categorías de productos
-======================================
+--------------------------------------
 
 A diferencia de las otras exportaciones (productos, precios, ...) la exportación
 de categorías no se realiza en la tienda, si no desde el Magento App.
@@ -94,10 +94,10 @@ wiki para el formateo de texto. Usando la sintaxis de wiki le permite controlar 
 más fácil para la lectura. `Ejemplos de la sintaxis wiki: <http://meta.wikimedia.org/wiki/Help:Wikitext_examples>`_ 
 En los campos de SEO no se debe usar el formato HTML.
 
-.. inheritref:: magento/magento:section:exportacion_de_productos
+.. inheritref:: magento_product/magento:title:exportacion_de_productos
 
 Exportación de productos
-========================
+------------------------
 
 A la tienda dispone de las opciones para la exportación de productos a Magento. Mediante
 el botón "Exportar productos" exportará todos los productos a partir de la fecha de creación
@@ -144,8 +144,9 @@ wiki para el formateo de texto. Usando la sintaxis de wiki le permite controlar 
 más fácil para la lectura. `Ejemplos de la sintaxis wiki: <http://meta.wikimedia.org/wiki/Help:Wikitext_examples>`_ 
 En los campos de SEO no se debe usar el formato HTML.
 
-.. inheritref:: magento/magento:section:exportacion_de_productos_configurables
+.. inheritref:: magento_product/magento:title:exportacion_de_productos_configurables
 
+-----------------------------------
 Exportación productos configurables
 -----------------------------------
 
@@ -168,10 +169,11 @@ seleccionar el atributo "color" y su opción. Un ejemplo gráfico seria:
 * Camiseta Tryton - Roja
 * Camiseta Tryton - Negra
 
-.. inheritref:: magento/magento:section:exportacion_de_precios_de_productos
+.. inheritref:: magento_product/magento:title:exportacion_de_precios_de_productos
 
+-----------------------------------
 Exportación de precios de productos
-===================================
+-----------------------------------
 
 A la tienda dispone de las opciones para la exportación de precios a Magento. Mediante
 el botón "Exportar precios" exportará todos los precios a partir de la fecha de creación
@@ -206,10 +208,11 @@ los impuestos o se calcula a partir de una tarifa de precio o precio del product
 En Magento, los precios pueden ser Globales o por Website. En la configuración de Magento APP debe especificar
 como exportar los precios (por defecto, precios globales).
 
-.. inheritref:: magento/magento:section:exportacion_de_imagenes_de_productos
+.. inheritref:: magento_product/magento:title:exportacion_de_imagenes_de_productos
 
+------------------------------------
 Exportación de imagenes de productos
-====================================
+------------------------------------
 
 A la tienda dispone de las opciones para la exportación de imagenes a Magento. Mediante
 el botón "Exportar imagenes" exportará todos las imagenes a partir de la fecha de creación
