@@ -703,6 +703,9 @@ class SaleShop:
             # Create images
             for data in creates:
                 filedata = data.get('data')
+                if not filedata:
+                    continue
+
                 name = data['name']
                 filename = data['file']
                 mime = data['mime']
