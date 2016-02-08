@@ -30,10 +30,6 @@ class MagentoApp:
         help='This Integer is the range from import (filter)')
     category_root_id = fields.Integer('Category Root',
         help='Category Root ID Magento')
-    template_mapping = fields.Many2One('base.external.mapping',
-        'Template Mapping', help='Product Template mapping values')
-    product_mapping = fields.Many2One('base.external.mapping',
-        'Product Mapping', help='Product Product mapping values')
     tax_include = fields.Boolean('Tax Include')
     catalog_price = fields.Selection([
             ('global','Global'),
