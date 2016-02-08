@@ -125,22 +125,6 @@ class SaleShop:
         data['group_price'] = group_price
         return data
 
-    def magento_get_categories(self, app, template):
-        return [menu.magento_id for menu in template.esale_menus if menu.magento_app == app]
-
-    def magento_get_websites(self, app, template):
-        pool = Pool()
-        MagentoExternalReferential = pool.get('magento.external.referential')
-
-        websites = []
-        for shop in template.shops:
-            ext_ref = MagentoExternalReferential.get_try2mgn(app,
-                    'magento.website',
-                    shop.magento_website.id)
-            if ext_ref:
-                websites.append(ext_ref.mgn_id)
-        return websites
-
     def export_products_magento(self, tpls=[]):
         """Export Products to Magento
         :param tpls: list
@@ -149,37 +133,27 @@ class SaleShop:
         Prod = pool.get('product.product')
         MagentoExternalReferential = pool.get('magento.external.referential')
         BaseExternalMapping = pool.get('base.external.mapping')
-        User = pool.get('res.user')
 
         product_domain = Prod.magento_product_domain([self.id])
 
         context = Transaction().context
-        if not context.get('shop'): # reload context when run cron user
-            user = self.get_shop_user()
-            if not user:
-                logger.info(
-                    'Magento %s. Add a user in shop configuration.' % (self.name))
-                return
-            context = User._get_preferences(user, context_only=True)
-        context['shop'] = self.id # force current shop
 
-        with Transaction().set_context(context):
-            if tpls:
-                product_domain += [('template.id', 'in', tpls)]
-            else:
-                now = datetime.datetime.now()
-                last_products = self.esale_last_products
+        if tpls:
+            product_domain += [('template.id', 'in', tpls)]
+        else:
+            now = datetime.datetime.now()
+            last_products = self.esale_last_products
 
-                product_domain += [['OR',
-                            ('create_date', '>=', last_products),
-                            ('write_date', '>=', last_products),
-                            ('template.create_date', '>=', last_products),
-                            ('template.write_date', '>=', last_products),
-                        ]]
+            product_domain += [['OR',
+                        ('create_date', '>=', last_products),
+                        ('write_date', '>=', last_products),
+                        ('template.create_date', '>=', last_products),
+                        ('template.write_date', '>=', last_products),
+                    ]]
 
-                # Update date last import
-                self.write([self], {'esale_last_products': now})
-                Transaction().cursor.commit()
+            # Update date last import
+            self.write([self], {'esale_last_products': now})
+            Transaction().cursor.commit()
 
         products = Prod.search(product_domain)
         templates = list(set(p.template for p in products))
@@ -195,12 +169,13 @@ class SaleShop:
 
         app = self.magento_website.magento_app
 
-        if not app.template_mapping or not app.product_mapping:
-            message = 'Add Mapping Product in Magento APP.'
-            logger.error(message)
-            return
-        template_mapping = app.template_mapping.name
-        product_mapping = app.product_mapping.name
+        language = context.get('language')
+        default_storeview = app.magento_default_storeview
+        if default_storeview:
+            for l in app.languages:
+                if l.storeview.id == default_storeview.id:
+                    language = l.lang.code
+                    break
 
         with Product(app.uri, app.username, app.password) as product_api:
             for template in templates:
@@ -220,21 +195,12 @@ class SaleShop:
                                 'Add a code' % (self.name, product.id)
                         logger.error(message)
                         continue
-                    code = '%s ' % product.code # force a space - sku int/str
 
-                    tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [template.id])
-                    pvals, = BaseExternalMapping.map_tryton_to_external(product_mapping, [product.id])
+                    code = product.code
+                    values = Prod.magento_export_product(app, product, shop=self, lang=language)
                     prices = self.magento_get_prices(product)
-
-                    values = {}
-                    values.update(pvals)
-                    values.update(tvals)
                     values.update(prices)
-                    values['categories'] = self.magento_get_categories(app, template)
-                    values['websites'] = self.magento_get_websites(app, template)
-                    status = values.get('status', True)
-                    if not status:
-                        values['status'] = '2' # 2 is dissable
+                    
                     if not values.get('tax_class_id'):
                         for tax in app.magento_taxes:
                             values['tax_class_id'] = tax.tax_id
@@ -248,7 +214,6 @@ class SaleShop:
                     if product_type == 'grouped':
                         # force visibility Not Visible Individually
                         values['visibility'] = '1'
-                    del values['id']
 
                     # if products > 1, add code prefix in url key
                     if total_products > 1:
@@ -296,23 +261,14 @@ class SaleShop:
                         continue
 
                     # save products by language
-                    for lang in app.languages:
-                        with Transaction().set_context(language=lang.lang.code):
-                            product = Prod(product.id)
-                            sview_template_mapping = lang.storeview.template_mapping.name \
-                                    if lang.storeview.template_mapping else template_mapping
-                            sview_product_mapping = lang.storeview.product_mapping.name \
-                                    if lang.storeview.product_mapping else product_mapping
-                            tvals, = BaseExternalMapping.map_tryton_to_external(sview_template_mapping, [product.template.id])
-                            pvals, = BaseExternalMapping.map_tryton_to_external(sview_product_mapping, [product.id])
-                        values = dict(pvals, **tvals)
-                        if 'id' in values:
-                            del values['id']
+                    for l in app.languages:
+                        values = Prod.magento_export_product(app, product, lang=l.lang.code)
 
                         if product_type in ['configurable', 'grouped']:
                             # force visibility Not Visible Individually
                             values['visibility'] = '1'
-                            values['name'] = product.description if product.description else product.name
+                            if values.get('description'):
+                                values['name'] = values['description']
 
                         if app.debug:
                             message = 'Magento %s. Product: %s. Values: %s' % (
@@ -332,27 +288,13 @@ class SaleShop:
                     if not template.base_code:
                         logger.warning('Product Template not have base code')
                         continue
-                    code = '%s ' % template.base_code # force a space - sku int/str
 
-                    tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [template.id])
                     if not template.products:
                         logger.warning('Template not have products')
                         continue
+                    values = Prod.magento_export_product_configurable(app, template, shop=self, lang=language)
                     prices = self.magento_get_prices(template.products[0])
-
-                    values = {}
-                    values.update(tvals)
                     values.update(prices)
-                    values['categories'] = self.magento_get_categories(app, template)
-                    values['websites'] = self.magento_get_websites(app, template)
-                    status = values.get('status', True)
-                    if not status:
-                        values['status'] = '2' # 2 is dissable
-                    if not values.get('tax_class_id'):
-                        for tax in app.magento_taxes:
-                            values['tax_class_id'] = tax.tax_id
-                            break
-                    del values['id']
 
                     mgn_prods = product_api.list({'sku': {'=': code}})
                     
@@ -388,7 +330,7 @@ class SaleShop:
                         continue
 
                     # Relate product simple to product configuration
-                    ofilter = {'sku': {'in': ['%s ' % p.code for p in template.products]}} # force a space - sku int/str
+                    ofilter = {'sku': {'in': ['%s' % p.code for p in template.products]}}
                     products = product_api.list(ofilter)
                     with ProductConfigurable(app.uri, app.username, app.password) as product_conf_api:
                         try:
@@ -422,6 +364,10 @@ class SaleShop:
                         logger.info(message)
                     # END product configuration
 
+        logger.info(
+            'Magento %s. End export %s product(s).' % (
+                self.name, len(templates)))
+
         # =====================
         # Export Stock + Images
         # =====================
@@ -429,10 +375,6 @@ class SaleShop:
             self.export_stocks_magento([t.id for t in templates]) # Export Inventory - Stock
         self.export_images_magento([t.id for t in templates]) # Export Images
         #TODO: Export Product Links
-
-        logger.info(
-            'Magento %s. End export %s product(s).' % (
-                self.name, len(templates)))
 
     def export_prices_magento(self, tpls=[]):
         """Export Prices to Magento
@@ -442,37 +384,25 @@ class SaleShop:
         pool = Pool()
         Prod = pool.get('product.product')
         MagentoExternalReferential = pool.get('magento.external.referential')
-        User = pool.get('res.user')
 
         product_domain = Prod.magento_product_domain([self.id])
 
-        context = Transaction().context
-        if not context.get('shop'): # reload context when run cron user
-            user = self.get_shop_user()
-            if not user:
-                logger.info(
-                    'Magento %s. Add a user in shop configuration.' % (self.name))
-                return
-            context = User._get_preferences(user, context_only=True)
-        context['shop'] = self.id # force current shop
+        if tpls:
+            product_domain += [('template.id', 'in', tpls)]
+        else:
+            now = datetime.datetime.now()
+            last_prices = self.esale_last_prices
 
-        with Transaction().set_context(context):
-            if tpls:
-                product_domain += [('template.id', 'in', tpls)]
-            else:
-                now = datetime.datetime.now()
-                last_prices = self.esale_last_prices
+            product_domain += [['OR',
+                        ('create_date', '>=', last_prices),
+                        ('write_date', '>=', last_prices),
+                        ('template.create_date', '>=', last_prices),
+                        ('template.write_date', '>=', last_prices),
+                    ]]
 
-                product_domain += [['OR',
-                            ('create_date', '>=', last_prices),
-                            ('write_date', '>=', last_prices),
-                            ('template.create_date', '>=', last_prices),
-                            ('template.write_date', '>=', last_prices),
-                        ]]
-
-                # Update date last import
-                self.write([self], {'esale_last_prices': now})
-                Transaction().cursor.commit()
+            # Update date last import
+            self.write([self], {'esale_last_prices': now})
+            Transaction().cursor.commit()
 
         products = Prod.search(product_domain)
 
@@ -491,7 +421,6 @@ class SaleShop:
             for product in products:
                 if not product.code:
                     continue
-                code = '%s ' % product.code # force a space - sku int/str
 
                 data = self.magento_get_prices(product)
 
@@ -529,39 +458,26 @@ class SaleShop:
         :param shop: object
         :param tpls: list
         """
-        pool = Pool()
-        Prod = pool.get('product.product')
-        User = pool.get('res.user')
+        Prod = Pool().get('product.product')
 
         product_domain = Prod.magento_product_domain([self.id])
 
-        context = Transaction().context
-        if not context.get('shop'): # reload context when run cron user
-            user = self.get_shop_user()
-            if not user:
-                logger.info(
-                    'Magento %s. Add a user in shop configuration.' % (self.name))
-                return
-            context = User._get_preferences(user, context_only=True)
-        context['shop'] = self.id # force current shop
+        if tpls:
+            product_domain += [('template.id', 'in', tpls)]
+        else:
+            now = datetime.datetime.now()
+            last_images = self.esale_last_images
 
-        with Transaction().set_context(context):
-            if tpls:
-                product_domain += [('template.id', 'in', tpls)]
-            else:
-                now = datetime.datetime.now()
-                last_images = self.esale_last_images
+            product_domain += [['OR',
+                        ('create_date', '>=', last_images),
+                        ('write_date', '>=', last_images),
+                        ('template.create_date', '>=', last_images),
+                        ('template.write_date', '>=', last_images),
+                    ]]
 
-                product_domain += [['OR',
-                            ('create_date', '>=', last_images),
-                            ('write_date', '>=', last_images),
-                            ('template.create_date', '>=', last_images),
-                            ('template.write_date', '>=', last_images),
-                        ]]
-
-                # Update date last import
-                self.write([self], {'esale_last_images': now})
-                Transaction().cursor.commit()
+            # Update date last import
+            self.write([self], {'esale_last_images': now})
+            Transaction().cursor.commit()
 
         products = Prod.search(product_domain)
         templates = list(set(p.template for p in products))
@@ -584,7 +500,7 @@ class SaleShop:
             if template.magento_product_type == 'configurable':
                 # template -> configurable
                 if template.attachments:
-                    code = '%s ' % template.base_code # force a space - sku int/str
+                    code = template.base_code
                     if code:
                         images = self.magento_images_from_attachments(template.attachments)
                         if images:
@@ -595,7 +511,7 @@ class SaleShop:
                         continue
                     if not product.code:
                         continue
-                    code = '% ' % product.code # force a space - sku int/str
+                    code = product.code
                     images = self.magento_images_from_attachments(product.attachments)
                     if images:
                         self.create_update_magento_images(app, self, code, images)
@@ -605,7 +521,7 @@ class SaleShop:
                 product, = template.products
                 if not product.code:
                     continue
-                code = '%s ' % product.code # force a space - sku int/str
+                code = product.code
                 images = self.magento_images_from_attachments(template.attachments)
                 if images:
                     self.create_update_magento_images(app, self, code, images)
@@ -673,8 +589,7 @@ class SaleShop:
             creates = []
             updates = []
 
-            code = '%s ' % code # force a space - sku int/str
-            mgn_imgs = product_image_api.list(code)
+            mgn_imgs = product_image_api.list(code, identifierType=app.identifier_type)
             for image in images:
                 if image.get('file') in [mgn_img.get('file') for mgn_img in mgn_imgs]:
                     updates.append(image)
@@ -722,8 +637,8 @@ class SaleShop:
                     'mime': mime,
                     }}
                 try:
-                    mgn_img = product_image_api.create(code, fdata)
-                    product_image_api.update(code, mgn_img, img_data)
+                    mgn_img = product_image_api.create(code, fdata, identifierType=app.identifier_type)
+                    product_image_api.update(code, mgn_img, img_data, identifierType=app.identifier_type)
                     new_name = mgn_img.split('/')[-1]
                     Attachment.write([attachment], {'name': new_name})
                     message = 'Magento %s. Created image %s product %s.' % (
