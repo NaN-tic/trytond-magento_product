@@ -176,7 +176,7 @@ class Product:
         vals['special_price'] = values.get('special_price')
         vals['special_price_from'] = values.get('special_from_date')
         vals['special_price_to'] = values.get('special_to_date')
-        vals['attributes'] = {'tax_class_id': values.get('tax_class_id', '0')}
+        vals['template_attributes'] = {'tax_class_id': values.get('tax_class_id', '0')}
         vals['esale_visibility'] = visibility
         vals['esale_attribute_group'] = 1 # ID default attribute
         vals['esale_available'] = esale_available
