@@ -2,6 +2,8 @@
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
 from wikimarkup import parse as wiki_parse
+from datetime import datetime
+from decimal import Decimal
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Not, Equal, Or
@@ -173,9 +175,6 @@ class Product:
         vals['esale_shortdescription'] = values.get('short_description')
         vals['esale_slug'] = values.get('url_key')
         vals['magento_product_type'] = values.get('type_id')
-        vals['special_price'] = values.get('special_price')
-        vals['special_price_from'] = values.get('special_from_date')
-        vals['special_price_to'] = values.get('special_to_date')
         vals['template_attributes'] = {'tax_class_id': values.get('tax_class_id', '0')}
         vals['esale_visibility'] = visibility
         vals['esale_attribute_group'] = 1 # ID default attribute
@@ -185,6 +184,12 @@ class Product:
         vals['esale_metakeyword'] = values.get('meta_keyword')
         vals['esale_metatitle'] = values.get('meta_title')
         vals['esale_description'] = values.get('description')
+        if values.get('special_price'):
+            vals['special_price'] = Decimal(values['special_price'])
+            if values.get('special_from_date'):
+                vals['special_price_from'] = datetime.strptime(values['special_from_date'], "%Y-%m-%d %H:%M:%S")
+            if values.get('special_to_date'):
+                vals['special_price_to'] = datetime.strptime(values['special_to_date'], "%Y-%m-%d %H:%M:%S")
         return vals
 
     @classmethod
@@ -207,9 +212,6 @@ class Product:
         vals['url_key'] = product.esale_slug
         vals['cost'] = str(product.cost_price)
         vals['price'] = str(product.list_price)
-        vals['special_price'] = product.special_price
-        vals['special_from_date'] = product.special_price_from
-        vals['special_to_date'] = product.special_price_to
         vals['tax_class_id'] = product.attributes.get('tax_class_id') if product.attributes else None
         vals['visibility'] = _MAGENTO_VISIBILITY.get(product.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute
@@ -251,9 +253,6 @@ class Product:
         vals['url_key'] = template.esale_slug
         vals['cost'] = str(template.cost_price)
         vals['price'] = str(template.list_price)
-        vals['special_price'] = template.special_price
-        vals['special_from_date'] = template.special_price_from
-        vals['special_to_date'] = template.special_price_to
         vals['tax_class_id'] = template.attributes.get('tax_class_id') if template.attributes else None
         vals['visibility'] = _MAGENTO_VISIBILITY.get(template.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute

@@ -116,12 +116,11 @@ class SaleShop:
 
         data = {}
         data['price'] = str(price)
-        data['special_price'] = str(special_price)
         if shop_special_price:
-            special_price_from = product.template.special_price_from
-            special_price_to = product.template.special_price_to
-            data['special_from_date'] = str(special_price_from) if special_price_from else ''
-            data['special_to_date'] = str(special_price_to) if special_price_to else ''
+            data['special_price'] = str(special_price)
+            if shop_special_price:
+                data['special_from_date'] = product.special_price_from.strftime("%Y-%m-%d %H:%M:%S") if product.special_price_from else ''
+                data['special_to_date'] = product.special_price_to.strftime("%Y-%m-%d %H:%M:%S") if product.special_price_to else ''
         data['group_price'] = group_price
         return data
 
@@ -421,6 +420,7 @@ class SaleShop:
             for product in products:
                 if not product.code:
                     continue
+                code = product.code
 
                 data = self.magento_get_prices(product)
 
