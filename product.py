@@ -188,7 +188,7 @@ class Product:
         return vals
 
     @classmethod
-    def magento_export_product(self, app, product, shop=None, lang='en_US'):
+    def magento_export_product(cls, app, product, shop=None, lang='en_US'):
         '''Magento Export Product values'''
         pool = Pool()
         MagentoExternalReferential = pool.get('magento.external.referential')
