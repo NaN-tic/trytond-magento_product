@@ -729,6 +729,7 @@ class MagentoApp:
                 self.write([app], data)
 
                 for product in products:
+                    product_id = product.get('product_id')
                     code = product.get('sku')
 
                     with Transaction().set_context(active_test=False):
@@ -754,7 +755,7 @@ class MagentoApp:
                             prod = None
 
                     #save product data
-                    product_info = product_api.info(code)
+                    product_info = product_api.info(product_id)
                     template = self.save_product(app, product_info, prod)
 
                     # save products by language
@@ -764,7 +765,7 @@ class MagentoApp:
                         self.save_product_language(app, template, product_info, language)
 
                     # save images products
-                    self.save_product_images(app, template, code)
+                    self.save_product_images(app, template, product_id)
 
                     Transaction().cursor.commit()
 
