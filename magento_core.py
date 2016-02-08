@@ -48,7 +48,6 @@ class MagentoApp:
                 'not_import_products': 'Not import products because Magento return '
                     'an empty list of products',
                 'import_magento_website': 'First step is Import Magento Store',
-                'select_mapping': 'Select Mapping in Magento APP!',
                 'select_rang_product_ids': 'Select Product ID From and ID To!',
                 'select_top_menu': 'Select Top Menu Category!',
                 'magento_api_error': 'Magento API Error!',
@@ -464,25 +463,16 @@ class MagentoApp:
         :return: object
         '''
         pool = Pool()
-        ProductProduct = pool.get('product.product')
-        ProductTemplate = pool.get('product.template')
-        BaseExternalMapping = pool.get('base.external.mapping')
+        Prod = pool.get('product.product')
+        Template = pool.get('product.template')
         Menu = pool.get('esale.catalog.menu')
         Shop = pool.get('sale.shop')
 
-        template_mapping = app.template_mapping.name
-        product_mapping = app.product_mapping.name
-
-        # get default values
-        tvals = ProductTemplate.esale_template_values()
-        pvals = ProductProduct.esale_product_values()
-
         # get values using base external mapping
-        tvals.update(BaseExternalMapping.map_external_to_tryton(template_mapping, data))
-        pvals.update(BaseExternalMapping.map_external_to_tryton(product_mapping, data))
+        vals = Prod.magento_import_product(data)
 
         # Shops - websites
-        shops = ProductProduct.magento_product_shops(app, data)
+        shops = Prod.magento_product_shops(app, data)
         if not shops:
             self.raise_user_error('shop_not_found')
         shop = Shop(shops[0])
@@ -492,60 +482,50 @@ class MagentoApp:
             self.raise_user_error('shop_without_default_uom')
 
         if shops:
-            tvals['shops'] = shops
+            vals['shops'] = shops
 
         # Categories -> menus
         menus = Menu.search([
-                ('magento_app', '=', app.id),
+                ('magento_app', '=', app),
                 ('magento_id', 'in', data.get('categories')),
                 ])
         if menus:
-            tvals['esale_menus'] = [menu.id for menu in menus]
+            vals['esale_menus'] = [menu for menu in menus]
 
         if app.debug:
-            logger.info(
-                'Product values: %s' % (dict(tvals.items() + pvals.items())))
+            logger.info('Product values: %s' % (dict(tvals.items() + pvals.items())))
 
         if not product:
-            template = ProductTemplate()
-            product = ProductProduct()
             action = 'create'
+            template = Template()
 
             # Taxes and list price and cost price with or without taxes
             tax_include = app.tax_include
-            customer_taxes, list_price, cost_price = ProductProduct.magento_product_esale_taxes(app, data, tax_include)
+            customer_taxes, list_price, cost_price = Prod.magento_product_esale_taxes(app, data, tax_include)
             if customer_taxes:
-                tvals['customer_taxes'] = customer_taxes
+                vals['customer_taxes'] = customer_taxes
             if not list_price:
                 list_price = data.get('price')
-            tvals['list_price'] = list_price
+            vals['list_price'] = list_price
             if not cost_price:
                 cost_price = data.get('price')
-            tvals['cost_price'] = cost_price
+            vals['cost_price'] = cost_price
 
-            tvals['default_uom'] = default_uom
-            tvals['sale_uom'] = default_uom
-            tvals['category'] = shop.esale_category
+            vals['default_uom'] = default_uom
+            vals['sale_uom'] = default_uom
+            vals['category'] = shop.esale_category
         else:
             template = product.template
             action = 'update'
-            if tvals.get('type'):
-                del tvals['type']
+            if vals.get('type'):
+                del vals['type']
 
-        for key, value in tvals.iteritems():
+        for key, value in vals.iteritems():
             setattr(template, key, value)
-
-        for key, value in pvals.iteritems():
-            setattr(product, key, value)
-
-        # TODO: update product with multiple variants
-        if action == 'create':
-            template.products = [product]
-
         template.save()
 
-        logger.info(
-            '%s product %s (%s)' % (action.capitalize(), template.rec_name, template.id))
+        logger.info('%s product %s (%s)' % (action.capitalize(),
+            template.rec_name, template.id))
 
         return template
 
@@ -669,9 +649,6 @@ class MagentoApp:
         for app in apps:
             if not app.magento_websites:
                 self.raise_user_error('import_magento_website')
-
-            if not app.magento_websites or not app.product_mapping:
-                self.raise_user_error('select_mapping')
 
             logger.info(
                 'Start import products %s' % (app.name))
