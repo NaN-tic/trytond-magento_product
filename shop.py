@@ -229,7 +229,7 @@ class SaleShop:
                     try:
                         if mgn_prods:
                             action = 'update'
-                            product_api.update(code, values)
+                            product_api.update(code, values, identifierType=app.identifier_type)
                         else:
                             action = 'create'
                             del values['sku']
@@ -274,7 +274,7 @@ class SaleShop:
                                     self.name, code, values)
                             logger.info(message)
 
-                        product_api.update(code, values, lang.storeview.code)
+                        product_api.update(code, values, lang.storeview.code, identifierType=app.identifier_type)
 
                         message = 'Magento %s. Update product %s (%s)' % (
                                 self.name, code, lang.lang.code)
@@ -300,7 +300,7 @@ class SaleShop:
                     try:
                         if mgn_prods:
                             action = 'update'
-                            product_api.update(code, values)
+                            product_api.update(code, values, identifierType=app.identifier_type)
                         else:
                             action = 'create'
 
@@ -356,7 +356,7 @@ class SaleShop:
                                     self.name, code, values)
                             logger.info(message)
 
-                        product_api.update(code, values, lang.storeview.code)
+                        product_api.update(code, values, lang.storeview.code, identifierType=app.identifier_type)
 
                         message = 'Magento %s. Update product %s (%s)' % (
                                 self.name, code, lang.lang.code)
@@ -435,11 +435,11 @@ class SaleShop:
                                 'magento.external.referential',
                                 self.magento_website.id)
                         magento_website = ext_ref.mgn_id
-                        product_api.update(code, data, magento_website)
+                        product_api.update(code, data, magento_website, identifierType=app.identifier_type)
                         if self.magento_price_global: # Global price
-                            product_api.update(code, data) 
+                            product_api.update(code, data, identifierType=app.identifier_type) 
                     else:
-                        product_api.update(code, data)
+                        product_api.update(code, data, identifierType=app.identifier_type)
 
                     message = 'Magento %s. Export price %s product.' % (
                             self.name, code)
