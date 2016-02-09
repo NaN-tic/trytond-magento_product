@@ -481,29 +481,23 @@ class MagentoApp:
         else:
             self.raise_user_error('shop_without_default_uom')
 
-        if shops:
-            vals['shops'] = shops
-
         # Categories -> menus
         menus = Menu.search([
                 ('magento_app', '=', app),
                 ('magento_id', 'in', data.get('categories')),
                 ])
-        if menus:
-            vals['esale_menus'] = [menu for menu in menus]
 
         if app.debug:
             logger.info('Product values: %s' % (dict(tvals.items() + pvals.items())))
 
         if not product:
             action = 'create'
-            template = Template()
 
             # Taxes and list price and cost price with or without taxes
             tax_include = app.tax_include
             customer_taxes, list_price, cost_price = Prod.magento_product_esale_taxes(app, data, tax_include)
             if customer_taxes:
-                vals['customer_taxes'] = customer_taxes
+                vals['customer_taxes'] = [('add', customer_taxes)]
             if not list_price:
                 list_price = data.get('price')
             vals['list_price'] = list_price
@@ -514,20 +508,26 @@ class MagentoApp:
             vals['default_uom'] = default_uom
             vals['sale_uom'] = default_uom
             vals['category'] = shop.esale_category
+            vals['shops'] = [('add', shops)]
+            vals['esale_menus'] = [('add', [menu for menu in menus])]
+            product = Template.create_esale_product(shop, vals)
         else:
             template = product.template
             action = 'update'
             if vals.get('type'):
                 del vals['type']
-
-        for key, value in vals.iteritems():
-            setattr(template, key, value)
-        template.save()
+            if vals.get('products'):
+                del vals['products']
+            vals['shops'] = shops
+            vals['esale_menus'] = [menu for menu in menus]
+            for key, value in vals.iteritems():
+                setattr(template, key, value)
+            template.save()
 
         logger.info('%s product %s (%s)' % (action.capitalize(),
-            template.rec_name, template.id))
+            product.rec_name, product.id))
 
-        return template
+        return product
 
     @classmethod
     def save_product_language(self, app, template, data, language='en_US'):
@@ -539,38 +539,17 @@ class MagentoApp:
         :param language: code language
         :return: object
         '''
-        pool = Pool()
-        Template = pool.get('product.template')
-        Product = pool.get('product.product')
+        Product = Pool().get('product.product')
 
-        BaseExternalMapping = pool.get('base.external.mapping')
-
-        template_mapping = app.template_mapping.name
-        product_mapping = app.product_mapping.name
-
-        # get values using base external mapping
-        tmp_vals = BaseExternalMapping.map_external_to_tryton(template_mapping, data)
-        tvals = BaseExternalMapping.map_exclude_update(template_mapping, tmp_vals)
-        prod_vals = BaseExternalMapping.map_external_to_tryton(product_mapping, data)
-        pvals = BaseExternalMapping.map_exclude_update(product_mapping, prod_vals)
-
-        tmpl_vals = {}
-        for key, value in tvals.iteritems():
-            tmpl_vals[key] = value
-
-        prod_vals = {}
-        for key, value in pvals.iteritems():
-            prod_vals[key] = value
+        vals = Product.magento_import_product(data)
+        del vals['products']
 
         with Transaction().set_context(language=language):
-            Template.write([template], tmpl_vals)
-            logger.info(
-                'Update template %s (%s-%s)' % (data.get('name'), template.id, language))
-            for product in template.products:
-                if product.code == pvals.get('code'):
-                    Product.write([product], prod_vals)
-                    logger.info(
-                        'Update product %s (%s-%s)' % (data.get('name'), product.id, language))
+            for key, value in vals.iteritems():
+                setattr(template, key, value)
+            template.save()
+
+            logger.info('Update template %s (%s-%s)' % (data.get('name'), template.id, language))
 
         return template
 
