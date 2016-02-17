@@ -10,13 +10,6 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <field name="name">magento_app_form</field>
         </record>
 
-        <!--Magento StoreView -->
-        <record model="ir.ui.view" id="magento_storeview_form">
-            <field name="model">magento.storeview</field>
-            <field name="inherit" ref="magento.magento_storeview_form"/>
-            <field name="name">magento_storeview_form</field>
-        </record>
-
         <!--Magento Sale Shop Group Price -->
         <record model="ir.ui.view" id="magento_sale_shop_group_price_form">
             <field name="model">magento.sale.shop.group.price</field>
