@@ -274,10 +274,10 @@ class SaleShop:
                                     self.name, code, values)
                             logger.info(message)
 
-                        product_api.update(code, values, lang.storeview.code, identifierType=app.identifier_type)
+                        product_api.update(code, values, l.storeview.code, identifierType=app.identifier_type)
 
                         message = 'Magento %s. Update product %s (%s)' % (
-                                self.name, code, lang.lang.code)
+                                self.name, code, l.lang.code)
                         logger.info(message)
 
                 # ===========================
