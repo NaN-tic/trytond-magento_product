@@ -105,7 +105,7 @@ class Template:
             fstates = getattr(cls, fname).states
             if fstates.get('required'):
                 fstates['required'] = Or(fstates['required'],
-                    Eval('magento_product_type', '=', 'configurable'))
+                    Eval('magento_product_type') == 'configurable')
             else:
                 fstates['required'] = Eval('magento_product_type') == 'configurable'
             getattr(cls, fname).depends.append('magento_product_type')
