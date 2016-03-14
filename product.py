@@ -212,7 +212,12 @@ class Product:
         vals['url_key'] = product.esale_slug
         vals['cost'] = str(product.cost_price)
         vals['price'] = str(product.list_price)
-        vals['tax_class_id'] = product.attributes.get('tax_class_id') if product.attributes else None
+        if product.template.template_attributes:
+            if product.template.template_attributes.get('tax_class_id'):
+                vals['tax_class_id'] = product.template.template_attributes.get('tax_class_id')
+        if product.attributes:
+            if product.attributes.get('tax_class_id'):
+                vals['tax_class_id'] = product.attributes.get('tax_class_id')
         vals['visibility'] = _MAGENTO_VISIBILITY.get(product.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute
         vals['status'] = '1' if product.esale_active else '2'
