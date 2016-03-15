@@ -209,7 +209,7 @@ class Product:
         vals['name'] = product.name
         vals['sku'] = product.code
         vals['type_id'] = product.magento_product_type
-        vals['url_key'] = product.esale_slug
+        vals['url_key'] = product.esale_slug if product.esale_slug else product.template.esale_slug
         vals['cost'] = str(product.cost_price)
         vals['price'] = str(product.list_price)
         if product.template.template_attributes:
