@@ -261,6 +261,8 @@ class SaleShop:
 
                     # save products by language
                     for l in app.languages:
+                        if language == l.lang.code:
+                            continue
                         values = Prod.magento_export_product(app, product, lang=l.lang.code)
 
                         if product_type in ['configurable', 'grouped']:
