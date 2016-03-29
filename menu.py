@@ -5,10 +5,10 @@ from trytond.model import fields, Unique
 from trytond.pool import PoolMeta
 
 __all__ = ['CatalogMenu']
-__metaclass__ = PoolMeta
 
 
 class CatalogMenu:
+    __metaclass__ = PoolMeta
     __name__ = 'esale.catalog.menu'
     magento_app = fields.Many2One('magento.app', 'Magento APP')
     magento_id = fields.Integer('External ID')

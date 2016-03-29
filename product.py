@@ -12,7 +12,6 @@ from trytond import backend
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
     'TemplateMagentoAttributeConfigurable', 'Template', 'Product']
-__metaclass__ = PoolMeta
 
 _MAGENTO_VISIBILITY = {
     'none': '1',
@@ -80,6 +79,7 @@ class TemplateMagentoAttributeConfigurable(ModelSQL):
 
 
 class Template:
+    __metaclass__ = PoolMeta
     __name__ = 'product.template'
     magento_product_type = fields.Selection('get_magento_product_type', 'Product Type',
         states={
@@ -147,6 +147,7 @@ class Template:
 
 
 class Product:
+    __metaclass__ = PoolMeta
     __name__ = 'product.product'
 
     @classmethod

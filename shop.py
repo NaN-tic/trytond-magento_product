@@ -12,13 +12,13 @@ import logging
 import base64
 
 __all__ = ['SaleShop']
-__metaclass__ = PoolMeta
 
 _MIME_TYPES = ['image/jpeg', 'image/png']
 logger = logging.getLogger(__name__)
 
 
 class SaleShop:
+    __metaclass__ = PoolMeta
     __name__ = 'sale.shop'
     magento_group_price = fields.Boolean('Magento Grup Price',
         help='If check this value, when export product prices add prices by group')

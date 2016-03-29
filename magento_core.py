@@ -11,13 +11,13 @@ import logging
 import urllib
 
 __all__ = ['MagentoApp', 'MagentoSaleShopGroupPrice']
-__metaclass__ = PoolMeta
 
 _ATTRIBUTE_OPTIONS_TYPE = ['select']
 logger = logging.getLogger(__name__)
 
 
 class MagentoApp:
+    __metaclass__ = PoolMeta
     __name__ = 'magento.app'
 
     from_date_products = fields.DateTime('From Date Products', 
