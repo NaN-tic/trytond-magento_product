@@ -504,10 +504,6 @@ class MagentoApp:
             if not cost_price:
                 cost_price = data.get('price')
             vals['cost_price'] = cost_price
-
-            vals['default_uom'] = default_uom
-            vals['sale_uom'] = default_uom
-            vals['category'] = shop.esale_category
             vals['shops'] = [('add', shops)]
             vals['esale_menus'] = [('add', [menu for menu in menus])]
             product = Template.create_esale_product(shop, vals)
