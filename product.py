@@ -1,9 +1,9 @@
 # This file is part magento_product module for Tryton.
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
-from wikimarkup import parse as wiki_parse
 from datetime import datetime
 from decimal import Decimal
+from creole import creole2html
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Not, Equal, Or
@@ -222,7 +222,7 @@ class Product:
         vals['visibility'] = _MAGENTO_VISIBILITY.get(product.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute
         vals['status'] = '1' if product.esale_active else '2'
-        vals['short_description'] = wiki_parse(product.esale_shortdescription)
+        vals['short_description'] = creole2html(product.esale_shortdescription)
         vals['meta_description'] = product.esale_metadescription
         vals['meta_keyword'] = product.esale_metakeyword
         vals['meta_title'] = product.esale_metatitle
