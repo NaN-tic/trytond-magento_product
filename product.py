@@ -9,6 +9,7 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Not, Equal, Or
 from trytond.transaction import Transaction
 from trytond import backend
+from trytond.modules.product_esale.tools import esale_eval
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
     'TemplateMagentoAttributeConfigurable', 'Template', 'Product']
@@ -222,11 +223,11 @@ class Product:
         vals['visibility'] = _MAGENTO_VISIBILITY.get(product.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute
         vals['status'] = '1' if product.esale_active else '2'
-        vals['short_description'] = creole2html(product.esale_shortdescription)
-        vals['meta_description'] = product.esale_metadescription
-        vals['meta_keyword'] = product.esale_metakeyword
-        vals['meta_title'] = product.esale_metatitle
-        vals['description'] = wiki_parse(product.esale_description)
+        vals['short_description'] = creole2html(esale_eval(product.esale_shortdescription, product))
+        vals['meta_description'] = esale_eval(product.esale_metadescription, product)
+        vals['meta_keyword'] = esale_eval(product.esale_metakeyword, product)
+        vals['meta_title'] = esale_eval(product.esale_metatitle, product)
+        vals['description'] = creole2html(esale_eval(product.esale_description, product))
 
         vals['categories'] = [menu.magento_id for menu in product.esale_menus if menu.magento_app == app]
 
@@ -263,11 +264,11 @@ class Product:
         vals['visibility'] = _MAGENTO_VISIBILITY.get(template.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute
         vals['status'] = '1' if template.esale_active else '2'
-        vals['short_description'] = wiki_parse(template.esale_shortdescription)
-        vals['meta_description'] = template.esale_metadescription
-        vals['meta_keyword'] = template.esale_metakeyword
-        vals['meta_title'] = template.esale_metatitle
-        vals['description'] = wiki_parse(template.esale_description)
+        vals['short_description'] = creole2html(esale_eval(template.esale_shortdescription, template))
+        vals['meta_description'] = esale_eval(template.esale_metadescription, template)
+        vals['meta_keyword'] = esale_eval(template.esale_metakeyword, template)
+        vals['meta_title'] = esale_eval(template.esale_metatitle, template)
+        vals['description'] = creole2html(esale_eval(template.esale_description, template))
 
         vals['categories'] = [menu.magento_id for menu in template.esale_menus if menu.magento_app == app]
 
