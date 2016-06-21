@@ -176,8 +176,8 @@ class SaleShop:
                     language = l.lang.code
                     break
 
-        with Product(app.uri, app.username, app.password) as product_api:
-            for template in templates:
+        for template in templates:
+            with Product(app.uri, app.username, app.password) as product_api:
                 product_type = template.magento_product_type
 
                 if not template.esale_attribute_group:
