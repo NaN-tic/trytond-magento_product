@@ -94,7 +94,7 @@ class SaleShop:
         # Group Price
         group_price = []
         if self.magento_shop_group_prices and product.magento_group_price:
-            # {'cust_group': '0', 'website_price': '10.0000', 'price': '10.0000', 
+            # {'cust_group': '0', 'website_price': '10.0000', 'price': '10.0000',
             # 'website_id': '0', 'price_id': '1', 'all_groups': '0'}
             for group_prices in self.magento_shop_group_prices:
                 context = {
@@ -168,13 +168,7 @@ class SaleShop:
 
         app = self.magento_website.magento_app
 
-        language = context.get('language')
-        default_storeview = app.magento_default_storeview
-        if default_storeview:
-            for l in app.languages:
-                if l.storeview.id == default_storeview.id:
-                    language = l.lang.code
-                    break
+        language = app.default_lang or context.get('language')
 
         for template in templates:
             with Product(app.uri, app.username, app.password) as product_api:
@@ -199,7 +193,7 @@ class SaleShop:
                     values = Prod.magento_export_product(app, product, shop=self, lang=language)
                     prices = self.magento_get_prices(product)
                     values.update(prices)
-                    
+
                     if not values.get('tax_class_id'):
                         for tax in app.magento_taxes:
                             values['tax_class_id'] = tax.tax_id
@@ -239,7 +233,7 @@ class SaleShop:
                                 magento_product_type = 'simple'
                             else:
                                 magento_product_type = product.template.magento_product_type
-                                
+
                             ext_ref = MagentoExternalReferential.get_try2mgn(app,
                                     'esale.attribute.group',
                                     template.esale_attribute_group.id)
@@ -298,7 +292,7 @@ class SaleShop:
                     values.update(prices)
 
                     mgn_prods = product_api.list({'sku': {'=': code}})
-                    
+
                     try:
                         if mgn_prods:
                             action = 'update'
@@ -439,7 +433,7 @@ class SaleShop:
                         magento_website = ext_ref.mgn_id
                         product_api.update(code, data, magento_website, identifierType=app.identifier_type)
                         if self.magento_price_global: # Global price
-                            product_api.update(code, data, identifierType=app.identifier_type) 
+                            product_api.update(code, data, identifierType=app.identifier_type)
                     else:
                         product_api.update(code, data, identifierType=app.identifier_type)
 
