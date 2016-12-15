@@ -11,22 +11,22 @@ import logging
 import urllib
 
 __all__ = ['MagentoApp', 'MagentoSaleShopGroupPrice']
-__metaclass__ = PoolMeta
 
 _ATTRIBUTE_OPTIONS_TYPE = ['select']
 logger = logging.getLogger(__name__)
 
 
 class MagentoApp:
+    __metaclass__ = PoolMeta
     __name__ = 'magento.app'
 
-    from_date_products = fields.DateTime('From Date Products', 
+    from_date_products = fields.DateTime('From Date Products',
         help='This date is the range to import (filter)')
-    to_date_products = fields.DateTime('To Date Products', 
+    to_date_products = fields.DateTime('To Date Products',
         help='This date is the range from import (filter)')
-    from_id_products = fields.Integer('From ID Products', 
+    from_id_products = fields.Integer('From ID Products',
         help='This Integer is the range to import (filter)')
-    to_id_products = fields.Integer('To ID Products', 
+    to_id_products = fields.Integer('To ID Products',
         help='This Integer is the range from import (filter)')
     category_root_id = fields.Integer('Category Root',
         help='Category Root ID Magento')
@@ -89,7 +89,7 @@ class MagentoApp:
                         ptype = ProductType.create([values])[0]
                         logger.info(
                             'Create Product Type: App %s, Type %s, ID %s.' % (
-                            app.name, 
+                            app.name,
                             product_type['type'],
                             ptype,
                             ))
@@ -132,7 +132,7 @@ class MagentoApp:
                     else:
                         logger.info(
                             'Skip! Attribute Group exists: APP %s, Attribute %s.' % (
-                                app.name, 
+                                app.name,
                                 product_attribute_set['set_id'],
                                 ))
 
@@ -153,7 +153,7 @@ class MagentoApp:
                     )
                 logger.info(
                     'Create Attribute Group: APP %s, Attribute %s.' % (
-                        app.name, 
+                        app.name,
                         external_id,
                         ))
 
@@ -441,7 +441,7 @@ class MagentoApp:
                         try:
                             magento_id = menu_lang.magento_id
                             sview = lang.storeview.code
-                            
+
                             category_api.update(magento_id, data, sview)
                             message = 'Magento %s. Update category: %s (%s)' % (
                                     app.name, menu.name, language)
@@ -563,7 +563,7 @@ class MagentoApp:
         '''
         pool = Pool()
         Attachment = pool.get('ir.attachment')
-        
+
         with ProductImages(app.uri, app.username, app.password) as product_images_api:
             for image in product_images_api.list(code):
 
@@ -588,7 +588,7 @@ class MagentoApp:
                 exclude = False
                 if image.get('exclude') == '1':
                     exclude = True
-                
+
                 base_image = False
                 small_image = False
                 thumbnail = False

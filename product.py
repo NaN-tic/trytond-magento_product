@@ -15,7 +15,6 @@ import unicodecsv
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
     'TemplateMagentoAttributeConfigurable', 'Template', 'Product']
-__metaclass__ = PoolMeta
 
 _MAGENTO_VISIBILITY = {
     'none': '1',
@@ -84,6 +83,7 @@ class TemplateMagentoAttributeConfigurable(ModelSQL):
 
 
 class Template:
+    __metaclass__ = PoolMeta
     __name__ = 'product.template'
     magento_product_type = fields.Selection('get_magento_product_type', 'Product Type',
         states={
@@ -151,6 +151,7 @@ class Template:
 
 
 class Product:
+    __metaclass__ = PoolMeta
     __name__ = 'product.product'
 
     @classmethod
@@ -298,7 +299,8 @@ class Product:
             values.append(vals)
 
         output = BytesIO()
-        wr = unicodecsv.DictWriter(output, sorted(list(keys)), quoting=unicodecsv.QUOTE_ALL, encoding='utf-8')
+        wr = unicodecsv.DictWriter(output, sorted(list(keys)),
+            quoting=unicodecsv.QUOTE_ALL, encoding='utf-8')
         wr.writeheader()
         wr.writerows(values)
         return output
