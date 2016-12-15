@@ -4,12 +4,14 @@
 from datetime import datetime
 from decimal import Decimal
 from creole import creole2html
+from io import BytesIO
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Not, Equal, Or
 from trytond.transaction import Transaction
 from trytond import backend
 from trytond.modules.product_esale.tools import esale_eval
+import unicodecsv
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
     'TemplateMagentoAttributeConfigurable', 'Template', 'Product']
@@ -20,6 +22,7 @@ _MAGENTO_VISIBILITY = {
     'search': '3',
     'all': '4',
     }
+
 
 class MagentoProductType(ModelSQL, ModelView):
     'Magento Product Type'
@@ -280,4 +283,84 @@ class Product:
             if ext_ref:
                 websites.append(ext_ref.mgn_id)
         vals['websites'] = websites
+        return vals
+
+    @classmethod
+    def esale_export_csv_magento(cls, shop, products, lang):
+        Product = Pool().get('product.product')
+
+        app = shop.magento_website.magento_app
+
+        values, keys = [], set()
+        for product in products:
+            vals = Product.magento_export_product_csv(app, product, shop, lang)
+            for k in vals.keys():
+                keys.add(k)
+            values.append(vals)
+
+        output = BytesIO()
+        wr = unicodecsv.DictWriter(output, sorted(list(keys)),
+            quoting=unicodecsv.QUOTE_ALL, encoding='utf-8')
+        wr.writeheader()
+        wr.writerows(values)
+        return output
+
+    @classmethod
+    def magento_export_product_csv(cls, app, product, shop, lang):
+        Configuration = Pool().get('product.configuration')
+        configuration = Configuration(1)
+
+        vals = cls.magento_export_product(app, product, shop, lang)
+
+        if app.default_lang and (app.default_lang.code == lang):
+            # remove websites
+            if vals.get('websites'):
+                del vals['websites']
+
+            # convert list values to string
+            vals['category_ids'] = ', '.join(str(x) for x in vals.get('categories'))
+            del vals['categories']
+
+            # add quantity - stock
+            context = Transaction().context
+            context['shop'] = shop.id # force the current shop
+
+            with Transaction().set_context(context):
+                quantities = shop.get_esale_product_quantity([product])
+
+            qty = quantities[product.id]
+            vals['qty'] = qty
+            vals['is_in_stock'] = '1' if qty > 0 else '0'
+            vals['manage_stock'] = '1' if product.esale_manage_stock else '0'
+
+            # images
+            # http://wiki.magmi.org/index.php?title=Image_attributes_processor
+            image = []
+            small_image = []
+            thumbnail = []
+            for a in product.template.attachments:
+                if not a.esale_available:
+                    continue
+                img = '%(exclude)s%(uri)s%(digest)s/%(filename)s::%(label)s' % {
+                    'exclude': '-' if a.esale_exclude else '',
+                    'uri': configuration.esale_media_uri,
+                    'digest': a.digest,
+                    'filename': a.name,
+                    'label': a.description if a.description else product.template.name,
+                    }
+                if a.esale_base_image:
+                    image.append(img)
+                if a.esale_small_image:
+                    small_image.append(img)
+                if a.esale_thumbnail:
+                    thumbnail.append(img)
+            vals['image'] = ','.join(image)
+            vals['small_image'] = ','.join(small_image)
+            vals['thumbnail'] = ','.join(thumbnail)
+        else:
+            # storeview
+            for l in app.languages:
+                if lang == l.lang.code:
+                    vals['store'] = l.storeview.code
+                    break
         return vals
