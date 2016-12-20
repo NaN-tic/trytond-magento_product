@@ -168,7 +168,7 @@ class SaleShop:
 
         app = self.magento_website.magento_app
 
-        language = app.default_lang or context.get('language')
+        language = app.default_lang.code or context.get('language')
 
         for template in templates:
             with Product(app.uri, app.username, app.password) as product_api:
