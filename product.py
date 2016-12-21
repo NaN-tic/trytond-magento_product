@@ -10,7 +10,7 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Not, Equal, Or
 from trytond.transaction import Transaction
 from trytond import backend
-from trytond.modules.product_esale.tools import esale_eval
+from trytond.modules.product_esale.tools import esale_eval, slugify, unaccent
 import unicodecsv
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
@@ -335,9 +335,10 @@ class Product:
 
             # images
             # http://wiki.magmi.org/index.php?title=Image_attributes_processor
-            image = []
-            small_image = []
-            thumbnail = []
+            image = None
+            small_image = None
+            thumbnail = None
+            media_gallery =  []
             for a in product.template.attachments:
                 if not a.esale_available:
                     continue
@@ -345,18 +346,21 @@ class Product:
                     'exclude': '-' if a.esale_exclude else '',
                     'uri': configuration.esale_media_uri,
                     'digest': a.digest,
-                    'filename': a.name,
-                    'label': a.description if a.description else product.template.name,
+                    'filename': slugify(a.name),
+                    'label': unaccent( a.description if a.description \
+                        else product.template.name),
                     }
-                if a.esale_base_image:
-                    image.append(img)
-                if a.esale_small_image:
-                    small_image.append(img)
-                if a.esale_thumbnail:
-                    thumbnail.append(img)
-            vals['image'] = ','.join(image)
-            vals['small_image'] = ','.join(small_image)
-            vals['thumbnail'] = ','.join(thumbnail)
+                if a.esale_base_image and not image:
+                    image = img
+                if a.esale_small_image and not small_image:
+                    small_image = img
+                if a.esale_thumbnail and not thumbnail:
+                    thumbnail = img
+                media_gallery.append(img)
+            vals['image'] = image or ''
+            vals['small_image'] = small_image or ''
+            vals['thumbnail'] = thumbnail or ''
+            vals['media_gallery'] = ';'.join(media_gallery)
         else:
             # storeview
             for l in app.languages:
