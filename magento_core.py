@@ -1,11 +1,11 @@
 # This file is part magento_manufacturer module for Tryton.
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
+from wikimarkup import parse as wiki_parse
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.modules.product_esale.tools import slugify, seo_lenght
-from wikimarkup import parse as wikihtml
 from magento import *
 import logging
 import urllib
@@ -38,6 +38,8 @@ class MagentoApp:
         'Catalog Price', help='Magento Configuration/Catalog/Price/Catalog '
             'Price Scope')
     top_menu = fields.Many2One('esale.catalog.menu', 'Top Menu')
+    wikimarkup = fields.Boolean('Wikimarkup',
+        help='Parser text markup (Wiki)')
 
     @classmethod
     def __setup__(cls):
@@ -67,6 +69,10 @@ class MagentoApp:
     @staticmethod
     def default_catalog_price():
         return 'global'
+
+    @staticmethod
+    def default_wikimarkup():
+        return True
 
     @classmethod
     @ModelView.button
@@ -360,6 +366,8 @@ class MagentoApp:
         :param menu: object
         return dict
         '''
+        wikimarkup = menu.magento_app.wikimarkup
+
         sort_by = menu.default_sort_by
         if sort_by == '':
             sort_by = 'name'
@@ -369,7 +377,9 @@ class MagentoApp:
         data['is_active'] = '1' if menu.active else '0'
         data['available_sort_by'] = sort_by
         data['default_sort_by'] = sort_by
-        data['description'] = wikihtml(menu.description)
+        description = menu.description
+        data['description'] = wiki_parse(description) \
+                if wikimarkup else description
         data['metadescription'] = menu.metadescription
         data['metakeyword'] = menu.metakeyword
         data['metatitle'] = menu.metatitle

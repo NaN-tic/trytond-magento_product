@@ -204,11 +204,19 @@ class Product:
         MagentoExternalReferential = pool.get('magento.external.referential')
         Product = pool.get('product.product')
 
-        language = Transaction().context.get('language')
+        wikimarkup = app.wikimarkup
 
+        language = Transaction().context.get('language')
         if language != lang:
             with Transaction().set_context(language=lang):
                 product = Product(product.id)
+
+        tax_class_id = ''
+        if product.template.template_attributes:
+            tax_class_id = product.template.template_attributes.get('tax_class_id', '')
+        if product.attributes:
+            if product.attributes.get('tax_class_id'):
+                tax_class_id = product.attributes.get('tax_class_id', '')
 
         vals = {}
         vals['name'] = product.name
@@ -217,22 +225,21 @@ class Product:
         vals['url_key'] = product.esale_slug if product.esale_slug else product.template.esale_slug
         vals['cost'] = str(product.cost_price)
         vals['price'] = str(product.list_price)
-        if product.template.template_attributes:
-            if product.template.template_attributes.get('tax_class_id'):
-                vals['tax_class_id'] = product.template.template_attributes.get('tax_class_id')
-        if product.attributes:
-            if product.attributes.get('tax_class_id'):
-                vals['tax_class_id'] = product.attributes.get('tax_class_id')
+        vals['tax_class_id'] = tax_class_id
         vals['visibility'] = _MAGENTO_VISIBILITY.get(product.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute
         vals['status'] = '1' if product.esale_active else '2'
-        vals['short_description'] = wiki_parse(esale_eval(product.esale_shortdescription, product))
+        short_description = esale_eval(product.esale_shortdescription, product)
+        vals['short_description'] = wiki_parse(short_description) \
+                if wikimarkup else short_description
         vals['meta_description'] = esale_eval(product.esale_metadescription, product)
         vals['meta_keyword'] = esale_eval(product.esale_metakeyword, product)
         vals['meta_title'] = esale_eval(product.esale_metatitle, product)
-        vals['description'] = wiki_parse(esale_eval(product.esale_description, product))
-
-        vals['categories'] = [menu.magento_id for menu in product.esale_menus if menu.magento_app == app]
+        description = esale_eval(product.esale_description, product)
+        vals['description'] = wiki_parse(description) \
+                if wikimarkup else description
+        vals['categories'] = [menu.magento_id for menu in product.esale_menus
+                if menu.magento_app == app]
 
         websites = []
         for shop in product.shops:
@@ -251,8 +258,9 @@ class Product:
         MagentoExternalReferential = pool.get('magento.external.referential')
         Template = pool.get('product.template')
 
-        language = Transaction().context.get('language')
+        wikimarkup = app.wikimarkup
 
+        language = Transaction().context.get('language')
         if language != lang:
             with Transaction().set_context(language=lang):
                 template = Template(template.id)
@@ -267,11 +275,15 @@ class Product:
         vals['visibility'] = _MAGENTO_VISIBILITY.get(template.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute
         vals['status'] = '1' if template.esale_active else '2'
-        vals['short_description'] = wiki_parse(esale_eval(template.esale_shortdescription, template))
+        short_description = esale_eval(template.esale_shortdescription, template)
+        vals['short_description'] = wiki_parse(short_description) \
+                if wikimarkup else wikimarkup
         vals['meta_description'] = esale_eval(template.esale_metadescription, template)
         vals['meta_keyword'] = esale_eval(template.esale_metakeyword, template)
         vals['meta_title'] = esale_eval(template.esale_metatitle, template)
-        vals['description'] = wiki_parse(esale_eval(template.esale_description, template))
+        description = esale_eval(template.esale_description, template)
+        vals['description'] = wiki_parse(description) \
+                if wikimarkup else description
 
         vals['categories'] = [menu.magento_id for menu in template.esale_menus if menu.magento_app == app]
 
