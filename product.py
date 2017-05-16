@@ -223,7 +223,11 @@ class Product:
         vals['type_id'] = product.magento_product_type
         vals['url_key'] = product.esale_slug if product.esale_slug else product.template.esale_slug
         vals['cost'] = str(product.cost_price)
-        vals['price'] = str(product.list_price)
+        if shop:
+            prices = shop.magento_get_prices(product)
+            vals.update(prices)
+        else:
+            vals['price'] = str(product.list_price)
         vals['tax_class_id'] = tax_class_id
         vals['visibility'] = _MAGENTO_VISIBILITY.get(product.esale_visibility, '4')
         vals['set'] = '4' #ID default attribute
