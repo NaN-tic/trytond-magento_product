@@ -9,6 +9,8 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <field name="tax_include"/>
             <label name="catalog_price"/>
             <field name="catalog_price"/>
+            <label name="wikimarkup"/>
+            <field name="wikimarkup"/>
     </xpath>
     <xpath
         expr="/form/notebook/page[@id='core']"
