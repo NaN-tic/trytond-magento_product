@@ -233,14 +233,14 @@ class Product:
         vals['set'] = '4' #ID default attribute
         vals['status'] = '1' if product.esale_active else '2'
         short_description = esale_eval(product.esale_shortdescription, product)
-        vals['short_description'] = creole2html(short_description) \
-                if wikimarkup else short_description
+        vals['short_description'] = (creole2html(short_description) \
+                if wikimarkup else short_description) if short_description else ''
         vals['meta_description'] = esale_eval(product.esale_metadescription, product)
         vals['meta_keyword'] = esale_eval(product.esale_metakeyword, product)
         vals['meta_title'] = esale_eval(product.esale_metatitle, product)
         description = esale_eval(product.esale_description, product)
-        vals['description'] = creole2html(description) \
-                if wikimarkup else description
+        vals['description'] = (creole2html(description) \
+                if wikimarkup else description) if description else ''
         vals['categories'] = [menu.magento_id for menu in product.esale_menus
                 if menu.magento_app == app]
 
@@ -279,14 +279,14 @@ class Product:
         vals['set'] = '4' #ID default attribute
         vals['status'] = '1' if template.esale_active else '2'
         short_description = esale_eval(template.esale_shortdescription, template)
-        vals['short_description'] = creole2html(short_description) \
-                if wikimarkup else wikimarkup
+        vals['short_description'] = (creole2html(short_description) \
+                if wikimarkup else short_description) if short_description else ''
         vals['meta_description'] = esale_eval(template.esale_metadescription, template)
         vals['meta_keyword'] = esale_eval(template.esale_metakeyword, template)
         vals['meta_title'] = esale_eval(template.esale_metatitle, template)
         description = esale_eval(template.esale_description, template)
-        vals['description'] = creole2html(description) \
-                if wikimarkup else description
+        vals['description'] = (creole2html(description) \
+                if wikimarkup else description) if description else ''
         vals['categories'] = [menu.magento_id for menu in template.esale_menus if menu.magento_app == app]
 
         websites = []
