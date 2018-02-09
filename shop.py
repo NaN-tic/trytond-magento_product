@@ -172,8 +172,8 @@ class SaleShop:
         app = self.magento_website.magento_app
         language = app.default_lang.code or context.get('language')
 
-        with Product(app.uri, app.username, app.password) as product_api:
-            for sub_templates in grouped_slice(templates, MAX_CONNECTIONS):
+        for sub_templates in grouped_slice(templates, MAX_CONNECTIONS):
+            with Product(app.uri, app.username, app.password) as product_api:
                 for template in sub_templates:
                     product_type = template.magento_product_type
 
@@ -415,8 +415,8 @@ class SaleShop:
 
         app = self.magento_website.magento_app
 
-        with Product(app.uri, app.username, app.password) as product_api:
-            for sub_products in grouped_slice(products, MAX_CONNECTIONS):
+        for sub_products in grouped_slice(products, MAX_CONNECTIONS):
+            with Product(app.uri, app.username, app.password) as product_api:
                 for product in sub_products:
                     if not product.code:
                         continue
