@@ -10,12 +10,15 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, Not, Equal, Or
 from trytond.transaction import Transaction
 from trytond import backend
+from trytond.tools import grouped_slice
+from trytond.config import config as config_
 from trytond.modules.product_esale.tools import esale_eval, slugify, unaccent
 import unicodecsv
 
 __all__ = ['MagentoProductType', 'MagentoAttributeConfigurable',
     'TemplateMagentoAttributeConfigurable', 'Template', 'Product']
 
+MAX_CSV = config_.getint('magento', 'max_csv', default=50)
 _MAGENTO_VISIBILITY = {
     'none': '1',
     'catalog': '2',
@@ -308,11 +311,12 @@ class Product:
         app = shop.magento_website.magento_app
 
         values, keys = [], set()
-        for product in products:
-            vals = Product.magento_export_product_csv(app, product, shop, lang)
-            for k in vals.keys():
-                keys.add(k)
-            values.append(vals)
+        for sub_products in grouped_slice(products, MAX_CSV):
+            for product in sub_products:
+                vals = Product.magento_export_product_csv(app, product, shop, lang)
+                for k in vals.keys():
+                    keys.add(k)
+                values.append(vals)
 
         output = BytesIO()
         wr = unicodecsv.DictWriter(output, sorted(list(keys)),
