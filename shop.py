@@ -5,6 +5,8 @@ from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.pyson import Eval, Not, Equal
+from trytond.tools import grouped_slice
+from trytond.config import config as config_
 from mimetypes import guess_type
 from magento import *
 import datetime
@@ -13,6 +15,7 @@ import base64
 
 __all__ = ['SaleShop']
 
+MAX_CONNECTIONS = config_.getint('magento', 'max_connections', default=50)
 _MIME_TYPES = ['image/jpeg', 'image/png']
 logger = logging.getLogger(__name__)
 
@@ -167,197 +170,197 @@ class SaleShop:
                 self.name, len(templates)))
 
         app = self.magento_website.magento_app
-
         language = app.default_lang.code or context.get('language')
 
-        for template in templates:
-            with Product(app.uri, app.username, app.password) as product_api:
-                product_type = template.magento_product_type
+        with Product(app.uri, app.username, app.password) as product_api:
+            for sub_templates in grouped_slice(templates, MAX_CONNECTIONS):
+                for template in sub_templates:
+                    product_type = template.magento_product_type
 
-                if not template.esale_attribute_group:
-                    message = 'Magento %s. Error export template ID %s. ' \
-                            'Select eSale Attribute' % (self.name, template.id)
-                    logger.error(message)
-                    continue
-
-                total_products = len(template.products)
-
-                for product in template.products:
-                    if not product.code:
-                        message = 'Magento %s. Error export product ID %s. ' \
-                                'Add a code' % (self.name, product.id)
+                    if not template.esale_attribute_group:
+                        message = 'Magento %s. Error export template ID %s. ' \
+                                'Select eSale Attribute' % (self.name, template.id)
                         logger.error(message)
                         continue
 
-                    code = product.code
-                    values = Prod.magento_export_product(app, product, shop=self, lang=language)
-                    prices = self.magento_get_prices(product)
-                    values.update(prices)
+                    total_products = len(template.products)
 
-                    if not values.get('tax_class_id'):
-                        for tax in app.magento_taxes:
-                            values['tax_class_id'] = tax.tax_id
-                            break
-                    if product_type == 'configurable':
-                        # force visibility Not Visible Individually
-                        values['visibility'] = '1'
-                        # product name from product_name module if installed
-                        values['name'] = product.name if product.name else product.template.name
-                        # each variant add attribute options in product name
-                    if product_type == 'grouped':
-                        # force visibility Not Visible Individually
-                        values['visibility'] = '1'
-
-                    # if products > 1, add code prefix in url key
-                    if total_products > 1:
-                        url_key = values.get('url_key')
-                        values['url_key'] = '%s-%s' % (code.lower(), url_key)
-
-                    if app.debug:
-                        message = 'Magento %s. Product: %s. Values: %s' % (
-                                self.name, code, values)
-                        logger.info(message)
-
-                    mgn_prods = product_api.list({'sku': {'=': code}})
-
-                    try:
-                        if mgn_prods:
-                            action = 'update'
-                            product_api.update(code, values, identifierType=app.identifier_type)
-                        else:
-                            action = 'create'
-                            del values['sku']
-
-                            # Product type
-                            if product_type == 'configurable':
-                                magento_product_type = 'simple'
-                            else:
-                                magento_product_type = product.template.magento_product_type
-
-                            ext_ref = MagentoExternalReferential.get_try2mgn(app,
-                                    'esale.attribute.group',
-                                    template.esale_attribute_group.id)
-                            attribute_mgn = ext_ref.mgn_id
-
-                            mgn_id = product_api.create(magento_product_type, attribute_mgn, code, values)
-
-                            message = 'Magento %s. %s product %s. Magento ID %s' % (
-                                    self.name, action.capitalize(), code, mgn_id)
-                            logger.info(message)
-                    except Exception, e:
-                        action = None
-                        message = 'Magento %s. Error export product %s: %s' % (
-                                    self.name, code, e)
-                        logger.error(message)
-
-                    if not action:
-                        continue
-
-                    # save products by language
-                    for l in app.languages:
-                        if language == l.lang.code:
+                    for product in template.products:
+                        if not product.code:
+                            message = 'Magento %s. Error export product ID %s. ' \
+                                    'Add a code' % (self.name, product.id)
+                            logger.error(message)
                             continue
-                        values = Prod.magento_export_product(app, product, lang=l.lang.code)
 
-                        if product_type in ['configurable', 'grouped']:
+                        code = product.code
+                        values = Prod.magento_export_product(app, product, shop=self, lang=language)
+                        prices = self.magento_get_prices(product)
+                        values.update(prices)
+
+                        if not values.get('tax_class_id'):
+                            for tax in app.magento_taxes:
+                                values['tax_class_id'] = tax.tax_id
+                                break
+                        if product_type == 'configurable':
                             # force visibility Not Visible Individually
                             values['visibility'] = '1'
-                            if values.get('description'):
-                                values['name'] = values['description']
+                            # product name from product_name module if installed
+                            values['name'] = product.name if product.name else product.template.name
+                            # each variant add attribute options in product name
+                        if product_type == 'grouped':
+                            # force visibility Not Visible Individually
+                            values['visibility'] = '1'
+
+                        # if products > 1, add code prefix in url key
+                        if total_products > 1:
+                            url_key = values.get('url_key')
+                            values['url_key'] = '%s-%s' % (code.lower(), url_key)
 
                         if app.debug:
                             message = 'Magento %s. Product: %s. Values: %s' % (
                                     self.name, code, values)
                             logger.info(message)
 
-                        product_api.update(code, values, l.storeview.code, identifierType=app.identifier_type)
+                        mgn_prods = product_api.list({'sku': {'=': code}})
 
-                        message = 'Magento %s. Update product %s (%s)' % (
-                                self.name, code, l.lang.code)
-                        logger.info(message)
-
-                # ===========================
-                # Export Configurable Product
-                # ===========================
-                if product_type == 'configurable':
-                    if not template.base_code:
-                        logger.warning('Product Template not have base code')
-                        continue
-
-                    if not template.products:
-                        logger.warning('Template not have products')
-                        continue
-                    values = Prod.magento_export_product_configurable(app, template, shop=self, lang=language)
-                    prices = self.magento_get_prices(template.products[0])
-                    values.update(prices)
-
-                    mgn_prods = product_api.list({'sku': {'=': code}})
-
-                    try:
-                        if mgn_prods:
-                            action = 'update'
-                            product_api.update(code, values, identifierType=app.identifier_type)
-                        else:
-                            action = 'create'
-
-                            magento_product_type = template.magento_product_type
-
-                            ext_ref = MagentoExternalReferential.get_try2mgn(app,
-                                    'esale.attribute.group',
-                                    template.esale_attribute_group.id)
-                            attribute_mgn = ext_ref.mgn_id
-
-                            mgn_id = product_api.create(magento_product_type, attribute_mgn, code, values)
-
-                            # set attribute product configuration
-                            with ProductConfigurable(app.uri, app.username, app.password) as product_conf_api:
-                                # assign each magento attribute
-                                for attribute in template.magento_attribute_configurables:
-                                    product_conf_api.setSuperAttributeValues(mgn_id, attribute.mgn_id)
-
-                            message = 'Magento %s. %s product %s. Magento ID %s' % (
-                                    self.name, action.capitalize(), code, mgn_id)
-                            logger.info(message)
-                    except Exception, e:
-                        message = 'Magento %s. Error export product %s: %s' % (
-                                    self.name, code, e)
-                        logger.error(message)
-                        continue
-
-                    # Relate product simple to product configuration
-                    ofilter = {'sku': {'in': ['%s' % p.code for p in template.products]}}
-                    products = product_api.list(ofilter)
-                    with ProductConfigurable(app.uri, app.username, app.password) as product_conf_api:
                         try:
-                            simples = [p['product_id'] for p in products]
-                            product_conf_api.update(code, simples, {})
-                            message = 'Magento %s. Update %s with configurable %s' % (
-                                    self.name, code, simples)
-                            logger.info(message)
+                            if mgn_prods:
+                                action = 'update'
+                                product_api.update(code, values, identifierType=app.identifier_type)
+                            else:
+                                action = 'create'
+                                del values['sku']
+
+                                # Product type
+                                if product_type == 'configurable':
+                                    magento_product_type = 'simple'
+                                else:
+                                    magento_product_type = product.template.magento_product_type
+
+                                ext_ref = MagentoExternalReferential.get_try2mgn(app,
+                                        'esale.attribute.group',
+                                        template.esale_attribute_group.id)
+                                attribute_mgn = ext_ref.mgn_id
+
+                                mgn_id = product_api.create(magento_product_type, attribute_mgn, code, values)
+
+                                message = 'Magento %s. %s product %s. Magento ID %s' % (
+                                        self.name, action.capitalize(), code, mgn_id)
+                                logger.info(message)
                         except Exception, e:
                             action = None
                             message = 'Magento %s. Error export product %s: %s' % (
                                         self.name, code, e)
                             logger.error(message)
 
-                    # save products by language
-                    for lang in app.languages:
-                        with Transaction().set_context(language=lang.lang.code):
-                            product = Prod(product.id)
-                            tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [product.template.id])
-                        values = tvals
+                        if not action:
+                            continue
 
-                        if app.debug:
-                            message = 'Magento %s. Product: %s. Values: %s' % (
-                                    self.name, code, values)
+                        # save products by language
+                        for l in app.languages:
+                            if language == l.lang.code:
+                                continue
+                            values = Prod.magento_export_product(app, product, lang=l.lang.code)
+
+                            if product_type in ['configurable', 'grouped']:
+                                # force visibility Not Visible Individually
+                                values['visibility'] = '1'
+                                if values.get('description'):
+                                    values['name'] = values['description']
+
+                            if app.debug:
+                                message = 'Magento %s. Product: %s. Values: %s' % (
+                                        self.name, code, values)
+                                logger.info(message)
+
+                            product_api.update(code, values, l.storeview.code, identifierType=app.identifier_type)
+
+                            message = 'Magento %s. Update product %s (%s)' % (
+                                    self.name, code, l.lang.code)
                             logger.info(message)
 
-                        product_api.update(code, values, lang.storeview.code, identifierType=app.identifier_type)
+                    # ===========================
+                    # Export Configurable Product
+                    # ===========================
+                    if product_type == 'configurable':
+                        if not template.base_code:
+                            logger.warning('Product Template not have base code')
+                            continue
 
-                        message = 'Magento %s. Update product %s (%s)' % (
-                                self.name, code, lang.lang.code)
-                        logger.info(message)
-                    # END product configuration
+                        if not template.products:
+                            logger.warning('Template not have products')
+                            continue
+                        values = Prod.magento_export_product_configurable(app, template, shop=self, lang=language)
+                        prices = self.magento_get_prices(template.products[0])
+                        values.update(prices)
+
+                        mgn_prods = product_api.list({'sku': {'=': code}})
+
+                        try:
+                            if mgn_prods:
+                                action = 'update'
+                                product_api.update(code, values, identifierType=app.identifier_type)
+                            else:
+                                action = 'create'
+
+                                magento_product_type = template.magento_product_type
+
+                                ext_ref = MagentoExternalReferential.get_try2mgn(app,
+                                        'esale.attribute.group',
+                                        template.esale_attribute_group.id)
+                                attribute_mgn = ext_ref.mgn_id
+
+                                mgn_id = product_api.create(magento_product_type, attribute_mgn, code, values)
+
+                                # set attribute product configuration
+                                with ProductConfigurable(app.uri, app.username, app.password) as product_conf_api:
+                                    # assign each magento attribute
+                                    for attribute in template.magento_attribute_configurables:
+                                        product_conf_api.setSuperAttributeValues(mgn_id, attribute.mgn_id)
+
+                                message = 'Magento %s. %s product %s. Magento ID %s' % (
+                                        self.name, action.capitalize(), code, mgn_id)
+                                logger.info(message)
+                        except Exception, e:
+                            message = 'Magento %s. Error export product %s: %s' % (
+                                        self.name, code, e)
+                            logger.error(message)
+                            continue
+
+                        # Relate product simple to product configuration
+                        ofilter = {'sku': {'in': ['%s' % p.code for p in template.products]}}
+                        products = product_api.list(ofilter)
+                        with ProductConfigurable(app.uri, app.username, app.password) as product_conf_api:
+                            try:
+                                simples = [p['product_id'] for p in products]
+                                product_conf_api.update(code, simples, {})
+                                message = 'Magento %s. Update %s with configurable %s' % (
+                                        self.name, code, simples)
+                                logger.info(message)
+                            except Exception, e:
+                                action = None
+                                message = 'Magento %s. Error export product %s: %s' % (
+                                            self.name, code, e)
+                                logger.error(message)
+
+                        # save products by language
+                        for lang in app.languages:
+                            with Transaction().set_context(language=lang.lang.code):
+                                product = Prod(product.id)
+                                tvals, = BaseExternalMapping.map_tryton_to_external(template_mapping, [product.template.id])
+                            values = tvals
+
+                            if app.debug:
+                                message = 'Magento %s. Product: %s. Values: %s' % (
+                                        self.name, code, values)
+                                logger.info(message)
+
+                            product_api.update(code, values, lang.storeview.code, identifierType=app.identifier_type)
+
+                            message = 'Magento %s. Update product %s (%s)' % (
+                                    self.name, code, lang.lang.code)
+                            logger.info(message)
+                        # END product configuration
 
         logger.info(
             'Magento %s. End export %s product(s).' % (
@@ -369,7 +372,7 @@ class SaleShop:
         if hasattr(self, 'export_stocks_magento'):
             self.export_stocks_magento([t.id for t in templates]) # Export Inventory - Stock
         self.export_images_magento([t.id for t in templates]) # Export Images
-        #TODO: Export Product Links
+        # TODO: Export Product Links
 
     def export_prices_magento(self, tpls=[]):
         """Export Prices to Magento
@@ -413,37 +416,38 @@ class SaleShop:
         app = self.magento_website.magento_app
 
         with Product(app.uri, app.username, app.password) as product_api:
-            for product in products:
-                if not product.code:
-                    continue
-                code = product.code
+            for sub_products in grouped_slice(products, MAX_CONNECTIONS):
+                for product in sub_products:
+                    if not product.code:
+                        continue
+                    code = product.code
 
-                data = self.magento_get_prices(product)
+                    data = self.magento_get_prices(product)
 
-                if app.debug:
-                    message = 'Magento %s. Product: %s. Data: %s' % (
-                            self.name, code, data)
-                    logger.info(message)
+                    if app.debug:
+                        message = 'Magento %s. Product: %s. Data: %s' % (
+                                self.name, code, data)
+                        logger.info(message)
 
-                try:
-                    if app.catalog_price == 'website':
-                        ext_ref = MagentoExternalReferential.get_try2mgn(app,
-                                'magento.external.referential',
-                                self.magento_website.id)
-                        magento_website = ext_ref.mgn_id
-                        product_api.update(code, data, magento_website, identifierType=app.identifier_type)
-                        if self.magento_price_global: # Global price
+                    try:
+                        if app.catalog_price == 'website':
+                            ext_ref = MagentoExternalReferential.get_try2mgn(app,
+                                    'magento.external.referential',
+                                    self.magento_website.id)
+                            magento_website = ext_ref.mgn_id
+                            product_api.update(code, data, magento_website, identifierType=app.identifier_type)
+                            if self.magento_price_global: # Global price
+                                product_api.update(code, data, identifierType=app.identifier_type)
+                        else:
                             product_api.update(code, data, identifierType=app.identifier_type)
-                    else:
-                        product_api.update(code, data, identifierType=app.identifier_type)
 
-                    message = 'Magento %s. Export price %s product.' % (
-                            self.name, code)
-                    logger.info(message)
-                except Exception, e:
-                    message = 'Magento %s. Error export prices to product %s: %s' % (
-                                self.name, code, e)
-                    logger.error(message)
+                        message = 'Magento %s. Export price %s product.' % (
+                                self.name, code)
+                        logger.info(message)
+                    except Exception, e:
+                        message = 'Magento %s. Error export prices to product %s: %s' % (
+                                    self.name, code, e)
+                        logger.error(message)
 
         logger.info(
             'Magento %s. End export prices %s products.' % (
@@ -489,40 +493,41 @@ class SaleShop:
 
         app = self.magento_website.magento_app
 
-        for template in templates:
-            if not template.products:
-                continue
+        for sub_templates in grouped_slice(templates, MAX_CONNECTIONS):
+            for template in sub_templates:
+                if not template.products:
+                    continue
 
-            if template.magento_product_type == 'configurable':
-                # template -> configurable
-                if template.attachments:
-                    code = template.base_code
-                    if code:
-                        images = self.magento_images_from_attachments(template.attachments)
+                if template.magento_product_type == 'configurable':
+                    # template -> configurable
+                    if template.attachments:
+                        code = template.base_code
+                        if code:
+                            images = self.magento_images_from_attachments(template.attachments)
+                            if images:
+                                self.create_update_magento_images(app, self, code, images)
+                    # variants -> simple
+                    for product in template.products:
+                        if not product.attachments:
+                            continue
+                        if not product.code:
+                            continue
+                        code = product.code
+                        images = self.magento_images_from_attachments(product.attachments)
                         if images:
                             self.create_update_magento_images(app, self, code, images)
-                # variants -> simple
-                for product in template.products:
-                    if not product.attachments:
+                elif template.attachments:
+                    if not template.attachments:
                         continue
+                    product, = template.products
                     if not product.code:
                         continue
                     code = product.code
-                    images = self.magento_images_from_attachments(product.attachments)
+                    images = self.magento_images_from_attachments(template.attachments)
                     if images:
                         self.create_update_magento_images(app, self, code, images)
-            elif template.attachments:
-                if not template.attachments:
+                else:
                     continue
-                product, = template.products
-                if not product.code:
-                    continue
-                code = product.code
-                images = self.magento_images_from_attachments(template.attachments)
-                if images:
-                    self.create_update_magento_images(app, self, code, images)
-            else:
-                continue
 
         logger.info(
             'Magento %s. End export images %s products.' % (
