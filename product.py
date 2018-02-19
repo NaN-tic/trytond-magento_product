@@ -310,10 +310,17 @@ class Product:
 
         app = shop.magento_website.magento_app
 
+        context = Transaction().context
+        context['shop'] = shop.id
+        with Transaction().set_context(context):
+            quantities = shop.get_esale_product_quantity(products)
+
         values, keys = [], set()
         for sub_products in grouped_slice(products, MAX_CSV):
             for product in sub_products:
-                vals = Product.magento_export_product_csv(app, product, shop, lang)
+                quantity = quantities[product.id]
+                vals = Product.magento_export_product_csv(
+                    app, product, shop, lang, quantity)
                 for k in vals.keys():
                     keys.add(k)
                 values.append(vals)
@@ -326,7 +333,7 @@ class Product:
         return output
 
     @classmethod
-    def magento_export_product_csv(cls, app, product, shop, lang):
+    def magento_export_product_csv(cls, app, product, shop, lang, quantity):
         Configuration = Pool().get('product.configuration')
         configuration = Configuration(1)
 
@@ -341,16 +348,8 @@ class Product:
             vals['category_ids'] = ', '.join(str(x) for x in vals.get('categories'))
             del vals['categories']
 
-            # add quantity - stock
-            context = Transaction().context
-            context['shop'] = shop.id # force the current shop
-
-            with Transaction().set_context(context):
-                quantities = shop.get_esale_product_quantity([product])
-
-            qty = quantities[product.id]
-            vals['qty'] = qty
-            vals['is_in_stock'] = '1' if qty > 0 else '0'
+            vals['qty'] = quantity
+            vals['is_in_stock'] = '1' if quantity > 0 else '0'
             vals['manage_stock'] = '1' if product.esale_manage_stock else '0'
 
             # images
