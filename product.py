@@ -349,7 +349,8 @@ class Product:
             vals['qty'] = quantity
             vals['is_in_stock'] = '1' if quantity > 0 else '0'
             vals['manage_stock'] = '1' if product.esale_manage_stock else '0'
-            if shop.magento_use_config_manage_stock:
+            if (hasattr(shop, 'magento_use_config_manage_stock')
+                    and shop.magento_use_config_manage_stock):
                 vals['use_config_manage_stock'] = ('1'
                     if product.magento_use_config_manage_stock else '0')
 
