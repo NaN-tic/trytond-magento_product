@@ -308,22 +308,23 @@ class Product:
     def esale_export_csv_magento(cls, shop, products, lang):
         Product = Pool().get('product.product')
 
-        app = shop.magento_website.magento_app
-
-        context = Transaction().context
-        context['shop'] = shop.id
-        with Transaction().set_context(context):
-            quantities = shop.get_esale_product_quantity(products)
-
         values, keys = [], set()
-        for sub_products in grouped_slice(products, MAX_CSV):
-            for product in sub_products:
-                quantity = quantities[product.id]
-                vals = Product.magento_export_product_csv(
-                    app, product, shop, lang, quantity)
-                for k in vals.keys():
-                    keys.add(k)
-                values.append(vals)
+        if products:
+            app = shop.magento_website.magento_app
+
+            context = Transaction().context
+            context['shop'] = shop.id
+            with Transaction().set_context(context):
+                quantities = shop.get_esale_product_quantity(products)
+
+            for sub_products in grouped_slice(products, MAX_CSV):
+                for product in sub_products:
+                    quantity = quantities[product.id]
+                    vals = Product.magento_export_product_csv(
+                        app, product, shop, lang, quantity)
+                    for k in vals.keys():
+                        keys.add(k)
+                    values.append(vals)
 
         output = BytesIO()
         wr = unicodecsv.DictWriter(output, sorted(list(keys)),
