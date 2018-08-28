@@ -155,7 +155,7 @@ class SaleShop:
 
             # Update date last import
             self.write([self], {'esale_last_products': now})
-            Transaction().cursor.commit()
+            Transaction().commit()
 
         products = Prod.search(product_domain)
         templates = list(set(p.template for p in products))
@@ -400,7 +400,7 @@ class SaleShop:
 
             # Update date last import
             self.write([self], {'esale_last_prices': now})
-            Transaction().cursor.commit()
+            Transaction().commit()
 
         products = Prod.search(product_domain)
 
@@ -477,7 +477,7 @@ class SaleShop:
 
             # Update date last import
             self.write([self], {'esale_last_images': now})
-            Transaction().cursor.commit()
+            Transaction().commit()
 
         products = Prod.search(product_domain)
         templates = list(set(p.template for p in products))

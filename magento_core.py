@@ -355,7 +355,7 @@ class MagentoApp:
                 else:
                     category_root, = category_roots
 
-                Transaction().cursor.commit()
+                Transaction().commit()
                 self.children_categories(app, category_root.id, data)
 
             logger.info('End import categories %s' % (app.name))
@@ -439,7 +439,7 @@ class MagentoApp:
                                     app.name, menu.id, e)
                         logger.error(message)
 
-                    Transaction().cursor.commit()
+                    Transaction().commit()
 
                     # Export categories by languages
                     for lang in app.languages:
@@ -725,7 +725,7 @@ class MagentoApp:
                     # save images products
                     self.save_product_images(app, template, product_id)
 
-                    Transaction().cursor.commit()
+                    Transaction().commit()
 
             logger.info('End import products %s' % (app.name))
 
