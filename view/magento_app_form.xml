@@ -17,17 +17,17 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
         position="after">
         <page string="Catalog" id="catalog">
             <separator string="Products" colspan="4" id="products"/>
-            <button name="core_import_product_type" string="Import Product Type" colspan="4"/>
-            <button name="core_import_group_attributes" string="Import Group Attributes" colspan="4"/>
-            <button name="core_import_attributes_options" string="Import Attribute Options" colspan="4"/>
+            <button name="core_import_product_type" colspan="4"/>
+            <button name="core_import_group_attributes" colspan="4"/>
+            <button name="core_import_attributes_options" colspan="4"/>
             <group col="5" colspan="4" id="categories">
                 <button name="core_import_categories" string="Import/Update Magento Categories"/>
                 <label name="category_root_id"/>
                 <field name="category_root_id"/>
             </group>
             <group col="4" colspan="4" id="products">
-                <button name="core_import_products" string="Import/Update Magento Products" colspan="4"/>
-                <button name="core_import_product_links" string="Import Magento Product Links" colspan="4"/>
+                <button name="core_import_products" colspan="4"/>
+                <button name="core_import_product_links" colspan="4"/>
                 <newline/>
                 <label name="from_id_products"/>
                 <field name="from_id_products"/>
@@ -40,7 +40,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             </group>
             <separator string="Export" colspan="4" id="export"/>
             <group col="5" colspan="4" id="categories-export">
-                <button name="core_export_categories" string="Export Magento Categories"/>
+                <button name="core_export_categories"/>
                 <label name="top_menu"/>
                 <field name="top_menu"/>
             </group>

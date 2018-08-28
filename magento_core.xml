@@ -10,6 +10,38 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <field name="name">magento_app_form</field>
         </record>
 
+        <!-- buttons -->
+        <record model="ir.model.button" id="core_import_product_type_button">
+            <field name="name">core_import_product_type</field>
+            <field name="string">Import Product Type</field>
+            <field name="model" search="[('model', '=', 'magento.app')]"/>
+        </record>
+        <record model="ir.model.button" id="core_import_group_attributes_button">
+            <field name="name">core_import_group_attributes</field>
+            <field name="string">Import Group Attributes</field>
+            <field name="model" search="[('model', '=', 'magento.app')]"/>
+        </record>
+        <record model="ir.model.button" id="core_import_attributes_options_button">
+            <field name="name">core_import_attributes_options</field>
+            <field name="string">Import Attribute Options</field>
+            <field name="model" search="[('model', '=', 'magento.app')]"/>
+        </record>
+        <record model="ir.model.button" id="core_import_products_button">
+            <field name="name">core_import_products</field>
+            <field name="string">Import/Update Magento Products</field>
+            <field name="model" search="[('model', '=', 'magento.app')]"/>
+        </record>
+        <record model="ir.model.button" id="core_import_product_links_button">
+            <field name="name">core_import_product_links</field>
+            <field name="string">Import Magento Product Links</field>
+            <field name="model" search="[('model', '=', 'magento.app')]"/>
+        </record>
+        <record model="ir.model.button" id="core_export_categories_button">
+            <field name="name">core_export_categories</field>
+            <field name="string">Export Magento Categories</field>
+            <field name="model" search="[('model', '=', 'magento.app')]"/>
+        </record>
+
         <!--Magento Sale Shop Group Price -->
         <record model="ir.ui.view" id="magento_sale_shop_group_price_form">
             <field name="model">magento.sale.shop.group.price</field>
