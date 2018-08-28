@@ -36,6 +36,11 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <field name="string">Import Magento Product Links</field>
             <field name="model" search="[('model', '=', 'magento.app')]"/>
         </record>
+        <record model="ir.model.button" id="core_import_categories_button">
+            <field name="name">core_import_categories</field>
+            <field name="string">Import/Update Magento Categories</field>
+            <field name="model" search="[('model', '=', 'magento.app')]"/>
+        </record>
         <record model="ir.model.button" id="core_export_categories_button">
             <field name="name">core_export_categories</field>
             <field name="string">Export Magento Categories</field>

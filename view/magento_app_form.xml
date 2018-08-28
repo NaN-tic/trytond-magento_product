@@ -21,7 +21,7 @@ The COPYRIGHT file at the top level of this repository contains the full copyrig
             <button name="core_import_group_attributes" colspan="4"/>
             <button name="core_import_attributes_options" colspan="4"/>
             <group col="5" colspan="4" id="categories">
-                <button name="core_import_categories" string="Import/Update Magento Categories"/>
+                <button name="core_import_categories"/>
                 <label name="category_root_id"/>
                 <field name="category_root_id"/>
             </group>
