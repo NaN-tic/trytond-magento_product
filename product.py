@@ -128,15 +128,9 @@ class Template:
         ProductType = Pool().get('magento.product.type')
 
         types = [(None, '')]
-        records = ProductType.search([
-            ('active', '=', True),
-            ], order=[('id', 'DESC')])
-        if not records:
-            return types
-        product_types = ProductType.read(records, ['code', 'name'])
-        if product_types:
-            for pt in product_types:
-                types.append((pt['code'], pt['name']))
+        for type_ in ProductType.search([
+                ('active', '=', True)], order=[('id', 'DESC')]):
+            types.append(type_.code, type_.name)
         return types
 
     @staticmethod
@@ -155,6 +149,11 @@ class Template:
 class Product:
     __metaclass__ = PoolMeta
     __name__ = 'product.product'
+
+    @classmethod
+    def get_magento_product_type(cls):
+        Template = Pool().get('product.template')
+        return Template.get_magento_product_type()
 
     @classmethod
     def magento_import_product(cls, values, shop=None):
