@@ -130,7 +130,7 @@ class Template:
         types = [(None, '')]
         for type_ in ProductType.search([
                 ('active', '=', True)], order=[('id', 'DESC')]):
-            types.append(type_.code, type_.name)
+            types.append((type_.code, type_.name))
         return types
 
     @staticmethod
