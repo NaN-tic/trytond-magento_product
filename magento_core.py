@@ -8,7 +8,7 @@ from trytond.transaction import Transaction
 from trytond.modules.product_esale.tools import slugify, seo_lenght
 from magento import *
 import logging
-import urllib
+from urllib.request import urlopen
 
 __all__ = ['MagentoApp', 'MagentoSaleShopGroupPrice']
 
@@ -16,8 +16,7 @@ _ATTRIBUTE_OPTIONS_TYPE = ['select']
 logger = logging.getLogger(__name__)
 
 
-class MagentoApp:
-    __metaclass__ = PoolMeta
+class MagentoApp(metaclass=PoolMeta):
     __name__ = 'magento.app'
 
     from_date_products = fields.DateTime('From Date Products',
@@ -434,7 +433,7 @@ class MagentoApp:
                         message = 'Magento %s. %s category: %s (%s)' % (
                                 app.name, action.capitalize(), menu.name, menu.id)
                         logger.info(message)
-                    except Exception, e:
+                    except Exception as e:
                         message = 'Magento %s. Error export category ID %s: %s' % (
                                     app.name, menu.id, e)
                         logger.error(message)
@@ -456,7 +455,7 @@ class MagentoApp:
                             message = 'Magento %s. Update category: %s (%s)' % (
                                     app.name, menu.name, language)
                             logger.info(message)
-                        except Exception, e:
+                        except Exception as e:
                             message = 'Magento %s. Error export category lang ID %s: %s' % (
                                         app.name, menu.id, e)
                             logger.error(message)
@@ -526,7 +525,7 @@ class MagentoApp:
                 del vals['products']
             vals['shops'] = shops
             vals['esale_menus'] = [menu for menu in menus]
-            for key, value in vals.iteritems():
+            for key, value in vals.items():
                 setattr(template, key, value)
             template.save()
 
@@ -551,7 +550,7 @@ class MagentoApp:
         del vals['products']
 
         with Transaction().set_context(language=language):
-            for key, value in vals.iteritems():
+            for key, value in vals.items():
                 setattr(template, key, value)
             template.save()
 
@@ -607,7 +606,7 @@ class MagentoApp:
 
                 attachment.name = name
                 attachment.type = 'data'
-                attachment.data = urllib.urlopen(url).read()
+                attachment.data = urlopen(url).read()
                 attachment.resource = '%s' % (template)
                 attachment.description = image.get('label')
                 attachment.esale_available = True

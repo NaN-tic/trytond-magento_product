@@ -20,8 +20,7 @@ _MIME_TYPES = ['image/jpeg', 'image/png']
 logger = logging.getLogger(__name__)
 
 
-class SaleShop:
-    __metaclass__ = PoolMeta
+class SaleShop(metaclass=PoolMeta):
     __name__ = 'sale.shop'
     magento_group_price = fields.Boolean('Magento Grup Price',
         help='If check this value, when export product prices add prices by group')
@@ -247,7 +246,7 @@ class SaleShop:
                                 message = 'Magento %s. %s product %s. Magento ID %s' % (
                                         self.name, action.capitalize(), code, mgn_id)
                                 logger.info(message)
-                        except Exception, e:
+                        except Exception as e:
                             action = None
                             message = 'Magento %s. Error export product %s: %s' % (
                                         self.name, code, e)
@@ -321,7 +320,7 @@ class SaleShop:
                                 message = 'Magento %s. %s product %s. Magento ID %s' % (
                                         self.name, action.capitalize(), code, mgn_id)
                                 logger.info(message)
-                        except Exception, e:
+                        except Exception as e:
                             message = 'Magento %s. Error export product %s: %s' % (
                                         self.name, code, e)
                             logger.error(message)
@@ -337,7 +336,7 @@ class SaleShop:
                                 message = 'Magento %s. Update %s with configurable %s' % (
                                         self.name, code, simples)
                                 logger.info(message)
-                            except Exception, e:
+                            except Exception as e:
                                 action = None
                                 message = 'Magento %s. Error export product %s: %s' % (
                                             self.name, code, e)
@@ -444,7 +443,7 @@ class SaleShop:
                         message = 'Magento %s. Export price %s product.' % (
                                 self.name, code)
                         logger.info(message)
-                    except Exception, e:
+                    except Exception as e:
                         message = 'Magento %s. Error export prices to product %s: %s' % (
                                     self.name, code, e)
                         logger.error(message)
@@ -611,7 +610,7 @@ class SaleShop:
                     message = 'Magento %s. Updated image %s product %s.' % (
                             shop.name, filename, code)
                     logger.info(message)
-                except Exception, e:
+                except Exception as e:
                     message = 'Magento %s. Error update image %s to product %s: %s' % (
                                 shop.name, filename, code, e)
                     logger.error(message)
@@ -645,7 +644,7 @@ class SaleShop:
                     message = 'Magento %s. Created image %s product %s.' % (
                             shop.name, new_name, code)
                     logger.info(message)
-                except Exception, e:
+                except Exception as e:
                     message = 'Magento %s. Error create image %s to product %s: %s' % (
                                 shop.name, filename, code, e)
                     logger.error(message)

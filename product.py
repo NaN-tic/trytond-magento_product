@@ -84,8 +84,7 @@ class TemplateMagentoAttributeConfigurable(ModelSQL):
         super(TemplateMagentoAttributeConfigurable, cls).__register__(module_name)
 
 
-class Template:
-    __metaclass__ = PoolMeta
+class Template(metaclass=PoolMeta):
     __name__ = 'product.template'
     magento_product_type = fields.Selection('get_magento_product_type', 'Product Type',
         states={
@@ -146,8 +145,7 @@ class Template:
         return product_type
 
 
-class Product:
-    __metaclass__ = PoolMeta
+class Product(metaclass=PoolMeta):
     __name__ = 'product.product'
 
     @classmethod

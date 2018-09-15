@@ -7,8 +7,7 @@ from trytond.pool import PoolMeta
 __all__ = ['CatalogMenu']
 
 
-class CatalogMenu:
-    __metaclass__ = PoolMeta
+class CatalogMenu(metaclass=PoolMeta):
     __name__ = 'esale.catalog.menu'
     magento_app = fields.Many2One('magento.app', 'Magento APP')
     magento_id = fields.Integer('External ID')
