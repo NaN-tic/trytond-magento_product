@@ -5,6 +5,8 @@ from creole import creole2html
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
+from trytond.i18n import gettext
+from trytond.exceptions import UserError
 from trytond.modules.product_esale.tools import slugify, seo_lenght
 from magento import *
 import logging
@@ -43,18 +45,6 @@ class MagentoApp(metaclass=PoolMeta):
     @classmethod
     def __setup__(cls):
         super(MagentoApp, cls).__setup__()
-        cls._error_messages.update({
-                'select_category_root': 'Select Category Root ID in Magento APP!',
-                'select_store_view': 'Select Store View in Magento APP!',
-                'not_import_products': 'Not import products because Magento return '
-                    'an empty list of products',
-                'import_magento_website': 'First step is Import Magento Store',
-                'select_rang_product_ids': 'Select Product ID From and ID To!',
-                'select_top_menu': 'Select Top Menu Category!',
-                'magento_api_error': 'Magento API Error!',
-                'shop_not_found': 'Shop not found.',
-                'shop_without_default_uom': 'Shop has not any default uom.'
-                })
         cls._buttons.update({
                 'core_import_product_type': {},
                 'core_import_group_attributes': {},
@@ -335,7 +325,7 @@ class MagentoApp(metaclass=PoolMeta):
             logger.info(
                 'Start import categories %s' % (app.name))
             if not app.category_root_id:
-                self.raise_user_error('select_category_root')
+                raise UserError(gettext('magento_product.msg_select_category_root'))
 
             with Category(app.uri, app.username, app.password) as category_api:
                 data = category_api.tree(parent_id=app.category_root_id)
@@ -397,9 +387,9 @@ class MagentoApp(metaclass=PoolMeta):
         for app in apps:
             logger.info('Start export categories %s' % (app.name))
             if not app.top_menu:
-                self.raise_user_error('select_top_menu')
+                raise UserError(gettext('magento_product.msg_select_top_menu'))
             if not app.magento_default_storeview:
-                self.raise_user_error('select_store_view')
+                raise UserError(gettext('magento_product.msg_select_store_view'))
 
             top_menu = app.top_menu
             store_view = app.magento_default_storeview.code
@@ -483,12 +473,13 @@ class MagentoApp(metaclass=PoolMeta):
         # Shops - websites
         shops = Prod.magento_product_shops(app, data)
         if not shops:
-            self.raise_user_error('shop_not_found')
+            raise UserError(gettext('magento_product.msg_shop_not_found'))
+
         shop = Shop(shops[0])
         if shop.esale_uom_product:
             default_uom = shop.esale_uom_product
         else:
-            self.raise_user_error('shop_without_default_uom')
+            raise UserError(gettext('magento_product.msg_shop_without_default_uom'))
 
         # Categories -> menus
         menus = Menu.search([
@@ -632,7 +623,7 @@ class MagentoApp(metaclass=PoolMeta):
 
         for app in apps:
             if not app.magento_websites:
-                self.raise_user_error('import_magento_website')
+                raise UserError(gettext('magento_product.msg_import_magento_website'))
 
             logger.info(
                 'Start import products %s' % (app.name))
@@ -677,7 +668,7 @@ class MagentoApp(metaclass=PoolMeta):
                         }
 
                 if not products:
-                    self.raise_user_error('not_import_products')
+                    raise UserError(gettext('magento_product.msg_not_import_products'))
 
                 logger.info(
                     'Import Magento %s products: %s' % (len(products), ofilter))
@@ -735,24 +726,11 @@ class MagentoApp(metaclass=PoolMeta):
         Create/Update new products
         """
 
-        self.raise_user_error('magento_api_error') #TODO: delete this line
+        #TODO
+        raise UserError(gettext('magento_product.msg_magento_api_error'))
 
         for app in apps:
             logger.info('Start import product links %s' % (app.name))
-
-            #~ with ProductLinks(app.uri, app.username, app.password) as product_links_api:
-                #~ products = []
-
-                #~ if not app.from_id_products and not app.to_id_products:
-                    #~ self.raise_user_error('select_rang_product_ids')
-
-                #~ for product_id in range(app.from_id_products, app.to_id_products+1):
-                    #~ relateds = product_links_api.list(str(product_id), 'related')
-                    #~ up_sells = product_links_api.list(str(product_id), 'up_sell')
-                    #~ cross_sells = product_links_api.list(str(product_id), 'cross_sell')
-
-                    #TODO: save product links
-
             logger.info('End import product links %s' % (app.name))
 
 

@@ -6,6 +6,8 @@ from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.pyson import Eval, Not, Equal
 from trytond.tools import grouped_slice
+from trytond.i18n import gettext
+from trytond.exceptions import UserError
 from trytond.config import config as config_
 from mimetypes import guess_type
 from magento import *
@@ -26,13 +28,6 @@ class SaleShop(metaclass=PoolMeta):
         help='If check this value, when export product prices add prices by group')
     magento_shop_group_prices = fields.One2Many('magento.sale.shop.group.price', 'shop',
         'Magento Shop Grup Price')
-
-    @classmethod
-    def __setup__(cls):
-        super(SaleShop, cls).__setup__()
-        cls._error_messages.update({
-            'export_menus': 'Use Magento APP to export menus (categories).',
-        })
 
     @classmethod
     def view_attributes(cls):
@@ -654,4 +649,4 @@ class SaleShop(metaclass=PoolMeta):
         :param shop: object
         :param tpls: list
         """
-        self.raise_user_error('export_menus')
+        raise UserError(gettext('magento_product.msg_export_menus'))

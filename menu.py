@@ -3,6 +3,8 @@
 # the full copyright notices and license terms.
 from trytond.model import fields, Unique
 from trytond.pool import PoolMeta
+from trytond.i18n import gettext
+from trytond.exceptions import UserError
 
 __all__ = ['CatalogMenu']
 
@@ -16,10 +18,6 @@ class CatalogMenu(metaclass=PoolMeta):
     def __setup__(cls):
         super(CatalogMenu, cls).__setup__()
         t = cls.__table__()
-        cls._error_messages.update({
-            'delete_esale_menu': 'Menu %s is available in %s Magento. '
-                'Descheck active field to dissable menu',
-        })
         cls._sql_constraints += [
             ('categ_uniq', Unique(t, t.magento_app, t.magento_id),
                 'Category of product must be unique for every eShop.'),
@@ -38,6 +36,7 @@ class CatalogMenu(metaclass=PoolMeta):
     def delete(cls, menus):
         for menu in menus:
             if menu.magento_id:
-                cls.raise_user_error('delete_esale_menu',
-                    (menu.rec_name, menu.magento_app.name))
+                raise UserError(gettext('magento_product.msg_delete_esale_menu'),
+                    menu=menu.rec_name,
+                    magento=menu.magento_app.name)
         super(CatalogMenu, cls).delete(menus)

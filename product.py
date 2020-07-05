@@ -73,13 +73,12 @@ class TemplateMagentoAttributeConfigurable(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
-        TableHandler = backend.get('TableHandler')
 
         # Migration from 3.6: rename table
         old_table = 'product_template_magento_attribute_configurable_rel'
         new_table = 'product_tpl_mgn_attribute_configurable'
-        if TableHandler.table_exist(old_table):
-            TableHandler.table_rename(old_table, new_table)
+        if backend.TableHandler.table_exist(old_table):
+            backend.TableHandler.table_rename(old_table, new_table)
 
         super(TemplateMagentoAttributeConfigurable, cls).__register__(module_name)
 

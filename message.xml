@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<tryton>
+    <data grouped="1">
+        <record model="ir.message" id="msg_delete_esale_menu">
+            <field name="text">Menu %(menu)s is available in %(magento)s Magento. Descheck active field to dissable menu'</field>
+        </record>
+        <record model="ir.message" id="msg_select_category_root">
+            <field name="text">Select Category Root ID in Magento APP!</field>
+        </record>
+        <record model="ir.message" id="msg_select_store_view">
+            <field name="text">Select Store View in Magento APP!</field>
+        </record>
+        <record model="ir.message" id="msg_not_import_products">
+            <field name="text">Not import products because Magento return an empty list of products</field>
+        </record>
+        <record model="ir.message" id="msg_import_magento_website">
+            <field name="text">First step is Import Magento Store</field>
+        </record>
+        <record model="ir.message" id="msg_select_rang_product_ids">
+            <field name="text">Select Product ID From and ID To!</field>
+        </record>
+        <record model="ir.message" id="msg_select_top_menu">
+            <field name="text">Select Top Menu Category!</field>
+        </record>
+        <record model="ir.message" id="msg_magento_api_error">
+            <field name="text">Magento API Error!</field>
+        </record>
+        <record model="ir.message" id="msg_shop_not_found">
+            <field name="text">Shop not found</field>
+        </record>
+        <record model="ir.message" id="msg_shop_without_default_uom">
+            <field name="text">Shop has not any default uom></field>
+        </record>
+        <record model="ir.message" id="msg_export_menus">
+            <field name="text">Use Magento APP to export menus (categories)</field>
+        </record>
+    </data>
+</tryton>
