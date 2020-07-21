@@ -688,7 +688,7 @@ class MagentoApp(metaclass=PoolMeta):
                         prod, = prods
                     else:
                         tpls = ProductTemplate.search([
-                            ('base_code', '=', product.get('sku')),
+                            ('code', '=', product.get('sku')),
                             ], limit=1)
                         if tpls:
                             tpl, = tpls

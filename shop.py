@@ -277,7 +277,7 @@ class SaleShop(metaclass=PoolMeta):
                     # Export Configurable Product
                     # ===========================
                     if product_type == 'configurable':
-                        if not template.base_code:
+                        if not template.code:
                             logger.warning('Product Template not have base code')
                             continue
 
@@ -495,7 +495,7 @@ class SaleShop(metaclass=PoolMeta):
                 if template.magento_product_type == 'configurable':
                     # template -> configurable
                     if template.attachments:
-                        code = template.base_code
+                        code = template.code
                         if code:
                             images = self.magento_images_from_attachments(template.attachments)
                             if images:
