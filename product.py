@@ -105,7 +105,7 @@ class Template(metaclass=PoolMeta):
     def __setup__(cls):
         super(Template, cls).__setup__()
         # Add base code require attribute
-        for fname in ('base_code',):
+        for fname in ('code',):
             fstates = getattr(cls, fname).states
             if fstates.get('required'):
                 fstates['required'] = Or(fstates['required'],
